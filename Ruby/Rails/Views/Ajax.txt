@@ -1,0 +1,6 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-01-13T15:54:21+08:00
+
+====== Ajax ======
+Created Sunday 13 January 2013

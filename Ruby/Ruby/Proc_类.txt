@@ -1,0 +1,59 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-11-08T09:54:58+08:00
+
+====== Proc 类 ======
+Created 星期五 08 十一月 2013
+
+* 包含proc 和 lambda. 注意proc的大小写
+* 代码块不是Proc对象，它甚至不是对象。代码块是ruby里唯一不是对象的东西。
+
+**Proc类对象可以用 .call(args) 方式调用**
+
+==== Proc ⇔ 代码块 ====
+
+=== 代码块 => Proc ===
+
+**Proc.new()**
+**Lambda()**
+**&**
+
+=== Proc => 代码块 ===
+&
+
+
+=== 将块参数传递给方法内的另一个方法调用 ===
+
+def method_name(&block)	# 这里代码块被转换成Proc对象： block
+	another_method(&block)	  # block被  & 转换成代码块
+end
+
+==== proc和lambda的区别 ====
+用 Kernel#lambda?   来判断一个Proc是proc还是lambda
+
+=== proc 行为类似与代码块 ===
+* yield 语义
+
+**参数传递过程**
+* 多余的参数会忽略
+* 参数赋值过程类似于  并行赋值
+**return**
+return 不仅会从proc中退出，也会从**调用proc的方法**中退出，更会从**包含该proc调用**的方法中退出。更精确的说法是：**从定义该proc的作用域中返回。**
+* 一般来说，在proc中使用return是比较怪的，除非这就是你想要的效果。
+
+例如：
+  def self.find_by_name(name)
+    DATATYPE_COLLECTION.each{ |dt| **return** dt if dt.name == name.try(:downcase) }
+    return UNKNOWN
+  end
+
+=== lambda 行为类似于方法 ===
+* invocation 调用语义
+
+**参数传递过程**
+* 多余的参数会导致ArgumentError错误
+
+**return**
+return 仅退出lambda，但不会退出使用lambda的方法
+
+

@@ -1,0 +1,100 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-05-09T22:03:47+08:00
+
+====== S4 类 ======
+Created 星期四 09 五月 2013
+
+@method_dispatch @封装 
+
+setClass => setGeneric => setMethod
+
+overloading  dispath  继承  调用父类同名方法
+
+===== setClass =====
+* 返回一个generator function
+
+=== virtual class ===
+* 不能实例化
+* 一般用来做父类
+
+类似与ruby中的module
+
+==== slots: 数据 ====
+- vector/list of field names
+- named vector/list of field names and field classes
+
+一个类的所有slot 是 自身定义的slot + 祖先类定义的slot。 
+一些特殊的名称不能用于slot。例如"class", "Class" 和 以点号开头的字符串
+
+==== contains:  继承 ====
+可以多重继承。但需谨慎
+
+可以从array, matrix等传统类继承
+
+可以从自定义S3类继承
+setOldClass("className")
+
+==== prototype:  提供默认值 ====
+- named vector
+- named list
+- 由prototype(key=value)函数生成的对象
+
+==== 实例化 ====
+1. 用setClass返回的generator function
+2. new("Class", ... )
+
+==== methods ====
+
+@slot
+slot(obj, "fieldName")
+
+
+getSlots("className")
+
+==== 验证 ====
+除检验slot类型外，还可进行自定义验证
+* Increment validation:  继承关系中，validate函数也会继承，因此子类仅需要验证新增加的slot就好
+* validity参数接受一个函数。
+- 一个object参数
+- 如果有效，则返回TRUE, 无效则返回表示错误信息的字符串向量
+
+只在新建对象时有效。通过@slot方式修改值，不会自动验证。
+
+validateObject函数手动验证
+
+2. setValidity(class, function) 使得可以在类定义之后，添加验证方法
+
+=== initialize ===
+setMethod("initialize", "className", function(){})
+
+建立方法后，在调用new("className")是会自动调用initialize方法
+* 子类继承父类的initialize方法
+
+===== Generic function =====
+新建一个generic function
+setGeneric("Name", function(args) standardGeneric("Name") )
+
+**默认方法**
+setGeneric(useAsDefault = fun or boolean )
+
+或者将一个已有方法转换成泛型
+fun = function(args) {}
+setClass("fun")
+
+如果fun 不是泛型，就会成为生成S4类的默认方法
+
+===== Method =====
+signature: 
+	-  ANY
+	-  missing
+	-  object types + pseudo class
+	- S4
+
+
+===== Dispath =====
+
+===== inheritance =====
+
+===== coercion =====
+setAs(class1, class2, function)

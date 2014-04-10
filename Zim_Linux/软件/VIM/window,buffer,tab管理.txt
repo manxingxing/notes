@@ -1,0 +1,74 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-04-06T16:27:19+08:00
+
+====== window,buffer,tab管理 ======
+Created 星期日 06 四月 2014
+
+===== window =====
+
+http://coolshell.cn/articles/1679.html
+
+主要快捷键形式是 Ctrl + w + 其他键
+
+以水平分屏方式打开新文件
+:vsp filename	
+Ctrl + w + v
+
+垂直分屏打开新文件
+:sp filename
+Ctrl + w + s
+
+退出当前屏
+Ctrl+W c	# 不允许退出最后一个屏幕
+Ctrl+W q	# 如果是最后一个，还会退出vim
+
+
+光标
+
+把光标移到右边的屏。
+Ctrl+W l
+
+把光标移到左边的屏中。
+Ctrl+W h
+
+把光标移到上边的屏中。
+Ctrl+W k
+
+把光标移到下边的屏中。
+Ctrl+W j
+
+=== 改变window 大小 ===
+ctrl + w + -
+缩小
+ctrl + w + =
+均匀分布
+ctrl + w + +
+增大
+
+===== Buffer =====
+ls
+列出所有buffer
+
+bnext
+下一个缓冲区
+
+b 数字
+打开对应数字的缓冲区
+
+bdelete
+关闭缓冲区
+
+===== Tab =====
+tabnew filename
+
+tabnext
+tabprevious
+tabFirst
+tabLast
+
+tabclose
+
+
+
+

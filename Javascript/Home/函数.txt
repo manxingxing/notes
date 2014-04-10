@@ -1,0 +1,99 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-04T17:16:03+08:00
+
+====== 函数 ======
+Created Saturday 04 January 2014
+
+* 匿名函数的形式和R相同
+
+==== 两种定义方法： ====
+
+=== function statement ===
+	   ''function name(args){}''
+	
+
+=== function expression(函数字面量) ===
+        var name = function(args){}
+* 函数引用
+* __可选参数放在参数列表的后端__
+* 参数匹配按照位置，不按照参数名称。
+
+=== Function构造函数 ===
+new Function(args, body_str)
+* 函数会在全局作用域中定义，而不具备闭包的特性
+* 实际中很少使用
+
+==== 参数 ====
+* 可选参数应该放在参数列表后端
+* 按位置匹配参数，而不是参数名
+* 未赋值的参数值为null
+
+=== 传值/传引用 ===
+
+* 传入的非对象(primitive)参数是传值的。不影响外部变量。
+* __传入的对象参数是传引用的。影响外部变量。__
+* 传递参数是通过赋值实现的。上述行为来源于 = 的行为。对象赋值传递的就是引用。
+
+
+==== 函数可用的方法 ====
+
+=== call和apply ===
+* 允许在任意对象上执行任意函数
+
+=== bind ===
+* partial function
+* 柯里化
+* 第一个参数会成为this，后续参数会传递给原函数
+* ECscript 5才内置此函数
+
+==== 函数的属性 ====
+
+=== prototype ===
+任何函数都有一个prototype属性，任何函数，只要满足构造函数的另外特征，都可称为构造函数。
+
+从此构造函数创建的实例，都会从此prototype对象上继承属性。
+
+=== length ===
+形参个数
+
+arguments关键字用来指代实际传入的实参，比较两者，即可知道调用者是否传入了正确数目的参数。
+
+arguments.length == arguments.callee.length	# callee指向被调用函数。仅在非strict模式下可用
+
+
+==== 闭包和作用域链 ====
+* 和R的规则比较接近。
+* 闭包内部可以更改外部对象的数值和状态，这点和R不同。
+
+==== 函数式编程 ====
+* 操作函数
+
+
+=== 柯里化 ===
+partial()
+
+=== memoize ===
+function memoize(f) {
+	var cache = {};
+	return function() {
+		var key = arguments.length + Array.prototype.join(arguments, ",")
+		if (key **in** cache) return cache[key]
+		else return cache[key] = f.apply(this, arguments)
+	}
+}
+
+=== 高阶函数 ===
+* 参数是函数，或者返回函数
+
+“向量化”
+
+=== 复合函数 ===
+f(g())
+
+
+==== 其他 ====
+链式调用
+如果一个方法返回this，那么就能被链式调用。
+
+

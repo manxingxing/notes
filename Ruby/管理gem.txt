@@ -1,0 +1,94 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-14T13:26:22+08:00
+
+====== 管理gem ======
+Created 星期四 14 六月 2012
+
+===== RVM打包ruby和gems =====
+
+* RVM 管理ruby的版本。每个ruby版本下可有多个gemset套装。
+* 安装的时候，ruby已经有个两个gemsets: default, global。前者是当没有指定使用那个gemset时采用的gemset，后者存放对所有gemset都可使用的gems。
+	---- Ruby
+	|	|
+	|	----gemset1
+	|	|
+	|	----gemset2
+	|
+	---- Ruby version2
+		|
+		----gemset1'
+		|
+		----gemset2'
+
+最简洁选择一套版本的方法
+	rvm use ruby_version@gemset
+	rvm use ruby_version@gemset --create	#如果不存在则创建
+	
+
+=== RVM is NOT a function ===
+
+
+
+==== Details ====
+
+=== 管理Ruby ===
+	rvm list
+	rvm use ruby_version --default
+	rvm install ruby_version
+	rvm remove ruby_version
+
+
+=== 管理gemsets ===
+* 针对当前使用的ruby版本
+
+	rvm gemset list
+	rvm gemset use gemset_name
+	rvm gemset create gemset_name	#为当前ruby版本建立gemset
+	rvm gemset delete gemset_name
+	
+
+===== RubyGems =====
+	ruby默认管理gem的方式。
+
+	* RubyGem是程序库的打包系统，甚至包括Ruby程序本身。	方便管理同一套程序的不同版本。
+	* gem是一个单独打包的Ruby程序库。例如处理HTML的gem：
+			RedCloth
+			Hpricot
+	* 同样使用require加载gem。在加载gem前，先要加载rubygems，即：
+			require 'rubygems'
+			require 'abstract'
+	  **在载入rubygems时，rubygems程序库覆写了原来的require方法，使其可以像载入标准库一样载入gem。**
+
+
+=== gem command ===
+使用
+	''gem help commands''
+查看所有gem 命令行
+
+	''gem [option] install/uninstall/update/list/search/server/sources/dependency/which''
+
+	options:
+		'''
+		--remote
+		--local
+		--name-matches
+		'''
+		    ''--source''
+		
+	* install 可以本地安装。当找不到本地文件时，会联机安装
+	* server 可以在网页中查看当前gem的信息。
+	* gem有版本号，开发者版本。
+	* 有的分操作系统版本
+	* 除了官方站点(rubyforge)，还可以从开发者自己维护的gem网站上安装： --source 参数
+
+===== bundle和Gemfile =====
+	bundle几乎总用于Rails项目中。因为它能更好地处理gem间的依赖，从而取代rubygems在Rails使用在Rails项目中。
+	
+=== Gemfile格式 ===
+
+=== bundle命令行 ===
+
+
+
+

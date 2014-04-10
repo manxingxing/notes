@@ -1,0 +1,92 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-06-10T12:20:09+08:00
+
+====== crontab 例行任务 ======
+Created 星期一 10 六月 2013
+
+http://linuxmoz.com/crontab-syntax-tutorial/
+
+http://linux.vbird.org/linux_basic/0430cron.php
+
+
+crontab [ -u user ] [ -i ] { -e | -l | -r }
+選項與參數：
+-u user ：幫指定用户 编辑 crontab 工作排程。 只有 root 才能進行這個任務
+
+-e  ：編輯 crontab 的工作內容
+-l  ：查閱 crontab 的工作內容
+-r  ：移除所有的 crontab 的工作內容，若僅要移除一項，請用 -e 去編輯。
+
+-i 	interactive 在移除所有任务前，要求用户确认
+
+=== 文件位置 ===
+**个人定时任务**
+/var/spool/cron
+
+**系统级定时任务**
+/etc/crontab
+
+=== 权限控制 ===
+* 一行一个用户名
+
+/etc/cron.allow
+/etc/cron.deny
+
+=== 列出任务 ===
+**系统**
+cat /etc/crontab
+
+**本人**
+crontab -l
+
+=== 移除所有任务 ===
+**本人**
+crontab -r
+
+=== 定时运行文件夹下的所有可执行文件 ===
+* 可用来组织自己的定时执行的脚本
+
+**run-parts** 
+* 参考/etc/crontab里的内容
+
+==== 添加/删除任务 ====
+
+=== 格式 ===
+
+* 编辑个人定时任务列表时，不需要user字段。在修改/etc/crontab时，需要user字段
+
+# m h dom mon dow user	command
+
+Minute          0-59 (* means every minute at the start of each minute)
+Hour            0-23 (* means every hour at the start of every hour)
+Day of Month    0-31 (* means every day)
+Month           1-12 (* means every month, you can use month names if you prefer)
+Day of Week     0-7 (0 and 7 both mean Sunday, again you can use names - see below)
+
+
+*/m	  表示每m分钟/小时/天/月
+m-n	  表示一个区间
+m,n	  逗号分开的若干个数值
+
+* 周(week) 和 天，月之间是有冲突的。这种情况下，无论那部分规则满足条件，命令都会执行
+
+每个月的4号和每个礼拜的礼拜一到礼拜三的早上11点
+m  h   dom mon dow   command
+0  11   4         *    1-3    command line
+
+=== 简记符号 ===
+
+@midnight   -   This runs the Cron job once a day at midnight, it's the equivalent of 0 0 * * *
+@daily      -   Does exactly the same as @midnight
+
+@weekly     -   This runs a Cron job once a week on a **Sunday** the equivalent of 0 0 * * 0
+@monthly    -   This runs a Cron job once a month on the first day of every month at midnight and is the same as 0 0 1 * *
+
+@annually   -   Runs a Cron job once a year at midnight on the first day of the first month and is the equivalent of 0 0  1 1 *
+@yearly     -   The same as annually
+
+@reboot     -   This runs the Cron job when the machine is started up or if the Cron daemon is restarted
+
+
+

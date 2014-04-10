@@ -1,0 +1,308 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-12-01T10:36:11+08:00
+
+====== 基本语法 ======
+Created 星期日 01 十二月 2013
+
+===== 特殊符号 =====
+
+==== quote ====
+
+* 保护字符串中的特殊字符不被shell或者shell脚本重新解释, 或者扩展.
+* 保护命令行参数不被shell解释
+
+双引号： **partial quoting**
+* **字符串插值: ${var}, $(var), `var`**
+
+
+单引号：**full quoting**
+* 不支持字符串插值
+
+**escape**
+* "quote" 单个字符   A quoting mechanism for single characters.
+
+\X 	escapes the character X. 
+	  This has the effect of "quoting" X, equivalent to 'X'. 
+
+
+==== 逗号 ====
+**逗号表达式**
+'''
+let "t2 = ((a = 9, 15 / 3))"
+echo $t2.$a
+'''
+
+
+**连接字符串**
+'''
+for file in /{,usr/}bin/*calc
+#             ^    Find all executable files ending in "calc"
+#+                 in /bin and /usr/bin directories.
+do
+        if [ -x "$file" ]
+        then
+          echo $file
+        fi
+done
+'''
+
+
+==== `  backtick ====
+	''var_name=`command`''
+
+* 和ruby里一样。把command的输出，保存到变量里
+
+
+==== 冒号 ====
+* 在需要条件表达式的地方，当作true使用
+* 在分支语句中，代表空语句
+* Provide a placeholder where a binary operation is expected,
+	: ${username=`whoami`}
+
+* Provide a placeholder where a command is expected in a here document. 
+* In combination with the > redirection operator, truncates a file to zero length, without changing its permissions.
+
+: > data.xxx
+=> cat /dev/null >data.xxx
+
+==== 问号 ====
+* 测试
+* 三元操作符
+* 检查变量是否声明
+
+==== 括号 () ====
+* 在subshell中执行 命令组。命令组中声明的变量就像‘局部变量’一样。
+* 数组定义
+
+a=123
+( a=321; )	      
+
+echo "a = $a"   # a = 123
+
+=== 数组 ===
+Array=(element1 element2 element3)
+echo ${Array[2]}	# 0-based
+
+
+**(( ))** 
+integer expansion. 数值运算
+
+[]	test.
+ 	extended test
+
+{codes}	代码块
+* 类似匿名函数
+* 里面定义的变量，在外界仍可见
+* 不在subshell运行
+
+
+=== 重定向 ===
+>	相当于 1>
+1>
+2>
+
+&>  标准输出和标准错误都 重定向到指定位置
+
+>&2
+>|
+
+2>&1  
+
+=== 管道 ===
+
+===== 命令行扩展 =====
+
+==== 通配符 ====
+*
+?
+[set]
+[^set]
+{opt1, opt2}
+
+
+===== 变量 =====
+
+
+==== variable substitution ====
+
+
+===== 表达式 =====
+赋值表达式
+
+==== 数值计算 ====
++ - × /  %
+
+$(( 1+ 2 ))
+
+* 只支持整数计算
+
+===== 流程控制 =====
+
+=== 比较表达式 ===
+
+=== test 程序 ===
+
+== 文件检测 ==
+**文件类型**
+-e 存在
+-f, -d, -l
+-b, -c, -S, -p
+
+**权限类**
+-r, -w, -x
+-u, -g, -k, -s
+
+
+**两档案时间比较**
+-nt
+-ot
+
+== 字符串检测 ==
+-z 	是否空字符串
+-n	非空？ 与 -z 相反
+str1 = str2	//# 一个等号和两个等号在bash下意思相同//
+str1 != str2
+
+== 整数检测 ==
+-eq, -ne
+-gt, -lt, 
+-ge, -le
+
+== 逻辑操作符 ==
+-a  相当于 and
+-o  相当于 or
+!    相当于  not
+
+=== 判断符号： [] ===
+和 test 有几乎相同的语法，除了：
+* 每个组件都需要用空格隔开
+* 变量最好用双引号括起来，当变量的值是多个单词时，这样不会出错
+* 常量最好用单引号/双引号括起来
+
+两个 [] 表达式可以用 && || 连接
+
+==== 条件语句 ====
+
+=== if ===
+* then 和 if间用 分号或者换行符分割
+if [ expr ]
+then
+   statements
+elif [ expr2 ]
+then	statements
+else
+   statements
+fi
+
+=== case ===
+* 每个 case 的值建议用引号括起来
+* 每个类别结尾用**两个分号**结束
+* * 表示其他值
+* 每个类别中可以有多个值，并用 **|** 符号分开，任意一个值匹配，对应的语句都会执行
+
+'''
+case "$variable" in
+  yes|YES|Yes|Y|y)  echo "\$variable = abc" ;;
+  no|NO|No|N|n)  echo "\$variable = xyz" ;;
+  *)  statements
+esac
+'''
+
+
+case $1 in
+"one")
+	echo "one selected"
+	;;
+"two")
+	echo 'two selected"
+	;;
+*)
+	echo 'other selected'
+	;;
+esac
+
+
+
+==== 循环 ====
+
+=== while ===
+while [ condition ]
+do
+   operation-1
+done
+
+untile [ condition ]
+do
+	statements
+done
+
+=== for ===
+两种写法:
+
+== 第一种写法 ==
+**for** var **in** cond1 cond2 cond3 ...
+**do**
+	statements
+**done**
+
+**例子**：
+for animal in dog cat elephant
+do
+  echo $animal
+done
+
+# 遍历所有用户
+for user in $(cut -d: -f1 /etc/passwd)
+do
+  echo $user
+done
+
+== 第二种写法 ==
+
+for (( 初始值;  限制值; 执行步阶))
+do
+	statements
+done
+
+例子：
+for ((i=1;i<=100;i++))
+do
+	echo $i
+done
+
+=== jumpers ===
+
+break
+exit
+
+
+===== 函数 =====
+类似于js的函数声明式定义语法
+
+function funcname() {
+	body
+}
+
+==== 参数 ====
+* 参数表不需要写？
+* 在函数体内用 $1, $2, $*, $@, $#引用参数，和shell脚本中意义相似，只是指代的是函数的参数，而不是脚本的参数。
+
+
+==== 调用 ====
+
+不像变量一样，函数调用不需要 $ 前导符。参数放在后面，以空格分割，不使用 括号 （） 。
+
+funcname arg1 arg2	
+
+===== 命令行参数 =====
+$0	命令名称
+$1, ...$n   空格分隔的
+$*	所有参数
+$@	所有参数，参数间用空格分开
+
+$#	参数个数
+
+==== shift n ====
+移位参数，相当于忽略前面的若干个参数
+

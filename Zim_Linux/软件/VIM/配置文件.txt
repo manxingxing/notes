@@ -1,0 +1,31 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-07-22T11:43:25+08:00
+
+====== 配置文件 ======
+Created 星期一 22 七月 2013
+
+===== 其他常用命令 =====
+显示行号
+:set number 或者 :set nu
+隐藏行号
+:set nonumber 或者 :set nonu
+自动缩进
+:set autoindent 或者 :set ai
+不自动缩进
+:set noautoindent 或者 :set noai
+显示Tab及行尾字符
+:set list
+隐藏Tab及行尾字符
+:set nolist
+设置Tab宽度为4个字符
+:set tabstop=4
+查看当前设置
+:set all
+
+:set foldmethod=
+	indent
+	syntax
+	marker
+	expr
+	diff

@@ -1,0 +1,459 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-24T14:59:48+08:00
+
+====== CSS ======
+Created 星期日 24 六月 2012
+
+===== 三种组织方式 =====
+
+==== 内联样式表 ====
+	''<tag style="..." > </tag>''
+
+
+==== 内部样式表 ====
+	''<style type="text/css"> ... <style>''
+
+
+==== 外部样式表 ====
+	''<link href=url("external.css") ref="stylesheet" media="all/screen/print/handheld" type="text/css")''
+	
+
+==== @import ====
+* 导入另一个文件
+* 必须放在css的最前面
+
+==== @media ====
+@media screen
+{
+
+}
+
+@media print
+{
+
+}
+
+目前接受的media种类：
+* all
+* handheld
+* print
+* screen
+* ...
+
+===== 优先级： 使用顺序 =====
+
+==== Specificity ====
+
+1. inline style
+2. id selector
+3. class or pseudo-class selector
+4. element selector
+5. universal selector( * )
+
+* specificity高的覆盖较低的同属性设置。
+* 随着selector 的增加，specificity累加，但不会"越级"，也就是说再多的class selector也不能覆盖id selector。
+
+==== Cascading order ====
+相同specificity的css规则再按照**就近原则**选择最近的规则
+
+* 就近原则：**The style closest to the content wins**
+
+	1. ''Browser default: Browser style sheet''
+	2. user-specified stylesheet : 可能是一些插件提供的吧
+	3. ''External style sheet。按照link顺序''
+	4. ''Internal style sheet (in the head section)''
+	5. ''Inline style (inside an HTML element)''
+优先级依次升高。但并不是一直如此。还是按照 **就近原则。**
+
+Remark Note: If the link to the external style sheet is placed after the internal style sheet in HTML <head>, the external style sheet will override the internal style sheet!
+
+
+==== !important ====
+* **！important标记出现在 属性值之后，分号之前。**
+* 覆盖所有其他属性设置
+
+h1 {
+	color: red __!important__;
+}
+
+
+
+===== 基本语法 =====
+
+{{./selector.gif}}
+* 大括号包围属性设定
+* 属性设定以 分号 结尾
+
+==== comment ====
+	
+	/*	... 	*/
+
+
+===== Selector =====
+
+==== universal selector ====
+* 星号 * 匹配所有元素
+
+==== element selector ====
+* tag名称匹配对应的元素
+
+==== ID 和 class ====
+'''
+#id
+tag.class
+'''
+    tag#id
+
+==== Attribute selector ====
+XPATH
+
+**CSS2 selector**
+
+A[attr]: A with attr. 不管值是什么
+A[attr="val"] : A with attr="val"
+A[attr~="val"] :  空格分割的属性值中，包含单词"val"
+A[attr|="val"]	连字符（-） 分割的属性值中，包含单词"val"
+
+**CSS3 selector**
+A[attr^="val"]		以val开头
+A[attr$="val"]		以val结尾
+A[attr*="val"]		contains val
+
+==== 用相邻tag过滤 ====
+A **B** : B within A 不管嵌套多少层		# descendents selector
+A,B : A and B						
+A>**B** : B with parent  A 直接嵌套		# child selector
+A+**B** : B preceded by A. Sibling. 		# sibling selector
+
+==== pseudo-class ====
+
+**CSS2 pseudo-class**
+
+:link		#点击前
+:visited	#点击后
+:hover
+:active
+
+:focus
+
+:first-child
+:last-child
+
+**CSS 3 pseudo-class**
+
+:nth-child(n)
+:not()
+
+:disabled
+:enabled
+:checked
+
+==== pseudo-element ====
+* 选中的不是元素，而是内容
+
+:first-line
+:first-letter
+:before #在元素内部的最前面增加内容
+:after    #在元素内部的最后面增加内容
+
+
+===== 属性 =====
+
+==== color & background ====
+
+=== color ===
+	''color: red;''
+颜色表示方法
+	#fff
+	"red"
+	rgb(0,255,255)
+	rgba()
+
+
+=== Background ===
+
+'''
+background-color
+'''
+
+    ''background-image: url(/path/image.gif)''
+    ''background-repeat''
+	* 默认按x,y同时重复
+	* no-repeat
+	* repeat-x
+	* repeat-y
+   ''background-postion''
+	1. 关键词：right left, top bottom, center
+	2. 百分比：50%(以图片中心为准)
+	3. 绝对距离(以图片边界为准)
+   ''background_attachment''
+	fixed	#保持在屏幕的固定位置。很多微博就是这样
+	scroll	#随滚动改变。
+	inherit	#看父节点。
+background-size 背景图片在元素的填充方式，方便了使用和元素尺寸不同的图片做背景
+	length
+	percentage
+	contain
+	cover
+
+
+== shorthand property ==
+上述所有关于background的属性都可以组合到一起，简化成 background属性。
+例如：
+	''body {background: #ffffff url('img_tree.png') no-repeat right top;}''
+
+顺序需要遵循特定的顺序：
+	1. background-color
+	2. background-image
+	3. background-repeat
+	4. background-attachment
+	5. background-position	#可能是因为这个属性取值多吧
+1. 属性可以有缺失，但顺序仍要遵循。
+
+==== text & font ====
+有些属性可以通过html标签实现，例如：<em>, <strong>, <b>, <i>
+
+font-size
+	xx-small, x-small, small,medium, large, x-large, xx-large
+
+斜体
+	font-style
+		//italic//
+
+黑体
+	font-weight: 
+		 lighter, light, bold, bolder
+		100-700.	(400是正常值,700是bold)
+字体
+	font-family: 一个字体序列，最后一个需要是sans, sans-serif, monospace.
+
+font-variant
+	smallcaps
+	
+大小写转换
+	text-transformation
+		uppercase
+		lowercase
+		capitalize
+修饰
+	text-decoration
+		underline
+		line-through
+		overline
+		none	#去除链接的下划线
+
+letter-spacing
+
+==== 段落 ====
+对齐
+	text-align
+		center
+		right
+		left
+		justify	#两端对齐
+
+首行缩进 
+	text-indent
+行高
+	line-height
+
+''white-space'': 空白的处理方式
+	                    whitespace          newline     autowrap
+	normal          collapse                X                     V
+	nowrap          collapse               X                    X
+	**pre-line       collapse           V                 V**
+	pre-wrap       preserve               V                    V
+	pre               preserve               V                     X 
+
+word-spacing
+
+
+==== list ====
+<ul>, <ol>, <li>
+<dl>, <dt>,<dd>
+
+list-style: shorthand property
+list-style-type
+	对ul: circle, square,disc, **none(导航链接)**
+	对ol: **decimal**, decimal-leading-zero, hebrew, upper-**roman**, lower-**alpha,** lower-**latin**, upper-latin, ,**none**
+	http://www.w3schools.com/cssref/pr_list-style-type.asp
+
+list-style-image
+	在列表项前放置小图片
+	* 注意图片大小和行距要匹配。
+
+
+==== Postion,float, align ====
+
+=== 文档流 ===
+* 普通文档流: postition=static
+* 定位文档流
+* 浮动文档流
+三种文档流互不干扰，在各自的文档流中排版。
+
+=== 一切皆是框 ===
+一个html元素有默认的框类型。使用display属性切换。但注意的是，并不是完全切换。
+
+== 块级框 ==
+* 宽度可指定
+如<p>, <div>等
+
+== 行内框 ==
+* **宽度由内容决定。不可指定**
+主要是文本修饰类，如<b>
+
+== 行框 ==
+每行一个框。属于"无名框"，也就无法用名字对其设置
+
+=== 长度/宽度 单位 ===
+**绝对单位**
+	cm, mm
+	inch, pt=1/72 inch , pc= 1/6 inch
+**相对单位**
+	em: 相对与父框架中字符M大小
+	ex：相对父框架中字符X大小。
+	%：相对父框架的的**宽度**! 用这个单位指定高度时，仍会相对于父框架的宽度，所以慎用百分比指定高度。
+
+
+=== 框模型: box-sizing ===
+
+	当一个块级元素嵌在另一个块级元素中时，内部元素的width和父元素相同，即100%。当设置padding和border时，元素会自动__向内__收缩，而content+padding+border保持父元素100%的宽度。这个行为和IE是相同的。
+	
+	但当内部元素指定width/height时，盒模型就会发生作用。在width/height基础上指定padding/border会在指定的尺寸的__外部空间__添加。
+	
+	可以使用属性：**box-sizing**来切换width/height的意义。
+		* content-box。默认的盒模型。width/height代表content的尺寸。
+		* border-box时采用IE形式的盒模型。width/height = content+ padding + border
+		'''
+		
+		box-sizing: border-box/content-box
+		-moz-box-sizing
+		-webkit-box-sizing
+		
+		'''
+	Tips
+	* For example, if you’d like **two bordered boxes side by side**, it can be achieved through setting box-sizing to "border-box".
+
+== 内容尺寸 ==
+	width
+	height
+	* 默认box-sizing=content-box时，设定width/height就会启动这种类型的框模型。
+
+== 内边距: ==
+	padding		#short-hand property。四个值，依次为上、右、下、左。顺时针方向。
+	padding-top
+	padding-bottom
+	padding-left
+	padding-right
+
+
+== border: style, width, color ==
+	下面的几个属性都可以和上面组合。
+	short-hand-property:
+		border
+		border-top
+		border-bottom
+		border-left
+		border-right
+	
+	style:
+		none(默认),solid, dotted,dashed, double, inset,outset, groove, ridge.
+		
+	width: thin, medium, thick
+			npx;
+
+
+== 外边距 ==
+	* **外边距合并**指的是，当两个垂直外边距相遇时(没有任何元素(如边框，内边距)分割)，它们将形成一个外边距。
+	* 合并后的外边距的高度等于两个发生合并的外边距的高度中的较大者。
+	
+	margin
+	margin-top
+	margin-bottom
+	margin-left
+	margin-right
+
+
+== outline ==
+	在border周围的装饰性线，参数和border相同。
+
+
+=== 定位文档流 ===
+
+使用属性
+	top, left, bottom, right来指定位置。不同定位方式的“参考系”不同。
+
+
+== relative：相对定位 ==
+	* 相对于原来位置
+	* **原有空间保留**
+
+**注意：**在使用相对定位时，无论是否进行移动，元素仍然占据原来的空间，其他元素不能利用这个空间。
+
+__Relatively positioned elements are often used as container blocks for absolutely positioned elements.__
+
+== absolute：绝对定位 ==
+	* 相对于第一个postion不是static的祖先元素。The element is positioned relative to its first positioned (not static) ancestor element.
+	* **原有空间不保留**
+	* **元素定位后生成一个块级框**，而不论原来它在正常流中生成何种类型的框。
+
+== fixed ==
+	是以body为父元素的absolute 定位。
+
+
+== z-index ==
+	Overlapping Elements--relative position
+
+
+=== 浮动 ===
+
+* 浮动的框可以向**左**或向**右**移动，直到它的外边缘碰到容器边缘或另一个浮动框的边框为止。
+* **浮动框将形成一个块级元素**，不管它原来是什么
+* 浮动框浮动框不在文档的普通流中，因此**不占用空间**。容器中其他块级元素表现的就好像浮动框不存在一样。这时，**容器的尺寸将由其他元素决定。如果父框架内只有浮动框，其尺寸就会“坍缩”为0。**
+* 虽然浮动框不占空间，但是会影响行框。使用行框的元素如 <p> 会受到影响，形成围绕浮动框的效果，这也是float最初设计的用途。
+
+=== 浮动的问题 ===
+
+== 卡住 ==
+上一行浮动框高度不一时，下一行的浮动框会尽量填充上一行留下的空间，这时就会出现下层浮动框卡住的情况。
+
+== 浮动元素超出容器 ==
+容器在结束前没有"清除用元素"的话，容器的尺寸就会根据其他元素的尺寸而定。这时很可能发生浮动元素超出容器边界的情况。这成为**浮动塌陷**.
+
+
+== 清除浮动 ==
+1. 用容器末尾的元素可以做清除元素。
+2. 如果容器末尾没有可以"清除"浮动的元素，可以使用 :after伪类，建立一个内容为空或点 的 div
+3. 空的div 或  p
+4. 为容器设置overflow=auto/hidden。
+
+=== Align ===
+对于文本来说，使用属性：
+	text-align
+对于块级元素来说, align是个deprecated属性，可有几种方法设置水平向对齐：
+	1. 设置margin=auto。值为auto的边会用空白自动填充。例如margin-left=auto将会右对齐。
+	2. postion=absolute. left/right=0
+	3. float
+
+垂直向对齐使用vertical-align属性。 
+
+	* horizontal Aligning has no effect if the width is 100%.
+
+
+==== 显示 ====
+display: none	#不占空间
+visibility: hidden	#占空间
+
+display
+	inline	#导航链接
+	block
+	none
+	table
+	table-cell
+	table-row
+	table-header-group		#作用相当于thead标签
+	table-footer-group		#作用相当于 tfoot 标签
+
+
+

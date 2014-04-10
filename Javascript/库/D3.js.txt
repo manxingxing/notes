@@ -1,0 +1,49 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-28T11:52:34+08:00
+
+====== D3.js ======
+Created 星期二 28 一月 2014
+
+选择一个或多个元素，绑定数据，根据绑定的数据，修改DOM元素的属性
+
+https://github.com/mbostock/d3/wiki/Api%E5%8F%82%E8%80%83
+
+===== 选择器 =====
+
+==== select ====
+
+==== selectAll ====
+* 向量式操作
+
+
+===== 数据 =====
+
+==== 绑定 ====
+
+==== 预处理 ====
+
+=== scale ===
+
+==== 外部数据 ====
+d3.json
+d3.csv
+d3.text
+d3.html
+
+xhr.get - 发起GET请求。
+xhr.post - 发起POST请求。
+xhr.send - 以指定的方法和数据发起请求。
+
+
+===== DOM操作 =====
+css
+
+attr
+
+property
+
+
+
+
+

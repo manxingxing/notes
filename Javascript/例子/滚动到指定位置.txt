@@ -1,0 +1,13 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-19T22:21:45+08:00
+
+====== 滚动到指定位置 ======
+Created 星期日 19 一月 2014
+
+scrollTo(x, y)	# x,y 是文档坐标，滚动后，该点位于视口的左上角
+
+
+scrollBy(+x, +y)  # 增量方式表示
+
+scrollIntoView(node)  # 滚动，并让元素在视口中可见

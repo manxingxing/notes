@@ -1,0 +1,22 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-13T10:39:03+08:00
+
+====== Event Handler ======
+Created Tuesday 13 November 2012
+
+===== Event =====
+onClick
+onfocus
+onblur
+onchange
+
+body:
+	onResize
+	onLoad
+	
+clientHeight,clientWidth
+
+* 由于 head先于 body加载，因此不能在body加载前访问其元素。
+* head内script主要用于定于函数，handler。不要有真正操作body的代码。
+* 文档就绪函数 或者 body.onload事件。

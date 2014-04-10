@@ -1,0 +1,14 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-01-13T15:54:26+08:00
+
+====== RJS: javascript generator template ======
+Created Sunday 13 January 2013
+
+RJS 用来 通过一次Ajax请求而更新页面中的多个元素。
+
+__Update Multiple Page Elements With One Ajax Request__
+
+===== 使用JQuery =====
+
+===== 语法 =====

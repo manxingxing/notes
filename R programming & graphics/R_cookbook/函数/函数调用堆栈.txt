@@ -1,0 +1,59 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-05-09T23:14:42+08:00
+
+====== 函数调用堆栈 ======
+Created 星期四 09 五月 2013
+
+
+f = function(){
+  var_f = 1
+  g()
+}
+
+g = function() {
+  var_g = 2
+  x()
+}
+
+x = function() {
+  var_x = 3
+}
+
+
+
+全局环境 		0 		-3
+--------------------------------
+f()			1   		-2
+   |
+   ---  g()		2		-1
+           |
+           ---- x()	3
+
+----------------------------------
+call		   sys.nframe  回退层数
+
+* 全局环境的frame号为 0
+
+sys.call(which = 0)
+sys.frame(which = 0)
+sys.function(which = 0)
+
+* n为负数时，向上层移动
+* n为0或整整时，指frame号码
+
+
+sys.nframe()
+* 当前求值框架的frame号
+
+sys.parent(n = 1)
+* n ： 向上层移动的层数
+
+sys.calls()
+sys.frames()
+sys.parents()
+
+
+parent.frame(n = 1)
+	相当与
+	sys.frame(sys.parent(n = 1))

@@ -1,0 +1,11 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-03T21:40:54+08:00
+
+====== 待实现效果 ======
+Created 星期五 03 一月 2014
+
+页面滚动到底时，显示用户可能感兴趣的内容
+
+参考：
+http://www.oschina.net/

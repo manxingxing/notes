@@ -1,0 +1,297 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-09-26T20:07:13+08:00
+
+====== DOM ======
+Created Wednesday 26 September 2012
+
+===== 节点 =====
+			NodeType	NodeName	NodeValue
+元素节点		1			标签名		无意义
+属性节点		2			属性名		属性值
+文本节点		3			#text		文本字符串
+注释节点		8						
+文档节点		9			#document	无意义
+
+* 属性节点可通过元素节点访问，但不会出现在节点树中。
+* 元素内容前后均有空白，被视为空文本元素节点。但这在不同浏览器中的行为是不一样的。当用firstChild获取子节点时，需要检查nodeType==1，来得到第一个元素节点。
+
+==== 节点属性 ====
+
+nodeType		# 见上面
+nodeName	# 元素节点的tag, 属性节点的属性名, 文本节点返回#text
+localName	# 和nodeName相似，但对元素节点，属性节点之外的返回null
+tagName
+nodeValue	# 用于文本节点和属性节点
+			# 注意文本都属于一个文本节点。因此获取文本时需要先下潜到文本节点
+
+
+==== Content ====
+
+=== html内容 ===
+innerHTML
+outerHTML
+
+=== 文本内容 ===
+textContent	# 节点下所有的文本部分(包括子节点)。设置textContent时，会把节点下所有内容用一个文本节点代替。仅在IE下没有定义
+innerText  	# 和textContent类似，仅在Firefox下没有定义。
+
+=== 节点 ===
+
+
+===== Document对象 =====
+documentElement 根节点元素
+
+===== Element对象 =====
+
+=== DocumentFragment对象 ===
+* 没有父节点
+* 可像普通对象一下操作子节点
+* 在被append到其他节点时，将自己的innerHTML插入，而不包括documentFragment自身。这一特性让documentFragment用来作为一组DOM节点的容器使用。
+
+===== 属性节点对象 =====
+
+ele.attributes	# 一个类数组对象，可用数字，属性名索引，也可以 .attr方式获取。所的对象具name，value属性
+
+ele.getAttribute(attributename)
+ele.setAttribute(attributename, value)
+ele.hasAttribute(attributeName)
+ele.removeAttribute(attributeName)
+
+getAttributeNode
+setAttributeNode(attributenode)	# 一般用document.createAttribute创建新的属性节点，然后setAttributeNode
+
+**HTML属性作为Element对象的属性**
+* 大部分属性可以  .attrName方式访问和修改
+* 没有删除属性功能
+* 有些属性名和关键词冲突。一般在属性名前加html，例如label.htmlFor。class => className
+
+**Data属性**
+HTML5新加
+约定以data-attr形式在 HTML元素上附加非标准属性。
+
+ele.datasets对象方式引用
+
+* 连字符分隔的单词，在datasets用
+
+===== DOM操作 =====
+
+==== 查找 ====
+* 可在document和element对象上调用
+
+getElementById()
+getElement**s**ByTagName()
+getElement**s**ByClassName
+getElement**s**ByName
+**querySelector**
+**querySelectorAll  # 以CSS选择器的方式选择节点**
+ 
+
+==== 遍历 ====
+
+=== 遍历Node对象 ===
+* 返回 Node Object 
+* 不仅包含element，还包括text 和 comment。text还包括可能的换行和空白，这让这个API不是那么使用。
+* 需结合nodeType == 1，来过滤element节点
+
+.parentNode
+.firstChild		# 有可能是分隔节点的空白节点，如换行符
+.lastChild
+.childNodes	#子节点列表
+nextSibling
+previousSibling
+
+=== 遍历Element对象 ===
+* 返回Element
+* 近包括Element对象，不包括Text和Comment
+* 在浏览器间实现情况不一
+
+children
+parentElement
+
+**#IE8以下无**
+firstElementChild
+lastElementChild
+nextElementSibling
+previousElementSibling 
+
+childElementCount
+
+==== 新建 ====
+
+**文本节点**
+document.createTextNode
+
+**元素节点**
+document.createElement(nodeName)
+
+**属性节点**
+document.createAttribute		
+
+**注释节点**
+document.createComment
+
+**其他**
+document.createCDATASection
+
+createDocumentFragment() 	# 没有nodeName的容器，用来安全地编辑已有的节点。
+createRange()
+
+==== 复制节点 ====
+
+'''
+ele.cloneNode(deep)	# The cloneNode() method creates a copy of a node, and returns the clone.  
+		deep 意思是递归克隆子节点。注意文本节点经常是要克隆节点的子节点。设deep=true来同时克隆文本。
+'''
+
+
+==== 编辑 ====
+
+=== 插入 ===
+
+* If you call appendChild() or insertBefore() to insert a node that is already in the docu-
+ment, that node will automatically be removed from its current position and reinserted
+at its new position: there is no need to explicitly remove the node.
+
+'''
+parent.
+'''
+**appendChild**''(node)''
+''parentnode.''**insertBefore**''(newnode,existingnode)''
+''ele.insertAdjacentHTML(position, html) ''
+
+''// Insert the child node into parent so that it becomes child node n''
+''function insertAt(parent, child, n) {''
+''  if (n < 0 || n > parent.childNodes.length) throw new Error("invalid index");''
+''  else if (n == parent.childNodes.length) parent.appendChild(child);''
+''  else parent.insertBefore(child, parent.childNodes[n]);''
+''}''
+
+
+=== 删除 ===
+'''
+removeChild(node)
+'''
+
+
+=== 替换 ===
+'''
+replaceChild(newnode,oldnode)
+'''
+
+
+===== 几何属性 =====
+
+==== 尺寸 ====
+总体区域
+
+Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)
+
+=== 视口尺寸 ===
+除IE外
+window.innerHeight
+window.innerWidth
+
+IE普通模式
+document.documentElement.clientWidth
+document.documentElement.clientHeight
+
+IE quirk模式
+document.body.clientWidth
+document.body.clientHeight
+
+// Return the viewport size as w and h properties of an object
+function getViewportSize(w) {
+    // Use the specified window or the current window if no argument
+    w = w || window;  
+
+    // This works for all browsers except IE8 and before
+    if (w.innerWidth != null) return {w: w.innerWidth, h:w.innerHeight};
+
+    // For IE (or any browser) in Standards mode
+    var d = w.document;
+    if (document.compatMode == "CSS1Compat")        return { w: d.documentElement.clientWidth,
+                 h: d.documentElement.clientHeight };
+
+    // For browsers in Quirks mode
+    return { w: d.body.clientWidth, h: d.body.clientWidth };
+}
+
+=== 文档尺寸 ===
+
+=== 元素尺寸 ===
+1. getBoundingClientRect() 在除IE外的浏览器中会返回 width和height，不包含margin
+
+在IE中，也可从其right-left, bottom-top简单计算得到
+
+var    box   =  ele.getBoundingClientRect();
+var width   = box.width || box.right - box.left
+var height  = box.height || box.bottom - box.top
+
+2. 元素的**offset**Width和**offset**Height也可以得到其尺寸，包含边框，不包含margin
+3. **client**Height和 **client**Width返回除滚动条，边框之外的尺寸
+4. scrollHeight, scrollWidth是**实际内容**的真正尺寸。上面两个是在**文档所占用/分配的尺寸**
+
+
+==== 位置 ====
+
+=== 元素在视口坐标系中的位置 ===
+getBoundingClientRect()
+* 不包含margin
+结果是一个对象，包含：
+left
+right
+top
+bottom
+
+height
+width
+
+=== 元素在父元素中的位置 ===
+* 如果父元素设置了position，则表示相对父元素的位置，否则则返回在文档坐标系中的位置
+
+offsetLeft
+offsetTop
+
+结合offsetParent使用，递归求取在其定位祖先元素的相对位置，最后就能计算出**元素在文档中的位置**
+
+client系列的没什么用，除非滚动条位于上面和左边
+clientLeft
+clientTop
+
+scrollTop
+scrollLeft
+
+
+=== 坐标系转换 ===
+**关键是滚动条的尺寸和位置**
+
+除IE外：
+window.pageXOffset
+window.pageYOffset
+
+
+IE 普通模式：
+document.documentElement.scrollLeft
+document.documentElement.scrollTop
+
+IE quirk模式
+document.body.scrollLeft
+document.body.scrollTop
+
+// Return the current scrollbar offsets as the x and y properties of an object
+function getScrollOffsets(w) {
+    // Use the specified window or the current window if no argument
+    w = w || window;
+
+    // This works for all browsers except IE versions 8 and before
+    if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
+
+    // For IE (or any browser) in Standards mode
+    var d = w.document;
+    if (document.compatMode == "CSS1Compat")
+        return {x:d.documentElement.scrollLeft, y:d.documentElement.scrollTop};
+
+    // For browsers in Quirks mode
+    return { x: d.body.scrollLeft, y: d.body.scrollTop };
+}

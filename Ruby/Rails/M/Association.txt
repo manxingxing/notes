@@ -1,0 +1,272 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-16T15:40:06+08:00
+
+====== Association ======
+Created 星期一 16 七月 2012
+
+* association name 可以看作是association参数的一个**代称**。
+
+* 关联名 在* 对多时使用复数形式
+	例如：
+	has_many :associations
+		关联的类名在has_many中要转成复数形式，以符合英语的习惯。
+
+
+===== 应用 =====
+ 
+
+==== 一对一 ====
+
+	has_one
+	belongs_to
+
+
+==== 一对多 ====
+	
+	has_many
+	belongs_to
+
+
+==== 简单多对多 ====
+
+=== habtm ===
+
+has_and_belongs_to_many
+
+
+=== has_many+through ===
+
+以下面为例：
+	'''
+	class Physician < ActiveRecord::Base
+	  has_many :appointments
+	  has_many :patients, :through => :appointments
+	end
+	 
+	class Appointment < ActiveRecord::Base
+	  belongs_to :physician
+	  belongs_to :patient
+	end
+	 
+	class Patient < ActiveRecord::Base
+	  has_many :appointments
+	  has_many :physicians, :through => :appointments
+	end
+	'''
+
+
+==== polymorphic association ====
+
+class Asset < ActiveRecord::Base
+    belongs_to **:attachable**, :polymorphic => true, '':foreight_key, :foreign_type''
+  end
+
+  class Post < ActiveRecord::Base
+    has_many :assets, **:as => :attachable**         # The :as option specifies the polymorphic interface to use.
+  end
+
+* belongs_to 对应的表中应该有 外键列(也就是<association>_id)，和**type列(<association>_type)**，这需要在**migration file**中指定，或者可以快捷地使用：
+	''t.references :attachable, :polymorphic=>true''
+
+一个方法：
+''Asset.attachable''
+结果为一个class实例变量。例如Post
+''Post.attachable.class.to_s''
+
+
+
+==== 和一个具有polymorphic 关联的模型间建立多对多关系 ====
+
+has_many 
+''has_many :through, :source , :source_type''
+
+belongs_to :polymorphic=>true
+
+
+==== Self-Referential Relationship ====
+**一个模型通过另一个模型与自身建立多个关联**
+
+=== one-to-one ===
+例如：配偶关系
+
+has_one :class_name
+
+=== many-to-many ===
+使用 has_and_belongs_to_many创建非常简单：
+
+	''has_and_belongs_to_many :related, ''
+							'':join_table=>"related_table", ''
+							'':foreign_key=>"first_id", ''
+							'':association_foreign_key=>"second_id", ''
+							'':class_name=>"BillCode"''
+
+
+==== 两个模型间建立多个关联 ====
+例子一：
+
+has_many :users :class_name="User", :condition=>{:type=>"norma"}
+has_many :admins, :class_name="User", :condition=>{:type=>"admin"}
+
+例子二
+
+  belongs_to :author, :class_name => "User", :foreign_key => "author_id"
+  belongs_to :corresponding, :class_name => "User", :foreign_key => "corresponding_id"
+  belongs_to :senior_author, :class_name => "User", :foreign_key => "senior_author_id"
+
+
+==== 一个模型通过中间模型与另一个模型间建立多个关联。 ====
+
+has_many :throught, :condition, order等
+
+
+==== Bi-directional associations ====
+
+两个连接在一起的model可有两中方法
+
+===== 基本的几个方法 =====
+
+==== belongs_to(association_id, options = {}) ====
+* 建立一个 一对* 的关系。
+* 意味着 自身包含  association 的外键
+
+可用的方法：
+    association(force_reload = false)
+		force_reload: 如果这个值曾经从数据库中获取过，就会进入缓存。当为true时，重新从数据库中获取。
+    association=(associate)
+    **build_association**(attributes = {})
+    **create_association**(attributes = {})
+
+
+==== has_one ====
+* 建立一个 一对一 关系(另一端是belongs_to)
+* 意味着 对方 包含自己的外键
+
+可用的方法： 和 belongs_to 相同。
+    association(force_reload = false)
+    association=(associate)
+    **build_association**(attributes = {})
+    **create_association**(attributes = {})
+
+
+==== has_many(association_id, options = {}, &extension) ====
+''has_many :collecions''
+
+* 建立 * 对多 关系。当有through时是多对多关系，否则是一对多关系.
+* 对方包含自身的外键
+* association名称要使用对应类名的复数形式。这是为了更贴近英语语法。Rails会自动找到对应的类。
+
+可用的方法：
+
+    collection(force_reload = false)
+
+    collection<<(object, …)
+    collection=objects
+
+    collection_singular_ids
+    collection_singular_ids=ids
+
+    collection.delete(object, …)
+    collection.clear
+    collection.empty?
+
+    collection.size		#counter_cache
+
+    collection.find(…)
+    collection.where(…)
+    collection.exists?(…)
+
+    collection.**build**(attributes = {}, …)
+    collection.**create**(attributes = {})
+
+
+==== has_and_belongs_to_many ====
+
+* 通过中间join table建立多对多关系。__join table 名称是两个表名称(复数)排序(lexical)后链接在一起。__
+* 提供相对has_many through更加便捷的方法。但限制也就更多一些。
+* joint table只应包含两个类的外键，甚至不能包含自己的主键id。 这需要给create_table 添加 :id => false 选项。
+* 如果需要join table中同时存储其他信息，例如 医生和病人 间交易的信息，那么应该使用更加广义的has_many through方法。
+独有参数：
+	join_table: 	join table的名称
+	foreign_key: 自身在join table中的外键名
+	association_foreign_key:
+				对方在join table中的外键名
+	
+可用的方法：
+    collection(force_reload = false)
+    collection<<(object, …)
+    collection.delete(object, …)
+    collection=objects
+    collection_singular_ids
+    collection_singular_ids=ids
+    collection.clear
+    collection.empty?
+    collection.size
+    collection.find(…)
+    collection.where(…)
+    collection.exists?(…)
+    collection.build(attributes = {})
+    collection.create(attributes = {})
+
+
+===== 共有参数 =====
+
+
+==== foreign_key ====
+
+==== primary_key ====
+
+==== class_name ====
+
+Specify the class name of the association. Use it only if that name can’t be inferred from the association name.
+
+==== readonly ====
+
+validate
+
+==== dependent ====
+
+==== eager load ====
+
+=== include ===
+
+==== counter_cache ====
+在has_many 的一方(base)添加 #{table_name}_count 列。并在belongs_to的一方使用 :counter_cache=true。
+
+==== multimorphic ====
+
+===== 与查询相关 =====
+
+==== condition ====
+When Query
+两个表间能根据condition的不同，建立两个不同的关联。
+
+Specify the conditions that the associated object must meet in order to be included as a WHERE SQL fragment,
+
+==== order ====
+
+==== uniq ====
+
+==== group ====
+
+==== limit ====
+
+==== offset ====
+
+==== having ====
+
+==== select ====
+
+	
+
+===== 一些方法 =====
+
+==== accept_nested_attributes_for ====
+给模型新增方法：
+	assciation_attributes
+	assciation_attributes=
+
+
+===== 为外键建立索引 =====
+性能的提升
+	''add_index :timesheets, :user_id''

@@ -1,0 +1,217 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-16T15:40:06+08:00
+
+====== Association & Query ======
+Created 星期一 16 七月 2012
+
+没有关联也行，但是这样需要手工管理很多关系，避免在数据库中留下很多无效的数据。
+association就是为了方便管理这些关系，方便关联对象之间的查询，创建，删除等操作。
+结合resources，产生关联对象的path/url。
+
+
+===== 关联在model, migration, form, route中的体现。 =====
+
+建立关联后，数据表名会自动成为另一个类的方法。
+	user.first.microposts
+
+
+===== conventions =====
+has_many :associations
+
+association_id 在has_many中要转成复数形式，以符合英语的习惯。
+
+===== 基本的几个方法 =====
+
+==== belongs_to(association_id, options = {}) ====
+* 建立一个 一对* 的关系。
+* 意味着 自身包含  association 的外键
+
+可用的方法：
+    association(force_reload = false)
+		force_reload: 如果这个值曾经从数据库中获取过，就会进入缓存。当为true时，重新从数据库中获取。
+    association=(associate)
+    **build_association**(attributes = {})
+    **create_association**(attributes = {})
+
+==== has_one ====
+* 建立一个 一对一 关系(另一端是belongs_to)
+* 意味着 对方 包含自己的外键
+
+可用的方法： 和 belongs_to 相同。
+    association(force_reload = false)
+    association=(associate)
+    **build_association**(attributes = {})
+    **create_association**(attributes = {})
+
+
+==== has_many(association_id, options = {}, &extension) ====
+''has_many :collecion''__s__
+
+* 建立 * 对多 关系。当有through时是多对多关系，否则是一对多关系.
+* 对方包含自身的外键
+* association名称要使用对应类名的复数形式。这是为了更贴近英语语法。Rails会自动找到对应的类。
+
+可用的方法：
+
+    collection(force_reload = false)
+
+    collection<<(object, …)
+    collection=objects
+
+    collection_singular_ids
+    collection_singular_ids=ids
+
+    collection.delete(object, …)
+    collection.clear
+    collection.empty?
+
+    collection.size		#counter_cache
+    collection.count
+
+    collection.find(…)
+    collection.where(…)
+    collection.exists?(…)
+
+    collection.**build**(attributes = {}, …)
+    collection.**create**(attributes = {})
+
+
+==== has_and_belongs_to_many ====
+
+* 通过中间join table建立多对多关系。__join table 名称是两个表名称(复数)排序(lexical)后链接在一起。__
+* 提供相对has_many through更加便捷的方法。但限制也就更多一些。
+* joint table只应包含两个类的外键，甚至不能包含自己的主键id。 这需要给create_table 添加 :id => false 选项。
+* 如果需要join table中同时存储其他信息，例如 医生和病人 间交易的信息，那么应该使用更加广义的has_many through方法。
+独有参数：
+	join_table: 	join table的名称
+	foreign_key: 自身在join table中的外键名
+	association_foreign_key:
+				对方在join table中的外键名
+	
+可用的方法：
+    collection(force_reload = false)
+    collection<<(object, …)
+    collection.delete(object, …)
+    collection=objects
+    collection_singular_ids
+    collection_singular_ids=ids
+    collection.clear
+    collection.empty?
+    collection.size
+    collection.find(…)
+    collection.where(…)
+    collection.exists?(…)
+    collection.build(attributes = {})
+    collection.create(attributes = {})
+
+
+===== 共有参数 =====
+
+
+
+==== foreign_key ====
+
+==== primary_key ====
+
+
+==== class_name ====
+
+Specify the class name of the association. Use it only if that name can’t be inferred from the association name.
+
+==== readonly ====
+
+validate
+
+==== dependent ====
+
+==== eager load ====
+
+=== include ===
+
+==== counter_cache ====
+在has_many 的一方(base)添加 #{table_name}_count 列。并在belongs_to的一方使用 :counter_cache=true。
+
+==== multimorphic ====
+	belongs_to :association, :multimorphic=>true
+
+===== 与查询相关 =====
+
+==== condition ====
+When Query
+两个表间能根据condition的不同，建立两个不同的关联。
+
+Specify the conditions that the associated object must meet in order to be included as a WHERE SQL fragment,
+
+==== order ====
+
+==== uniq ====
+
+==== group ====
+
+==== limit ====
+
+==== offset ====
+
+==== having ====
+
+==== select ====
+
+
+===== 一些例子 =====
+ 
+
+==== 一对一 ====
+
+	Use has_one in the base, and belongs_to in the associated model. 
+
+
+==== 一对多 ====
+
+	Use has_many in the base, and belongs_to in the associated model. 
+
+
+microposts table has a **user_id** attribute to identify the user . An id used in this manner to connect two database tables is known as a **foreign key**, and when the foreign key for a User model object is **user_i**d, **Rails infers the association automatically**: by default, Rails expects a foreign key of the form **<class>_id,** where **<class> is the lower-case version of the class name.**
+
+==== 多对多 ====
+There are two ways to build a many-to-many relationship. 
+
+1. has_and_belongs_to_many
+
+2. has_many+through+source
+
+
+==== polymorphic association ====
+
+class Asset < ActiveRecord::Base
+    belongs_to **:attachable**, :polymorphic => true
+  end
+
+  class Post < ActiveRecord::Base
+    has_many :assets, **:as => :attachable**         # The :as option specifies the polymorphic interface to use.
+  end
+
+* belongs_to + polymorphic 建立一个可供连接的接口
+* belongs_to 对应的表中应该有 外键列(也就是attachable_id)，和**type列(attachable_type)**，这需要在**migration file**中指定，或者可以快捷地使用：
+	t.references :attachable, :polymorphic=>true
+
+
+==== 一个模型通过另一个模型与自身建立多个关联 ====
+
+==== 一个模型通过中间模型与另一个模型间建立多个关联。 ====
+
+condition不同都可以区分关联！！
+
+
+==== Bi-directional associations ====
+
+两个连接在一起的model可有两种方法	
+inverse_of
+
+===== 一些方法 =====
+
+==== accept_nested_attributes_for ====
+给模型新增方法：
+	assciation_attributes
+	assciation_attributes=
+

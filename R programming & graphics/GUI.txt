@@ -1,0 +1,36 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-01T13:40:06+08:00
+
+====== GUI ======
+Created Monday 01 April 2013
+
+winDialog
+winProgressBar
+select.list
+
+
+
+==== 进度条 ====
+如果使用传统的for循环，则可以给运行中的进程加一个进度条。共有三种进度条：文字，windows风格，tk风格，对应函数分别为
+
+winProgressBar,txtProgressBar,tkProgressBar 
+
+pb<-winProgressBar(label="precessing",min=0,max=,initial=min)
+for(i in 1:n)
+{
+expre;
+setWinProgressBar(pb,value,label)
+}
+close(pb)
+
+
+
+
+相关函数
+
+winProgressBar(title = "R progress bar", label = "",
+               min = 0, max = 1, initial = 0, width = 300)
+getWinProgressBar(pb)
+setWinProgressBar(pb, value, title = NULL, label = NULL)
+close(con, ...)

@@ -1,0 +1,48 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-04-28T01:04:24+08:00
+
+====== sftp ======
+Created 星期六 28 四月 2012
+
+一个通过ssh连接的ftp软件。
+
+参数：
+
+'''
+-r :  上传和下载时都使用递归方式
+-p:  preserve 保留修改时间等时间戳
+'''
+
+
+常用功能
+
+下载
+	''get remote_file local_file''
+	
+	参数:
+		''-r :  递归下载一个文件夹内的内容''
+上传
+
+	''put local_file remote_file''
+	
+	参数：
+		''-r'' '':'' 递归上传一个文件夹内的内容
+
+路径操作：分远程路径和本地路径两组
+
+	远程路径	本地路径
+	''pwd	lpwd''
+	''ls	lls''
+	''cd	lcd''
+	''mkdir	lmkdir''
+	''rm''
+	''rmdir''
+
+其他
+
+	'''
+	! :  暂时切换到shell，执行shell命令
+	!command: 执行本地命令
+	'''
+

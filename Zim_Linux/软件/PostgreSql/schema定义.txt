@@ -1,0 +1,74 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-08-10T17:19:43+08:00
+
+====== schema定义 ======
+Created 星期六 10 八月 2013
+
+===== 表操作 =====
+
+==== 创建表 ====
+
+'''
+CREATE TABLE tablename (
+'''
+	'''
+	列名	 数据类型	option,
+	列名	 数据类型	option
+	) ;
+	'''
+**支持的类型**
+* 不同厂商支持的类型集合有差异
+
+==== 删除表 ====
+
+DROP TABLE tablename;
+
+
+==== 表约束 ====
+\h CREATE TABLE
+
+  CHECK ( expression ) 
+  UNIQUE ( column_name [, ... ] ) index_parameters 
+  PRIMARY KEY ( column_name [, ... ] ) index_parameters
+  EXCLUDE [ USING index_method ] ( exclude_element WITH operator [, ... ] ) index_parameters [ WHERE ( predicate ) ]
+  FOREIGN KEY ( column_name [, ... ] ) REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+    [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE action ] [ ON UPDATE action ] }
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+
+===== 列操作 =====
+\h ALTER TABLE
+
+==== 列约束 ====
+\h CREATE TABLE
+\h ALTER TABLE
+
+
+  NOT NULL
+  CHECK ( expression ) 
+  DEFAULT default_expr
+  UNIQUE index_parameters
+  PRIMARY KEY index_parameters
+  REFERENCES reftable [ ( refcolumn ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIM
+PLE ]   [ ON DELETE action ] [ ON UPDATE action ] }
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+
+* 当约束表达式计算结果为 NULL 的时候，check 约束会被认为是 满足条件的
+
+=== 外键约束  ===
+ON DELETE action
+ON UPDATE action
+当被引用的记录被删除时，可选动作：
+restrict	禁止删除
+no action	抛出错误
+cascade	级联删除
+set null	
+set default	
+
+从一个引用表中的DELETE一行或者从引用字段中UPDATE一列都 需要扫描一次引用表以便从行中匹配老的数值，给引用列建索引一直是一个好主意。
+但postgresql并没有为外键约束自动建立索引，因为 这不总是被需要，而且怎么去建立索引还有许多其它的选择。
+
+
+
+===== 索引 =====
+\h CREATE INDEX

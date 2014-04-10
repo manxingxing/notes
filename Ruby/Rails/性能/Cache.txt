@@ -1,0 +1,213 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-10-16T00:48:07+08:00
+
+====== Cache ======
+Created 星期三 16 十月 2013
+
+===== fragment caching 基础 =====
+
+==== cache store ====
+存储cache 的位置
+
+ActiveSupport::Cache::Store 
+ActiveSupport::Cache::MemoryStore		# 存储在内存中。注意，这种形式存储的cache不能在多个rails 进程间共享
+ActiveSupport::Cache::FileStore		# 存储在tmp/cache文件夹下，或者自定义路径。**out of box设定**。
+ActiveSupport::Cache::MemCacheStore	# 使用 memcached，__推荐__
+
+* 可用 Rails.cache获取当前使用的cache store对象
+
+=== cache store查询和操作 ===
+
+
+=== options 选项 ===
+
+**共有选项**
+
+//namespace//    
+
+默认为Application名称及environment。这使得多个Rails网站可以共同使用一个memcached 进程，而不冲突。像 Befchina和fundiv一样。
+
+如果要让多个 Rails 网站共享同一份cache，可设置其namespace为相同。
+
+compress， compress_threshold
+
+:expires_in
+
+//race_condition_ttl// 
+当cache过期时，阻止可能的大量重建缓存的请求，在一个进程重建缓存的时候，其他进程仍返回旧的cache
+
+This option is used in conjunction with the :expires_in option. It will prevent race conditions when cache entries expire by preventing multiple processes from simultaneously regenerating the same entry (also known as the **dog pile effect**). This option sets the number of seconds that an expired entry can be reused while a new value is being regenerated. It's a good practice to set this value if you use the :expires_in option.
+
+
+**ActiveSupport::Cache::MemoryStore**
+	''config.cache_store = :memory_store, { size: 64.megabytes }''
+
+**ActiveSupport::Cache::FileStore**
+	''config.cache_store = :file_store, "/path/to/cache/directory"''
+	
+**ActiveSupport::Cache::MemCacheStore**
+* 当有多个memcache服务器，它们的顺序是有意义的。如果有多个Rails网站都利用这个memcache服务，那么这个memcache服务器列表的顺序必须是一致的。
+This cache store uses Danga's memcached server to provide a centralized cache for your application. Rails uses the bundled dalli gem by default
+	
+	''config.cache_store = :mem_cache_store, "cache-1.example.com", "cache-2.example.com"''
+
+
+
+==== 缓存 ====
+
+=== cache(name, options, &block) ===
+在view中缓存view块的HTML结果
+
+=== key设计 ===
+目标是：
+* 让相同的cache块有相同的key
+* 不同的cache块有不同的key
+
+**默认**
+当前URL
+是一个比较合适的默认值。但是当 一个页面有多个cache块时 就不再是适用了
+
+**字符串作为** **key**
+* 可实现 cache 在多个页面间共享
+* 很灵活地控制实际的key
+
+**action_suffix**
+赋予不同的后缀，以区分同一个页面/action 内的多个cache块
+
+**从对象生成key**
+1. ActiveRecord对象的 #cache_key 方法
+
+这是一个很好的scheme，举例来说，
+Dataset.first.cache_key 	=> datasets/9-20120612154121
+生成的key 包含 一些 path，也包含其updated_at 时间戳。
+
+2. 复杂对象
+["recent", @article]
+[@datagroup, @category]
+
+
+=== fragment_exist?(key, options) ===
+在cache store中，检查是否存在对应key的缓存项
+
+==== 过期 ====
+
+=== expire_fragment(name, options) ===
+使用expire_fragment，令cache过期
+
+
+=== Sweeper - 组织cache过期代码 ===
+* 定义ActiveController::Caching::Swepper，这是个类似observer特征的类，在特定事件发生时，令cache过期
+* 在controlelr中，用cache_sweeper 方法  将 sweeper与 会导致cache过期的action关联起来，能更灵活控制那些action的这些事件才能令cache过期
+
+class  MySweeper < ActionController::Caching::Sweeper
+	observer model1, model2
+	
+	def after_save(record)
+	end
+	
+	def after_destroy(record)
+	end
+	# 可以用 alias 的方式，refactor代码
+end
+
+在某个controller中：
+
+cache_sweeper MySweeper, :only => [actions], :except => [actions]
+
+
+===== 更有效的使用方式 =====
+
+==== mem_cache_store 和  key based cache expiration ====
+http://37signals.com/svn/posts/3113-how-key-based-cache-expiration-works
+
+这个cache store具有一个非常好的特点： 当cache空间满时，自动删除旧的cache。这使得我们不需要处理cache过期的问题。
+
+只需要：
+	用 一些 和cache版本有关的数值做cache的键，例如：
+	* 对象的 updated_at
+	* 对象列表中对象的个数
+	* 对象列表中， 最近更新对象的更新时间
+
+这样，当这些对象被修改时，旧的cache自动不可用，当memcached空间满时，被自动清除。
+
+==== Russian Doll Caching ====
+嵌套的cache 块，被称为 Russian doll caching，就像：
+
+{{./pasted_image.png}}
+
+这个例子里，一个project有多个todo列表，而每个todo列表里都有很多todo事项。这个嵌套式的缓存，缓存了每个todo事项，并整体缓存了每个todo列表，及整个project。
+
+**看起来，重复缓存了很多东西，为什么不只缓存todo项呢？**
+只缓存todo项，需要向cache store查询很多次。而重复缓存高层级块，则是用空间换取时间。
+
+这个嵌套的缓存块，过期处理也是非常简单： 只需设置 当子项修改时，把修改propogate到上层级去。例如使用：
+	
+	(todo)  ''belongs_to :todolist, touch: true''
+	(tolist)  ''belongs_to :project, touch: true''
+
+这样当todo修改时，todolist和project也会同步修改。外层的project缓存失效，todo所在的todolist缓存失效，但是该todolist内的其他 todo事项的缓存仍然有效，其他todolist的缓存也依然有效。一个todo修改，计算量是很小的。
+
+==== view 文件修改 和 template digest ====
+
+随着开发过程的进行，cache 的view块代码本身会经常的修改，view块的结果当然也会发生变化。但是由于cache仅基于key，在view输出时，仍会取出已经失效的缓存内容。这时有两种解决方法：
+
+**手动管理cache块 版本**
+给cache的key加上一个表示版本的字符串。每次修改代码时，都修改这个版本号。
+-> 比较笨，不像高手所为，且容易忘记更新这个版本号。
+
+=== template digest ===
+* Rails 4 中已经集成
+* Rails 3 中使用 cache_digest 这个gem
+
+为整个template文件，生成md5 digest，并附在cache的key上。一旦template的任何地方（也包括没被cache的部分）做了修改，真个页面内的所有cache都会失效。
+
+* 需要重启rails 进程，因为一个template的cache digest是在启动时计算的。不是每次请求都重新计算，这样的话效率太低了。
+
+template digest 足够智能，还能检测出view层次的依赖关系，例如 嵌套的 render。 但是，在有些情况下，它还不能检测出view, partial之间的嵌套关系。例如 还不能能检测 在helper method中调用的render。这时，需要明确告知template 之间的依赖关系。
+
+cache_digest带了两个 rake task，
+rake -T | grep cache
+
+其中
+rake cache_digests:nested_dependencies TEMPLATE=mytemplate
+能显示这个template内，它所检测出的template嵌套关系，能清楚看到，里面是否有检测错误的地方。
+
+请参考
+http://api.rubyonrails.org/?q=cache
+https://github.com/rails/cache_digests
+http://railscasts.com/episodes/387-cache-digests?view=asciicast
+
+* cache 方法可有 skip_digest参数， 不让其在key上附加template digest
+
+
+===== Model 层次的缓存 =====
+Rails.cache 是指向特定存储的一个对象。视存储类型不同，对象的类型也不同，例如ActiveSupport::Cache::MemCacheStore，请参考  ActiveSupport::Cache::Store 的帮助页面。
+
+==== 主要方法 ====
+read(name)
+read_multi(*names)
+write
+fetch
+delete(name)
+delete_matched(pattern)
+cleanup	# 删除过期
+clear	# 删除全部
+exist?(name)
+ActiveRecord::Integration#cache_key
+
+
+===== 其他 =====
+caches_page和caches_action方法都可有
+* if 条件参数， 值为Proc
+* expires_in 参数，适用于 memcached
+
+==== page caching ====
+caches_page(*actions)
+expire_page( path | options)
+
+* Page caches are always stored on **disk.**
+
+==== action caching ====
+caches_action(*actions)
+expire_action(path | options)

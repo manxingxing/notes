@@ -1,0 +1,106 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-10T00:28:58+08:00
+
+====== 数组类 ======
+Created Saturday 10 November 2012
+
+==== 创建 ====
+
+=== 字面量 ===
+	''[val1,val2,val3]''
+
+Undefined elements can be included in an array literal by simply omitting a value between commas. For example, the following array contains five elements, including three undefined elements:
+	''var sparseArray = [1,,,,5];''
+
+
+=== 构造函数 ===
+	''new Array(val1,val2,val3,...)''
+	
+* 不需要同类数值。
+* **可以看作是加了顺序的object.**
+* 0-indexed
+* 动态增长
+
+==== 长度 length属性 ====
+稀疏数组，稠密数组
+
+==== Methods ====
+
+
+
+sort(sortfunction)
+* 默认是字母表顺序啊！ **对数字也是这样啊！！！**
+* 可接受额外的函数参数。返回值规则和ruby一样。
+	例如：
+		[1,2,3,10].sort(function(x,y){ return(x -y);})
+	
+
+== reverse ==
+对原数组进行修改
+
+== ！ ==
+
+== concat ==
+	可接受多个参数，如果参数是简单元素，就合并进去，如果是数组，就将其中的元素合并进去，但**数组参数的元素不再flatten**
+	* 在合并两个数组的用法，与ruby相同。
+
+== join(sep=",")  和 String.split ==
+	以分隔符做间隔，连接元素成字符串
+
+
+== pop, push ==
+
+== shift, unshift ==
+
+== slice(from, to) ==
+	[from, to)，但**不包括 to**
+
+== arr.splice(from, len, replacement1, replacement2, ... )	 ==
+修改原数组，返回被剔除的部分，如果没有replacement，则相当与删除某个区段
+
+a = [1,2,3,4]
+a.splice(1,2,10,11) => [2,3]
+a 现在是 [ 1, 10, 11, 4 ]
+
+==== ECMAScript 5 增加的方法 ====
+* 第一个参数大多是**函数**，这个函数可接受三个参数： 数组元素的值，索引，数组本身
+* 如过有第二个参数，那么这个参数就是前面函数参数scope内的 this
+
+
+=== 遍历 ===
+
+=== Array#forEach ===
+
+=== Array#map ===
+
+=== filter ===
+Array#filter	# 类似与R里的filter, ruby里的find_all/detect
+	总是返回稠密数组，因为稀疏缺失的元素肯定不会返回true。**这个特性常用来去除稀疏数组中的缺失项**
+	Array.prototype.densify = function() {
+		return this.filter(function(x) {return true;}); 
+	}
+	
+	Array.prototype.rm_null_and_undefined = function() { # 同时也消除 缺失项
+		var res = this.filter(function(x) {
+			return(x !== undefined && x !== null);
+		});
+		return(res);
+	}
+
+
+=== every 和 some ===
+Array.every	# 没有返回false的？
+Array.some	# 相当与any，有返回true的？
+函数参数返回boolean值
+
+对空数组，every返回true，some返回false
+
+=== Array#reduce, reduceRight ===
+
+
+=== indexOf 和 lastIndexOf ===
+
+indexOf(item,start)
+	搜索元素. 通过start可以用循环寻找所有item出现的位置。
+lastIndexOf

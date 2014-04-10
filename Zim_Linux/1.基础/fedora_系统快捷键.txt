@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-12T23:24:02+08:00
+
+====== fedora 系统快捷键 ======
+Created 星期六 12 五月 2012
+
+===== 窗口管理 =====
+
+==== windows ====
+	Alt+Tab: Pop up application switcher
+	Alt+Shift+Tab: Cycle in reverse direction in the application switcher 
+	Alt+[key above Tab]: Switch between windows of the same application in Alt+Tab 
+
+==== workspaces ====
+	Ctrl+Alt+Up/Down arrow: Switch between workspaces
+	Ctrl+Alt+Shift+Up/Down arrow: Move the current window to a different workspace 
+
+===== 屏幕录制 =====
+	Ctrl+Shift+Alt+R: Start and end screencast recording 
+
+===== Alt-F2 =====
+	Typing 'r' or 'restart' in the Alt+F2 prompt will restart GNOME Shell.
+	Type 'rt' in the Alt+F2 prompt will reload the GNOME Shell theme.
+	typing 'lg' in the Alt+F2 prompt invokes **Looking Glass** debugger

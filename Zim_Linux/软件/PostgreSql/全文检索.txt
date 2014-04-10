@@ -1,0 +1,168 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-09-02T14:57:50+08:00
+
+====== 全文检索 ======
+Created 星期一 02 九月 2013
+
+===== 概念 =====
+parser         	\dFp
+token type  	\dFp+  parser_name
+
+dictionary   	 \dFd
+dictionary template  	\dFt
+	用来自定义新的dictionary
+	
+configuration  \dF
+	指定要使用的parser，并为parser生成的token types，指定dictionaries，处理这些token。
+
+lexems	token经dictionary处理后的样子。A successfully normalized word is called a lexeme. 
+tsvector	由lexems及其postion, weight组成的特殊数据类型
+tsquery	用来匹配tsvector类型对象的查询对象。只能包含 用 连接词(&, |, !)组合起来的lexem
+
+===== 从text 到 lexem =====
+* Notice that one token can produce more than one lexeme
+
+1. parser -> token
+2. 根据token所属的token type，使用映射到该token type的dictionaries，处理token，生成一个由lexem组成的数组。如果
+
+**to_tsvector和to_tsquery, plainto_tsquery都遵循上述的步骤，实际的匹配是 tsvector的lexem 与  tsquery的lexem 之间的匹配**
+
+
+ @@ 匹配操作符
+
+===== Parser =====
+自带一个parser:
+pg_catalog.default
+
+===== dictionary =====
+
+
+
+===== 自定义处理过程 =====
+
+==== 新建parser --> 分词 ====
+对大多数西欧字母语言来说，用自带的pg_catalog.default已经足够了。
+但是对中文来说，需要中文分词解析器
+
+==== 新建template ====
+template用于新建dictionary，目前有若干自带的template可用
+\dFt
+如果没有合适的，也可以新建template
+
+==== 从模板新建dictionary ====
+\h CREATE TEXT SEARCH DICTIONARY
+
+CREATE TEXT SEARCH DICTIONARY name (
+    TEMPLATE = template
+    [, option = value [, ... ]]
+)
+**共有选项有：**
+template
+stopwords = english  # english对应 $SHAREDIR/tsearch_data/ 目录下的 english.stop文件
+	文件中，一个单词一行，忽略空白行和trailing spaces
+	
+
+=== simple dictionary template ===
+**选项：**
+accept = true/false   # 如果false, 对不在stopwords中的所有其他词，都返回NULL
+
+=== synonym dictionary template ===
+**选项：**
+SYNONYMS = my_synonyms  #对应于$SHAREDIR/tsearch_data/ 目录下的my_synonyms.syn文件
+	* 文件中，每行两个单词，单词间空白分开，前面单词是原单词，后面是synonym。
+	* synonym单词可以包含后置的星号(*)，这个星号不影响tsvector中lexem的处理，只影响tsquery的lexem处理。匹配的tsquery lexem相当于具有了星号后缀，可以匹配所有以该单词开头的tsvector中的lexem
+
+CaseSensitive = **false**/true
+
+=== Thesaurus dictionary ===
+Basically a thesaurus dictionary replaces all non-preferred terms by one preferred term and, optionally, **preserves the original terms for indexing as well.** PostgreSQL's current implementation of the thesaurus dictionary is an extension of the synonym dictionary with added phrase support.
+
+CREATE TEXT SEARCH DICTIONARY thesaurus_simple (
+    TEMPLATE = thesaurus,
+    DictFile = mythesaurus,
+    Dictionary = pg_catalog.english_stem
+);
+
+**选项：**
+DictFile: 词典文件。phrase-by-phrase substitution
+Dictionary: 在输入字符串 匹配 词典文件中sample word(s)之前，会由另一个 subdictionary来预处理输入字符串。
+	* 只能有一个
+	* 这个部分比较复杂，且需小心构建，需要时再参考文档
+**词典文件格式**
+sample word(s) __:__ indexed word(s)
+例如：
+supernovae stars : sn
+crab nebulae : crab
+
+* You can place an asterisk (*) at the beginning of a "indexed word(s)"  to skip applying the subdictionary to it
+
+=== ispell dictionary ===
+处理单词的变形
+
+CREATE TEXT SEARCH DICTIONARY english_ispell (
+    TEMPLATE = ispell,
+    DictFile = english,
+    AffFile = english,
+    StopWords = english
+);
+**选项：**
+DictFile: 词典文件。格式可以是ispell, MySpell, Hunspell。可从网络下载
+AffFile:  词缀文件。 可从网络下载
+— //The standard PostgreSQL distribution does not include any Ispell configuration files.//
+
+* Ispell dictionaries usually recognize a limited set of words, so they should be followed by another broader dictionary; for example, a Snowball dictionary, which recognizes everything.
+* compand words支持，如lifetime, upstream。需要时再参考文档吧
+
+
+=== snowball dictionary ===
+词干分析： 词根， 词干(在不同变形中不变的部分，不规则变形除外)，词缀
+CREATE TEXT SEARCH DICTIONARY english_stem (
+    TEMPLATE = snowball,
+    Language = english,
+    StopWords = english
+);
+**选项：**
+Language: http://snowball.tartarus.org/
+
+* A Snowball dictionary recognizes everything, whether or not it is able to simplify the word, so it should be placed at the end of the dictionary list
+
+==== 新建configuration ====
+CREATE TEXT SEARCH CONFIGURATION name (
+    PARSER = parser_name       # 从头开始，新建configuration, 这里先指定所用的parser
+    |                                          # 或者
+    COPY = source_config 	# 从已有configuration复制，之后再修改
+)
+
+
+=== 修改configuration ===
+	''\h ALTER TEXT SEARCH''
+	
+ALTER TEXT SEARCH CONFIGURATION name
+    ADD MAPPING FOR token_type [, ... ] WITH dictionary_name [, ... ]
+ALTER TEXT SEARCH CONFIGURATION name
+    ALTER MAPPING FOR token_type [, ... ] WITH dictionary_name [, ... ]
+ALTER TEXT SEARCH CONFIGURATION name
+    ALTER MAPPING REPLACE old_dictionary WITH new_dictionary
+ALTER TEXT SEARCH CONFIGURATION name
+    ALTER MAPPING FOR token_type [, ... ] REPLACE old_dictionary WITH new_dictionary
+ALTER TEXT SEARCH CONFIGURATION name
+    DROP MAPPING [ IF EXISTS ] FOR token_type [, ... ]
+ALTER TEXT SEARCH CONFIGURATION name RENAME TO new_name
+ALTER TEXT SEARCH CONFIGURATION name OWNER TO new_owner
+ALTER TEXT SEARCH CONFIGURATION name SET SCHEMA new_schema
+
+
+===== 测试上述处理过程 =====
+**测试configuration**
+ts_debug(config_name //regconfig//, document //text//) 
+结果能够显示，每个token属于什么token type，是被哪个dictionary处理的(一般只有一个dictionary处理，filter dictionary除外)，处理后生成的lexem是什么
+
+**测试parser**
+ts_parser(parser_name, document text)
+
+ts_token_type
+
+ts_lexize
+
+

@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-04T17:54:39+08:00
+
+====== 兼容性 ======
+Created Saturday 04 January 2014
+
+ECMAscript 5 在各浏览器间的兼容性
+
+http://kangax.github.io/es5-compat-table/

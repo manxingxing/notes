@@ -1,0 +1,86 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-10T00:29:43+08:00
+
+====== Date类 ======
+Created Saturday 10 November 2012
+
+* 日期以距离1970年1月1日凌晨的微秒数存储。
+* __month的范围是0-11__
+
+几个概念
+	Time: 指微妙数
+	Date: 指day of month
+	Day: 星期几
+
+
+===== 产生日期 =====
+new Date()		#没参数时，获取当前时间。
+new Date(2012,0,1)  # 参数可以分别是year, month, day，也可以从自1970-1-1 凌晨的微妙数创建日期对象。
+new Date(Y, M, D, h, m, s)
+
+==== 从字符串生成日期 ====
+	Date.parse(string)	#从字符串生成日期，返回微秒数。
+	
+
+==== 微秒-日期转换 ====
+	new Date(num)
+	date.getTime()
+	date.setTime()
+
+
+==== 算术运算 ====
+
+-    微妙为单位的差值。没有interval类型
+
+===== 从时期对象获取片段 =====
+年
+	getFullYear, getUTCFullYear
+月(__范围是0-11__)
+	getMonth, getUTCMonth
+日(1-31)
+	getDate, getUTCDate
+星期(__0-6__, 星期天是 0 )
+	getDay, getUTCDay	#星期几
+小时(0-23)
+	getHours, getUTCHours
+分钟(0-59)
+	getMinutes, getUTCMinutes
+秒(0-59)
+	getSeconds, getUTCSeconds
+毫秒(0-999)
+	getMilliseconds, getUTCMilliseconds
+
+
+===== 设置日期片段 =====
+* 高一级单位的设置函数里经常有可选的低级单位参数。例如
+	setFullYear(year,month,day)
+
+年
+    setFullYear, setUTCFullYear
+月(范围是0-11)
+    setMonth, setUTCMonth
+日(1-31)
+    setDate, setUTCDate
+星期(没有， 自动计算的)
+小时
+    setHours, setUTCHours
+分钟
+    setMinutes, setUTCMinutes
+秒
+    setSeconds, setUTCSeconds
+毫秒
+    setMilliseconds, setUTCMilliseconds
+
+===== 格式化输出 =====
+
+toString	# 自动转换时调用的方法。Sun Nov 11 2012 16:17:38 GMT+0800 (CST)
+toISOString	# 以ISO标准形式显示： 2012-11-11T08:14:20.903Z 
+toUTCString	# "Sun, 11 Nov 2012 08:17:38 GMT"
+
+
+toDateString	# 日期部分
+toTimeString	# 时间部分
+**toLocaleDateString	#以当地日期表达形式表示**
+**toLocaleTimeString	#以当地时间表达形式表示**
+

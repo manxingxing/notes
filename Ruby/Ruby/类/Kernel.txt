@@ -1,0 +1,15 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-06T17:17:16+08:00
+
+====== Kernel ======
+Created 星期六 06 十月 2012
+
+===== kernel类(模块) =====
+
+kernel模块是一个特殊的类，其中装满了标准、常用的方法，以便让代码更容易读写。
+
+
+puts: 打印内容，并且自动移动=>光标到下一行
+print: 打印内容，=>光标紧接着输出
+

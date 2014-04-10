@@ -1,0 +1,229 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-04T17:16:50+08:00
+
+====== 类 ======
+Created Saturday 04 January 2014
+
+Classes can be thought of as subtypes of the **object** type.
+
+* __javascript并为真正支持类作为语言的具体组成要素。javascript利用prototype来模拟类。__
+
+==== 构造函数constructor ====
+Functions that are written to be used (with the new operator) to initialize a newly created object are known as //constructors//. Each constructor defines a class of objects。
+
+**构造函数是类的 公共标识和外在表现**
+
+1. 新建一个空对象，并将其作为this传入函数
+2. 函数体内，以这些参数结合this创建新的对象。
+3. 不需要返回值。但是如果返回了值，这个值就会作为constructor创建的对象。
+
+function Range(from, to) {
+	this.from = from;
+	this.to = to;
+}
+
+* **由构造函数生成的实例的constructor属性都指向构造函数。**
+
+var r = new Range(1,2)
+r.constructor === Range	# => true
+
+
+=== 构造函数也可以有属性和方法: 类属性/类方法 ===
+在javascript中， 函数也是对象，也可以有自己的属性和方法。例如
+
+Range.count = 1
+Range.a_class_method = function() {}
+
+* 在构造函数上添加的属性，成为**类属性**
+* 在构造函数上添加的方法，成为**类方法**
+
+== 工厂方法 ==
+可以在构造函数上增加用以“产生”新对象的类方法：工厂方法
+
+Complex.polar = function(r, theta) {
+	return new Complex(r*Math.cos(theta), r*Math.sin(theta))
+}
+
+==== 原型对象 ====
+任何一个函数（除Function.bind返回的函数外）都具有一个prototype属性，该属性包含一个不可枚举属性：constructor，且有：
+	''F.prototype.constructor === F''
+
+
+{{./pasted_image001.png}}
+
+通过向该原型对象添加方法，可以定义该类应具有的行为。
+
+=== 给对象原型增加方法 ===
+* 增加的方法成为**实例方法， **类的所有实例都会自动具有这些方法，即使这些方法是在实例化之后添加的。
+
+Range.prototype.new_method = function() {};
+Range.prototype[new_method_name] = function() {};
+
+
+==== 实例 ====
+从构造函数生成的实例，其**constructor**属性指向构造函数。
+
+var r = new Range(1,10);
+r.constructor === Range        # => true
+
+=== 本身也可以再随意添加属性和方法 ===
+
+作为一个对象，自然可以随意的添加新的属性和方法。添加在单个实例上面的属性和方法不会被其他实例共享，类似于ruby的
+单键方法/属性。
+
+
+==== 类型判断 ====
+
+=== instanceOf 操作符 ===
+* 如果Class是obj的祖先类(包括父类)，那么下列表达式返回 true
+	obj **instanceOf** Class;
+	
+* 实际上检查的是prototype，而不是构造函数。可以有多个构造函数继承自一个原型的情况存在，这时不同构造函数的对象属于同一类。
+
+
+=== isPrototypeOf 方法 ===
+Class.prototype.isPrototypeOf(obj)
+
+=== 比较实例的constructor属性与构造函数 ===
+
+obj.constructore === 构造函数
+
+=== duck typing ===
+
+==== 私有属性 ====
+像java一样设为private
+
+class Range(from, to) {
+	from: function() {return from; },
+	to : function() { return too; }
+}
+
+这里以from(), to()的形式获取端点，但
+
+==== 为新类实现一些常规方法 ====
+
+== 转换 方法 ==
+toString
+toLocaleString
+valueOf
+toJSON	# 当JSON.stringify时调用
+
+== 比较 方法 ==
+equals(another_obj)
+返回 true, false
+
+在进行 >, < 等比较时，会首先调用valueOf，如果没有valueOf方法，则尝试compareTo方法
+compareTo(another_obj)
+返回负数，0, 正数
+
+
+==== 多种继承方式 ====
+http://www.dewen.org/q/2161/%E5%85%B3%E4%BA%8Ejavascript%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%B1%BB%E7%9A%84%E7%BB%A7%E6%89%BF
+http://www.w3cmm.com/javascript/parasitic-modular.html
+* 多种继承方式
+
+=== 先定义个继承函数 ===
+
+**来自 《javascript definitive guide》**
+
+**// 这个函数不仅可用于原型的继承，可以用于任何对象的继承。**
+inherit = function(p) {
+	if (p == null) throw TypeError();
+	if (Object.create) 	// Object.create 从 ECMAscript 5 才有
+		return Object.create(p);
+	var t = typeof p;
+	if (t !== "object" && t != "function")
+		throw TypeError();
+	function f() { };
+	f.prototype = p;
+	return new f();
+}
+
+**应用：**
+**从另一个对象继承**
+var person = new Person(age: 10);
+var another_person = **inherit(person)**;
+another_person.new_method = function() {};
+
+var third_person = inherit(another_person)
+third_person.another_method = function() {}
+
+third_person.new_method();
+third_person.age
+
+=== 第一种：子类的原型继承自父类的原型 ===
+
+* 这里并不是把父类的方法简单借用（复制）过来，而是在两个类的prototype间建立了继承关系。
+* 父类原型的变化，会同步更新到子类原型，影响所有父类，子类的实例。
+
+function SuperType() {
+    this.name = name;
+    this.colors = ["red", "blue", "green"];
+}
+
+SuperType.prototype.sayName = function () {
+    alert(this.name);
+};
+
+function SubType() {
+	**SuperType.apply(this, arguments);**
+	// 其他的初始化过程
+}
+
+**SubType.prototype = inherit(SuperType.prototype)**
+''SubType.prototype.constructor = SubType''  # 因为上句覆盖了默认具有的constructor属性
+
+然后复制父类 静态属性(即 类方法)到子类
+for (var key in parent) { 
+	if (parent.hasOwnProperty(key))  {
+		child[key] = parent[key]; 
+	}
+}
+
+=== 第二种：子类的原型继承子父类的一个实例 ===
+
+function SuperType(name) {
+    this.name = name;
+    this.colors = ["red", "blue", "green"];
+}
+
+SuperType.prototype.sayName = function () {
+    alert(this.name);
+};
+
+function SubType(name, age){
+    **SuperType.apply(this, name);**       //调用SuperType的构造函数
+    this.age = age;
+}
+
+**SubType.prototype = new SuperType();  // 从一个父类实例上继承。父类修改会同步到这个实例上，进一步影响子类。**
+''SubType.prototype.construcotr = SubType;''
+
+SubType.prototype.sayAge = function() {
+    alert(this.age);
+}
+
+然后复制父类 静态属性(即 类方法)到子类
+for (var key in parent) { 
+	if (parent.hasOwnProperty(key))  {
+		child[key] = parent[key]; 
+	}
+}
+
+var instance1 = new SubType("Nicholas", 29);
+instance1.colors.push("black");
+alert(instance1.colors);  //"red,blue,green,black"
+instance1.sayName();      //"Nicholas"
+instance1.sayAge();       //29
+
+var instance2 = new SubType("Greg", 27);
+alert(instance2.colors);  //"red,blue,green"
+instance2.sayName();      //"Greg"
+instance2.sayAge();       //27
+
+
+=== 包装和代理 ===
+把父类实例封装在子类中，作为一个属性，然后把其他的方法代理给这个父类对象.
+
+

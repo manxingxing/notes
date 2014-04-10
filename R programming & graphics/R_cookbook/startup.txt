@@ -1,0 +1,22 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-26T14:12:33+08:00
+
+====== startup ======
+Created 星期五 26 四月 2013
+
+?startup
+
+=== 在R启动前执行代码 ===
+* Rprofile.site   
+	    R启动时会运行里面的代码
+.Rprofile
+
+.Rdata
+
+.First = function() {}
+
+=== 在R关闭前执行代码 ===
+
+
+.Last = function() {}

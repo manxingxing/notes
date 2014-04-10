@@ -1,0 +1,288 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-19T18:59:07+08:00
+
+====== Controller ======
+Created 星期四 19 七月 2012
+
+===== 产生和撤销 =====
+	'''
+	rails generate controller Name action1 action2
+	rails destroy controller Name
+	'''
+
+
+===== 作用 =====
+* 没有返回值。
+* action的作用是查询数据，并生成视图，或者发送文件。
+* 需要将一些不直接生成视图(或发送文件)的方法设为protected 或 private
+* you don't actually need to define a controller action, as long as you've got a template that matches the action name
+
+==== 生成视图 ====
+* 没有显式调用render和redirect_to时，这时会默认寻找views文件夹下对应action的view文件。
+* 调用render和redirect_to后，其后的代码仍然会继续执行，所以为了避免 DoubleRenderError，应该使用return退出。
+
+=== render ===
+参见 [[Rails:Views]]
+
+=== redirect_to ===
+
+参见 [[Rails:Views]]
+
+* 在redirect_to 时，可传递flash hash，并提供了两个常用flash的参数：notice, alert
+
+==== 发送文件/Streaming ====
+
+The send_file method sends an existing file down to the client using ''Rack::Sendfile''
+middleware, which intercepts the response and replaces it with a webserver specific
+''X-Sendfile'' header. The web server then becomes responsible for writing the file contents
+to the client instead of Rails.
+
+* 放在public/files 下的文件，可以直接链接下载，不需要使用send_file。
+* 其他文件夹下的文件，应该使用send_file。send_file可以访问Rails.root下的所有文件。
+* send_file一般用来传送需要权限才能访问的文件。
+* 如果path是来自于外部请求，需要注意对path"消毒"。
+* send_data默认type=application/octem-stream
+
+一种是发送文件，一种把数据转化为文件发送(这个还不懂呢)
+	'''
+	
+	send_file(path, options = {}) 
+	send_data(data, options = {})
+	'''
+ 
+**参数：**
+	:filename		#建议的文件名
+	:dispostion	#inline 或者 attachment。
+	:type		#MIME type. 参见http://en.wikipedia.org/wiki/MIME_type
+	:status		
+	:url_base_filename	#让浏览器自动根据URL推测文件名。filename参数优先于这个参数。
+
+这些参数其实都有一个默认的值，存放在常量：DEFAULT_SEND_FILE_OPTIONS 中。
+
+
+=== X-sendfile ===
+
+//When you use the default behaviour of send_file to send the file out to the user, your rails process will read through the entire file, copying the contents of the file to the output stream as it goes.//
+
+//you have a limited number of rails processes available to handle application requests。下载文件需要占用一个进程，但是如果下载量很大时，这些有限的进程就不足以应付，从而让网站的其他功能也陷入瘫痪之中。//
+
+//Threads(线程)帮不上太大用处。Jruby 通过 Java 的多线程确实可以提高效率，但这仍然不是最终的解决方案。// 
+
+**最终的解决方案是使用 网页服务器的提供的module完成。例如apache 的X-sendfile。并且让其支持public之外的文件夹。详见 **http://www.therailsway.com/
+
+在对应环境的配置文件中设置。
+	'''
+	config/environments/production.rb
+	config/environments/development.rb
+	'''
+	     ''.....''
+
+
+=== Restful file download ===
+如果使用了Resources，那么下载功能可以放在 respond_to 内。让下载管理更加方便。
+
+在下列文件中注册 render 支持的MiME类型。
+config/initializers/mime_types.rb:
+	Mime::Type.register "application/pdf", :pdf
+
+在controller的action中使用：
+	respond_to do |format|
+	      format.html
+	      format.pdf { render **:pdf** => generate_pdf(@client) } #或者send_file
+	    end
+详细还需要进一步学习。
+
+===== Params =====
+params： 一个类似hash的列表。
+
+数据在action或view间跳转时，信息的流动主要就是通过 params 来实现的。
+
+==== 两个来源 ====
+* URL: segment key和query string
+* POST data. 来自表单
+
+==== 类型 ====
+URL是一维的。
+
+一般来说，是一系列的键-值对。“值”并不一定是简单的值，也可以是 数组 或者 嵌套的 hash。
+
+=== 数组 ===
+To send an array of values, append an empty pair of square brackets “[]” to the key name:
+ 
+	''/clients?ids[]=1&ids[]=2&ids[]=3''
+
+The value of params[:ids] will now be ["1", "2", "3"]
+
+=== hash ===
+To send a hash you include the key name inside the brackets:
+'''
+<input type="text" name="client[name]" value="Acme" />
+<input type="text" name="client[phone]" value="12345" />
+<input type="text" name="client[address][postcode]" value="12345" />
+<input type="text" name="client[address][city]" value="Carrot City" />
+'''
+the value of params[:client] will be {"name" => “Acme”, “phone” => “12345”, “address” => {"postcode" => “12345”, “city” => “Carrot City”}}.
+
+=== routing 参数 ===
+由routes规定的参数。除:controller, :action之外，所有的内容都会做为parms的一部分。
+
+===== Controller向View传递了什么 =====
+1. **实例变量, Only 实例变量**
+2. helper_method让一个controller方法在view中可用。
+
+过程
+1. 对每个request，执行某个controller中的某个action。这会生成一个controller实例。action都是在这个实例变量中执行的。
+2. 执行一个view，这会生成一个ActionView::Base实例。和controller实例是无法共享的。
+3. What rails does is to loop through the controller object's varaibles and for each one, create an instance variable for the view object, with the same name and containing the same data.
+
+===== Filters =====
+filter 是在 action 执行前，后，或期间 执行的方法。类似于callbacks。
+
+**before_filter：在action执行前调用**
+**after_filter：在action执行后调用**
+**around_filter：包围action在自己内部，通过call, yield调用action**
+
+作用：
+* authentication
+* cache
+* audit
+* 预处理，准备数据
+
+=== Notes ===
+* filter methods 应该标记为private或protected。因为他们不是可以通过route调用的action
+* Filters在当前controller实例(对应于一个request)的环境中执行。因而，可以访问request, response, 及前面action或filter中定义的实例变量。
+
+==== Filter Type ====
+
+=== method - symbol ===
+	最常用的方式。
+
+
+=== block ===
+
+
+=== external class ===
+* 为了让filter可以在多个controller中共享。
+* 类中需要有以before, after, around命名的class method。
+
+==== Filter Chain ====
+
+=== 继承 ===
+
+* 随着类继承关系被继承。
+* 具体的controller 是 ApplicationController的子类，因而会继承ApplicationController中定义的 filter。
+
+=== order ===
+'''
+prepend_before_filter
+prepend_after_filter
+append_before_filter
+append_after_filter
+'''
+
+=== skip ===
+
+如果不想在某个具体的controller中使用，则在controller定义中使用：
+          ''skip_filter(*names)''
+	'''
+	skip_before_filter(*names)
+	skip_after_filter(*names)
+	skip_around_filter(*names)
+	'''
+
+
+=== halting ===
+
+	''render, redirect_to''会终止当前的Chain。
+
+
+==== 限制filter作用的action ====
+
+	'''
+	:only=>[:index,:show]
+	:except=>[:bla,:sample]
+	'''
+
+
+===== Verification =====
+一种类似于filter的简单语句。根据params, session是否满足条件，执行redirect, add_flash等操作。
+参数分为三类：
+1. 条件: session, params,flash 是否包含指定的key
+2. 行为: redirect_to, add_flash
+3. 施加的action: only, except
+
+verification :params=>"user_id",
+			:redirect_to=>users_path,
+			:only=>:show
+
+
+参考： The Rails 3 way, controllers -> verification
+
+===== Controller中可以使用的变量 =====
+
+==== request 可用的方法 ====
+'''
+request.request_method
+request.method
+request.get?, put?, delete? head?
+request.format	=> text/html, json, xhr
+
+request.remote_ip
+
+request.session
+requset.cookies
+
+request.host
+request.domain(n=2)
+request.port
+request.url, full_path, request_uri
+
+
+request.query_string
+
+request.path_parameters
+request.request_parameters
+request.query_parameters
+'''
+
+
+==== request.env变量 ====
+FIXME: 前面的方法都是request.env的方便的wrapper?
+
+=== 网站信息 ===
+SERVER_SOFTWARE
+SERVER_NAME
+SERVER_PORT
+SERVER_PROTOCOL
+
+=== 当前网址信息 ===
+QUERY_STRING
+HTTP_COOKIE
+
+在此request之前的request 地址，即源地址。
+__HTTP_REFERER__
+
+=== request信息 ===
+
+REQUSET_HOST
+REQUSET_URI
+REQUEST_METHOD
+QUERY_STRING
+
+用户信息
+
+HTTP_USER_AGENT
+REMOTE_HOST
+REMOTE_ADDR
+
+==== controller变量 ====
+当前request对应的controller实例。
+controller.controller_name
+controller.action_name
+
+
+
+
+
+

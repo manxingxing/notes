@@ -1,0 +1,163 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-10-01T13:02:22+08:00
+
+====== sql function ======
+Created 星期二 01 十月 2013
+
+
+===== 定义和修饰 =====
+//CREATE [ OR REPLACE ] FUNCTION//
+//    name ( [ [ argmode ] [ argname ] argtype [ { DEFAULT | = } default_expr ] [, ...] ] )//
+//    [ RETURNS rettype//
+//      | RETURNS TABLE ( column_name column_type [, ...] ) ]//
+//  { LANGUAGE lang_name//
+    | WINDOW
+    **| IMMUTABLE | STABLE | VOLATILE**
+    | CALLED ON NULL INPUT | RETURNS NULL ON NULL INPUT | STRICT
+    | [ EXTERNAL ] SECURITY INVOKER | [ EXTERNAL ] SECURITY DEFINER
+    | COST execution_cost
+    | ROWS result_rows
+    | SET configuration_parameter { TO value | = value | FROM CURRENT }
+    | AS 'definition'
+    | AS 'obj_file', 'link_symbol'
+  } ...
+    [ WITH ( attribute [, ...] ) ]
+
+
+* 选择尽可能严格的修饰词，以便确保函数正确行为的基础上，获得可能的性能优化
+
+IMMUTABLE ： 同样参数结果相同。  没有查询，和数据库内容无关。例如数值运算
+STABLE: 单词表扫描中，同样参数结果相同，不能修改数据库。查询类函数
+**VOLATILE**：默认。在单次表扫描中，返回的结果也可能不同。也包括对数据库进行修改的操作。 规划器无法对此类函数进行优化。
+
+===== 参数 =====
+* 命名参数和位置参数可以混合使用
+
+==== 命名参数 ====
+* 在8.0版本前，不可用
+
+==== 位置参数 ====
+
+==== 默认值 ====
+* 默认值参数须放在后面
+
+(argtype argname := value)
+(argtype argname DEFAULT value)
+
+==== OUT 参数 ====
+* 如果有多个out参数，则返回 record类型的结果， returns子句可忽略
+* 如果 returns set of record 和多个out参数，则返回多行record类型的结果
+
+record 可以看做是一个临时的 复合类型
+
+===== 调用 =====
+
+**按位置输入**
+fun (val1, val2)
+**带参数名称**
+fun (argname := value)
+
+
+=== 在函数体中引用参数 ===
+**命名参数**
+
+'''
+argname
+funname.argname
+'''
+
+
+**位置参数**
+
+	''$1, $2, $n''
+
+
+===== 返回值 =====
+* select 语句的结果(单列，多列，单行，多行)
+* delete/update/insert 的returning子句
+
+当有值为null的输入值时，直接返回NULL，而不进行任何计算。
+return null on null input
+
+=== 无结果 ===
+return void
+
+=== 单个结果 ===
+return 基本类型(包括数组)
+return record
+return rowtype
+return 自定义类型
+
+=== 多个/行结果 ===
+return setof 基本类型
+return setof record
+return setof 自定义类型
+return table (colname coltype [, colname coltype, ... ])
+
+
+===== 一些情况 =====
+
+==== 复合类型参数和返回值 ====
+* 注意调用时语法
+
+CREATE FUNCTION double_salary(//emp//) RETURNS numeric AS $$
+	SELECT $1.salary * 2 AS salary;
+$$ LANGUAGE SQL;
+
+SELECT name, double_salary(__emp.*__) AS dream
+
+
+==== 不定个数参数 VARIADIC ====
+* 必须是数组类型
+* VARIADIC参数须在参数列表的后面
+
+**声明**
+create function fun_name( VARIADIC arg_name //int[]// )
+
+**调用**
+
+代入多个值
+fun_name(1,2,3)
+
+代入一个数组 (类似于ruby中的数组参数)
+fun_name ( VARIADIC ARRAY[1,2,3])
+fun_name ( VARIADIC arg_name := ARRAY[1,2,3])
+
+
+**generate_subscripts 函数**
+不定个数形参经常和generate_subscripts函数一起使用。
+generate_subscripts 用来为数组生成某一维度上的下标
+
+CREATE FUNCTION mleast(VARIADIC arr numeric[]) RETURNS numeric AS $$
+	SELECT min(**$1[i]**) FROM generate_subscripts($1, 1) **g(i)**;
+$$ LANGUAGE SQL;
+
+==== 多态参数和返回值 ====
+anyelement
+anyarray
+anynonarray
+anyenum
+anyrange
+
+* 在同一个函数中出现的多态类型参数及返回值，其子类型需要一致。
+* 这些限制的目的是：当函数被调用时，所有多态类型参数或返回值的类型都能够最终确定。
+* 如果一个函数返回多态类型，那么它必须有多态参数，这样返回值的类型才能够确定。
+
+=== 给多态参数赋值 ===
+**当赋值一个字符串时，一定不要忘记显式地转换它到需要的类型，因为文本的默认类型是 unknown。**
+
+=== 多态类型不定个数参数 ===
+VARIADIC arg_name anyarray
+
+===== 函数名重载 =====
+* 只要函数的IN参数个数，类型不同，两个函数就被认为是不同的。可以共用一个名字
+
+但是在调用，一些函数之间会有些歧义，下列情况应该避免：
+1. 依赖相似的参数类型来区分函数。例如int和smallint， real和double precision
+2. 接受复合类型参数的函数，其函数名称应该不与 复合类型中的列名重名。使用 attribute(tablename) 记法时，有歧义
+3. Another possible conflict is between variadic and non-variadic functions.  eg:  foo(numeric) and foo(VARIADIC numeric[])
+4. 默认实参
+
+
+

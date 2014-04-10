@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-18T15:58:13+08:00
+
+====== 创建package - 使用R自带函数 ======
+Created 星期四 18 四月 2013
+
+附件： [[./Rcourse10.pdf]] 
+
+===  使用Rstudio ===
+1. Rstudio -> new project
+2. project 种类为 package
+3. 选择.R文件
+
+-> 生成基本结构, man/.rd R/.r 文件
+## 上面调用了package.skeleletion()，可以三种方式创建一个包:
+The arguments **list, environment**, and **code_files** provide alternative ways to initialize the package
+
+4. 新的函数用 prompt生成文档
+5. 数据用save()保存到 data/目录下，用promptData生成文档
+
+6. 编辑DESCRIPTION, NAMESPACE
+→  [[理解 package]] DESCRIPTION 一节
+
+7. 撰写NEWS

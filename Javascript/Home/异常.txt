@@ -1,0 +1,78 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-04T21:43:22+08:00
+
+====== 异常 ======
+Created Saturday 04 January 2014
+
+==== 抛出异常 ====
+**throw**
+	''throw expression;''
+	
+	expression 可以是任何类型
+	(1) 广义的Error类。有两个属性: name(错误类型名称), message。
+			**throw** ''new Error(message="sdfadf")''
+	(2) TypeError， ReferenceError等类。
+	(3) 字符串: message消息
+	(4) hash: more info
+	(5) 数字: error code
+	
+	function factorial(x) {
+		// If the input argument is invalid, throw an exception!
+		if (x < 0) **throw** **new Error("x must not be negative");**
+		// Otherwise, compute a value and return normally
+		for(var f = 1; x > 1; f *= x, x--) /* empty */ ;
+		return f;
+	}
+
+
+==== 异常处理: try-catch-finally ====
+
+try {
+	// Normally, this code runs from the top of the block to the bottom
+	// without problems. But it can sometimes throw an exception,
+	// either directly, with a throw statement, or indirectly, by calling
+	// a method that throws an exception.
+}
+catch (e) {
+	// The statements in this block are executed if, and only if, the try
+	// block throws an exception. These statements can use the local variable
+	// e to refer to the Error object or other value that was thrown.
+	// This block may handle the exception somehow, may ignore the
+	// exception by doing nothing, or may rethrow the exception with throw.
+}
+finally {
+	// This block contains statements that are always executed, regardless of
+	// what happens in the try block. They are executed whether the try
+	// block terminates:
+	//   1) normally, after reaching the bottom of the block
+	//   2) **because of a break, continue, or return statement**
+	//  3) with an exception that is handled by a catch clause above
+	//  4) with an uncaught exception that is still propagating
+}
+
+=== finally分支中的跳转(return, break, continue, throw) ===
+* finally中的跳转 取代try, catch中的的跳转，而执行新的跳转。
+* 如果finally分支中抛出了新的异常，则该异常会向上层传播
+* finally里的跳转语句会导致原本的异常被忽略 ！！！
+
+var foo = function() {
+	try {
+		throw 'sfasf'
+	}
+	finally {
+		return 1;
+	}
+}
+这个函数会正常结束，不会有异常抛出。
+
+
+=== 未处理的异常 ===
+
+如果没有相应的catch分支捕获该异常，接下来的可能是：
+1. 在finally从句中，使用break, return, continue，使程序跳转，这时，会忽略原有的
+
+
+==== 异常类 ====
+
+TypeError

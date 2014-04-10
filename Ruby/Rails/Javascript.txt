@@ -1,0 +1,15 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-09T15:48:01+08:00
+
+====== Javascript ======
+Created 星期一 09 七月 2012
+
+
+Compiling CoffedScript to JavaScript requries a JavaScript runtime and the absence of a runtime will give you and ''execjs'' error. 
+
+MacOX and Windows come with a JavaScript runtime installed. 
+
+Rails adds the **therubyracer**'' gem to Gemfile ''in a commented line for new apps and you can uncomment if you need it.
+
+或者安装 node.js javascript 引擎。

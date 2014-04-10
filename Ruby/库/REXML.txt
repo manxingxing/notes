@@ -1,0 +1,81 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-03-12T20:18:37+08:00
+
+====== REXML ======
+Created 星期三 12 三月 2014
+
+===== IO =====
+
+==== 从字符串实例化 ====
+REXML::Document.new file.read('fileName')
+
+==== 写出到字符串 ====
+doc.write(str)
+
+
+===== DOM =====
+
+===== 遍历 =====
+
+=== 根节点 ===
+document#root
+
+
+=== 子元素 ===
+* elements 是个Enumerable对象，可使用基于each的方法
+* 也可按**下标**或**tag**名称访问，且还可接受xpathPattern
+* 数组是1-based而不是0-based
+
+''elements.''**each**''(XpathPattern, &block)''
+''elements.''**collect**''(XpathPattern, &block)''
+''elements.''**to_a**''(XpathPattern)''
+
+elements还可以用数组或hash的方式访问，在当做数组访问时，还可以使用Xpath
+doc.**elements["a/three"]** 
+
+#each_element_with_attribute
+
+ele.next_element
+ele.previous_element
+
+ele.next_sibling
+ele.previous_sibling
+
+=== 属性节点 ===
+#attributes 是一个hash，属性名做为key， 值为value
+
+=== 文本节点 ===
+#text
+
+==== 编辑 ====
+
+=== 新建悬空节点 ===
+元素节点
+REXML::Element.new "tagname", {attribute: 'baldsf'}
+
+文本节点
+Text.new(" cruel world") 
+
+=== 插入节点 ===
+add_element(tagname, {attributes})
+add_text "Hello dolly"
+
+**使用悬空节点**
+el1.elements << el3 # el3是 Element 或 Text对象
+el1.elements.add el3
+
+
+Parent.insert_before(xpath|element, newElement)
+Parent.insert_after(xpath|element, newElement)
+
+
+
+=== 删除节点 ===
+
+===== REXML::XPath =====
+#first(doc, path)
+
+#each(doc, path, &block)
+
+#match(doc, path) 	# => array

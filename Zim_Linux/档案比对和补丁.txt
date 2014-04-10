@@ -1,0 +1,20 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-03-09T11:20:19+08:00
+
+====== 档案比对和补丁 ======
+Created 星期日 09 三月 2014
+
+==== diff 和 patch ====
+
+diff -Naur  旧档案 新档案 > output.patch
+* diff 默认的输出样式，不能用于patch程序，
+
+
+patch -pN < output.patch
+* N 是跳过的目录层数。patch根据patch记录的文件路径，直接应用到当前目录下，如果当前目录和记录的目录结构不一致，可以用这个参数跳过指定层数。
+
+
+
+==== git diff 和 git apply ====
+* git diff 可用于非git仓库。

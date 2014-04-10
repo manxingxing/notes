@@ -1,0 +1,209 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-08-10T18:38:58+08:00
+
+====== acl9 ======
+Created Friday 10 August 2012
+
+===== 安装和设置Acl9系统 =====
+	''gem 'acl9'''
+
+
+==== Model ====
+
+=== Subject ===
+	''acts_as_authorization_subject  ''**:association_name =>:roles**'', :join_table_name => :roles_users''
+
+
+=== Role ===
+	''acts_as_authorization_role subject_class_name: "User", join_table_name: :roles_users''
+
+
+=== Object ===
+	''act_as_authorization_object, :subject_class_name=>"subject", :role_class_name=>"role"''
+
+
+==== Migration ====
+
+=== Roles table ===
+name
+authorizable_type
+authorizable_id
+
+=== Subject_Roles 关联表 ===
+:id=>false, :force=>true
+
+references :user
+references :role
+
+
+===== Role =====
+
+==== Role 种类 ====
+
+=== global role ===
+* 不依赖object的角色，例如admin, data_admin
+
+=== Object and class roles ===
+  allow :responsible, :for => Widget
+  allow :possessor, :of => :foo
+  deny  :angry, :at => :me
+  allow :interested, :in => Future
+  deny  :short, :on => :time
+  deny  :hated, :by => :us
+
+TODO: 介词后面
+
+
+=== Pseudo-roles ===
+'''
+all
+anonymous 
+logged_in
+'''
+
+
+==== Role 设置 ====
+
+=== 从subject角度 ===
+
+== 查询 ==
+subject.roles_for(**object**)     #返回对object的所有角色。
+**subject.roles_for(类名)	# 返回对该类所有个体的所有角色**
+
+__subject.role_objects		#subject的所有角色。是protected method，只能用在model中，console中无效__
+__subject.role_objects=	__
+
+**subject.has_role?(role,object)**
+subject.has_role?(role,object=nil)     #纯角色，如admin, 不针对特定object
+
+**subject.has_roles_for?**(object)
+等同于：subject.has_role_for?(object)
+
+== 添加角色 ==
+**subject.has_role!(role,object)**
+subject.has_role!(role,object=nil)
+
+== 删除角色 ==
+**subject.has_no_role!(role,object)**
+subject.has_no_role!(role,object=nil)
+subject.has_no_roles_for!(object)
+subject.has_no_roles!		# 清除subject的所有角色
+
+=== 从object 角度 ===
+* 其实很多是上面方法的alias
+
+== 查询 ==
+__object.accepted_roles__
+object.accepts_role_by(subject) 
+
+**object.accepts_role?**(role,subject)
+**object.accepts_roles_by?**(subject)
+object.accepts_role_by?(subject)	# 和accepts_roles_by? 相同，根据语境使用单复数形式
+
+== 添加角色 ==
+
+**object.accepts_role!**(role,subject)
+
+== 删除角色 ==
+object.accepts_no_role!(role,subject)
+
+===== 权限设置 =====
+* 在controller头部添加access_controll块
+
+'''
+access_controll do
+'''
+	'''
+	# 第一种方式： 单条规则
+	allow ROLEs, OPTION  # 所有action
+	allow ROLE
+	'''
+__s__'', OPTION, :to => [action list ]''
+''allow ROLE''__s__'', OPTION, :except => [action list ]''
+''deny ROLE''__s__'', OPTION, :to ''''=> [action list ]''
+''deny ROLE''__s__'', OPTION, :except => ''''[action list ]''
+
+''# 第二种方式: 多条规则''
+''actions :action1, :action2 do''
+''   allow ROLE''__s__'', OPTION''
+''   deny ROLE''__s__'', OPTION''
+''end''
+'''
+end
+'''
+
+
+
+==== allow 和 deny ====
+
+=== 两种模式 ===
+* 类似于appache2
+
+'''
+default :allow
+default :deny
+'''
+
+
+=== 核心方法 ===
+'''
+allow	:admin
+deny
+'''
+
+
+==== Rule conditions ====
+if, else
+	  ''allow :visitor, :to => [:index, :show], :if => :right_phase_of_the_moon?, :unless => :suspicious?''
+
+
+==== options ====
+
+=== :subject_method ===
+用来寻找当前subject的方法，默认是current_user
+
+access_control :subject_method => :current_account do
+      allow :nifty
+      # ...
+    end
+
+
+Subject method can also be changed globally. Place the following into config/initializers/acl9.rb:
+  ''Acl9::config[:default_subject_method] = :current_account''
+
+
+==== 三种使用方式 ====
+
+
+=== anonymous filter： 也就是普通方式 ===
+* 这种方式其实是通过before_filter实现的，当用户无权限访问时，抛出**Acl9::AccessDenied** 异常
+
+=== named filter ===
+* 为before_filter起个名字。
+* 例如：在application controller里，设置全局权限，在个别的controller里，再 skip掉这个before_filter
+       ''access_control ''**:as **''=> :acl do''
+	''  # ...''
+'''
+ end
+'''
+	''skip_before_filter :acl''
+
+
+=== no filter ===
+* 没有建立before_filter, 也就不具有实际的权限控制功能。
+* 提供一个method, returning **true or false**, whether access is allowed or denied.
+    ''access_control :as => :secret_access?, :filter => false do''
+''      allow :james_bond''
+'' # ...''
+''end''
+
+
+===== View helper =====
+ <% show_to :admin, :supervisor do %>
+    <%= link_to 'destroy', destroy_path %>
+  <% end %>
+
+ <% show_to :prince, :of => :persia do %>
+    <%= link_to 'Princess', princess_path %>
+  <% end %>

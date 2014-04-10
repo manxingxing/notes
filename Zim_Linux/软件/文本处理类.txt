@@ -1,0 +1,14 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-03-09T20:06:55+08:00
+
+====== 文本处理类 ======
+Created 星期日 09 三月 2014
+
+**cat**	concatenate files and print on the standard output
+**tr**	从标准输入中替换、缩减和/或删除字符，并将结果写到标准输出。
+
+more
+	逐屏输出到标准输出。到文件尾时自动退出
+less
+	逐屏显示，但不输出到标准输出。需要按键 q 退出。

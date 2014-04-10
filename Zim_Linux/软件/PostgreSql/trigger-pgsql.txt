@@ -1,0 +1,111 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-10-07T00:50:45+08:00
+
+====== trigger-pgsql ======
+Created 星期一 07 十月 2013
+http://blog.csdn.net/neo_liu0000/article/details/6255623
+
+**为 table 或 View设置 trigger**
+__当特定事件(INSERT/UPDATE/DELETE/TRUNCATE)发生时，在指定时刻(前/后/INSTEAD OF)，执行指定的trigger函数__
+可以以行为单位，触发trigger，也可以 以 SQL语句为单位，触发trigger
+
+CREATE [ CONSTRAINT ] TRIGGER name { //BEFORE// | //AFTER// | //INSTEAD OF// } { **event** [ OR ... ] }
+    ON table
+    [ FOR [ EACH ] { ROW | STATEMENT } ]
+    [ WHEN ( condition ) ]
+    EXECUTE PROCEDURE //function_name// ( arguments )
+
+**event**:
+    INSERT
+    UPDATE [ OF column_name [, ... ] ]	# 只有当修改 指定列 时才触发
+    DELETE
+    TRUNCATE
+
+
+{{./pasted_image003.png}}
+
+
+
+==== 触发时刻 ====
+* 在触发器函数中，变量TG_WHEN表示触发时刻
+
+before触发器的执行效率比after触发器高，在before触发器和after触发器都能被使用的情况下，应该选择before触发器。
+
+=== Before trigger ===
+
+**行级Before触发器** 和 Rails 里的before_filter作用相仿，**不同的返回值有不同的意义**。
+
+* 检验 NEW 是否复合特定条件，如果不满足，可以在trigger function中返回NULL，终止之后的操作。
+* 如果不希望改变原操作的行为，则返回原NEW对象
+* 需要时，修改NEW的值，改变原动作的行为。返回的修改过的值，将用来执行后续的INSERT/UPDATE操作
+
+=== After trigger ===
+* propogate 对数据库的修改。 当修改发生时，同步修改到其他表。例如维护一个 summary 数据表。
+* **行级 After 触发器**函数的返回值无关紧要
+
+=== INSTEAD OF ===
+常用来为VIEW 设置 trigger，让View看起来向table一样可以更新。
+
+取代 激发触发器的INSERT/UPDATE/DELETE/TRUNCATE操作，取而代之，仅仅执行触发器函数。
+
+A row-level INSTEAD OF trigger should either return NULL to indicate that it did not modify any data from the view's underlying base tables, or it should return the view row that was passed in (the NEW row for INSERT and UPDATE operations, or the OLD row for DELETE operations). A nonnull return value is used to signal that the trigger performed the necessary data modifications in the view. This will cause the count of the number of rows affected by the command to be incremented. For INSERT and UPDATE operations, the trigger may modify the NEW row before returning it. This will change the data returned by INSERT RETURNING or UPDATE RETURNING, and is useful when the view will not show exactly the same data that was provided.
+
+
+==== 触发器级别 ====
+* 在触发器函数中，TG_LEVEL变量表示触发器级别
+
+* Triggers on TRUNCATE may only be defined at statement level.
+
+=== 行级(per - row) 触发器   row-level trigger ===
+每行修改一次，都会触发。一条sql语句可能会触发很多次
+
+
+=== 语句级(per - statement)触发器	statement-level trigger ===
+以被实际执行的 SQL 语句为单位，对一条SQL语句，只会触发一次。
+* 语句级触发器函数应该返回 NULL
+
+
+==== 多个触发器 ====
+
+如果同一表上同对同一个事件定义了多个触发器，这些触发器将按它们的名字的字母顺序被触发。对于行级before触发器来说，前一个触发器返回的数据行作为后一个触发器的输入。如果任何一个行级before触发器返回NULL，后面的触发器将停止执行，触发触发器的INSERT/UPDATE/DELETE命令也不会被执行。
+
+有时，触发器函数中包含的sql语句也会触发trigger，这被称作**触发器级联(cascading triggers)**。 这时要小心形成recursive trigger
+
+
+==== Trigger function ====
+为了重用trigger逻辑，把trigger逻辑代码包装到一个特殊函数中去：
+* 不能有参数
+* RETURN trigger	返回值类型为 trigger
+
+=== 变量 ===
+当一个PL/pgSQL 函数作为一个触发器被调用时，系统自动在最外层的块创建一些特殊的变量。这些变量分别是：
+
+**NEW**		数据类型是RECORD。对于行级触发器，它存有INSERT或UPDATE操作产生的新的数据行。对语句级触发器，它的值是NULL。
+**OLD**			数据类型是RECORD。对于行级触发器，它存有被UPDATE或DELETE操作修改或删除的旧的数据行。对于语句级触发器，它的值是NULL。
+
+**TG_NAME**	数据类型是name，它保存实际被调用的触发器的名字。
+**TG_WHEN**	text类型。 'before', 'after', 'instead of'
+**TG_LEVEL**		text类型。'row' 'statement'
+**TG_OP**		text类型。'insert' 'update'  'delete' 'truncate'
+
+**TG_RELID**		数据类型是oid，表示触发器作用的表的oid。
+**TG_table_name** 数据类型是name，表示触发器作用的表的名字。
+**TG_Table_schema** 数据类型是name，表示触发器作用的表所在的模式。
+
+**TG_NARGS**	数据类型是integer，表示CREATE TRIGGER命令传给触发器过程的参数的个数。
+**TG_ARGV[]**	数据类型是text类型的数组。表示CREATE TRIGGER命令传给触发器过程的所有参数。下标从0开始。TG_ARGV[0]表示第一个参数，TG_ARGV[1]表示第二个参数，以此类推。 如果下标小于0或大于等于tg_nargs，将会返回一个空值。
+
+
+
+
+==== WHEN 子句 ====
+
+
+==== 数据可见规则 ====
+
+    触发器在执行过程中，如果 //执行的SQL命令// 需要访问 //触发器的父表// 中的数据，这些SQL命令遵循下面的数据可见规则，这些规则决定它们能否看见触发触发器的操作修改的表中的数据行：
+
+（1）语句级的before触发器在执行过程中，该语句的所有的对表中的数据的更新对它都不可见。语句级的after触发器在执行过程中，该语句的所有的对表中的数据的更新对它都可见。
+
+（2）行级before触发器在执行过程中，前面所有的已经被同一个命令处理的数据行对它是可见的，但触发该触发器的数据行的更新操作的结果（插入、更新或删除）对它是不可见的。行级after触发器在执行过程中，前面所有的已经被同一个命令处理的数据行对它是可见的。

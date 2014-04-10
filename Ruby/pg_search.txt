@@ -1,0 +1,48 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-26T20:16:04+08:00
+
+====== pg search ======
+Created Monday 26 November 2012
+
+like		%name%
+ilike	%name%	# case-insensitive
+@@	查询两个单词时，允许两个单词没有连着。	-> 利用了postgresql 的 full text search
+
+
+@@
+to_tsvector
+to_tsquery
+plainto_tsquery
+ts_rank(a,b)
+
+against
+associated_against: {author: [:name, :login] }
+
+=== ignoring: "accent" ===
+
+需要对数据库做点操作：
+新建一个migration:
+def self.up
+	exec 'create extension unaccent'
+end
+def down
+	drop extension unaccent
+end
+
+=== weights: ===
+
+
+==== performance ====
+
+index
+
+因为采用postgresql特有的方式，schema.rb不能反映全部，所以需要改成使用structure.sql，替代schema.rb
+
+
+
+
+
+
+
+

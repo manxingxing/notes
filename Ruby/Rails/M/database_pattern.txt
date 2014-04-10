@@ -1,0 +1,41 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-11-16T18:17:19+08:00
+
+====== database pattern ======
+Created 星期六 16 十一月 2013
+
+==== STI —— 单表继承 ====
+* type 栏位： 存储类名
+* 类继承关系
+
+在子类中，不需要再手动指定其映射的数据表名称，因为根据ActiveRecord的规则，数据表名是从ActiveRecord的**直接子类**中猜测的，而不是次级子类。这个惯例估计就是我为了让STI所需的代码量更少。
+The table name is guessed from the **name of the class in the inheritance hierarchy descending directly from **''ActiveRecord::Bas''**e.** So if the hierarchy looks like: 
+	Reply < Message < ActiveRecord::Base
+then Message is used to guess the table name **even when called on Reply**.
+
+=== strategy pattern ===
+单表继承体系中的子类，很适于实现strategy pattern
+
+
+==== 多表继承 ====
+仅是代码层次的继承
+
+* 父类中： self.abstract_class = true
+* 子类继承父类，但也不需要手动指定self.table_name
+* 子类都有自己的数据表，但父类没有
+
+
+==== Polymophic association ====
+两个栏位
+_type
+_id
+
+
+==== postgresql 表继承 ====
+可优化跨表查询
+
+
+==== 复合主键 ====
+gem:  composite_primary_keys
+

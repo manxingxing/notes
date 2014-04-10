@@ -1,0 +1,63 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-08-10T17:56:43+08:00
+
+====== 高级功能 ======
+Created 星期六 10 八月 2013
+
+===== 事务 =====
+* 原子性
+PostgreSQL实际上将每一个SQL命令都当作一个事务执行。如果我们没有执行一个 BEGIN 命令，则每一个独立的语句都会被隐式地加上一个 BEGIN 和 COMMIT 来包围它（如果成功）。一组由 BEGIN 和 COMMIT 包围的语句有时也被称为一个事务块。
+
+\h begin
+\h commit
+\h rollback
+\h savepoint
+\h rollback to 
+
+===== 窗口函数 =====
+http://totemdb.whu.edu.cn/personal/ywpeng/PG922Doc_CN/tutorial-window.html
+或查看postgresql的英文帮助
+
+通过查询筛选出的行的某些部分，窗口调用函数实现了类似于聚集函数的功能。 不同的是，窗口调用函数不需要将查询结果打包成一行输出，在查询输出中，每一行都是分开的。 然而，窗口调用函数可以扫描所有的行，根据窗口调用函数的分组规范(PARTITION BY列)，这些行可能会是当前行所在组的一部分。 一个窗口调用函数的语法如下：
+
+function_name ([expression [, expression ... ]]) OVER ( window_definition )
+function_name ([expression [, expression ... ]]) OVER window_name
+function_name ( * ) OVER ( window_definition )
+function_name ( * ) OVER window_name
+window_definition具有如下语法：
+
+[ existing_window_name ]
+[ PARTITION BY expression [, ...] ]
+[ ORDER BY expression [ ASC | DESC | USING operator ] [ NULLS { FIRST | LAST } ] [, ...] ]
+[ frame_clause ]
+同时，选项frame_clause可以是：
+
+[ RANGE | ROWS ] frame_start
+[ RANGE | ROWS ] BETWEEN frame_start AND frame_end
+frame_start and frame_end可以是：
+
+UNBOUNDED PRECEDING
+value PRECEDING
+CURRENT ROW
+value FOLLOWING
+UNBOUNDED FOLLOWING
+在这里，expression表示的是任何自己不含窗口调用函数的值表达式。 PARTITION BY和ORDER BY列，本质上，与所有查询中的GROUP BY和ORDER BY具有相同的语法或语义， 除了它们的表达式只能作为表达式不能作为输出列的名子或数。 window_name引用的是查询语句中WINDOW子句定义的命名窗口规范。 命名窗口规范通常只是用OVERwindow_name来引用，但它也可以在括号里写一个窗口名，并且 可以有选择的使用排序和/或结构子句（如果应用这些子句的话，那么被引用的窗口必须不能有这些子句）。 后者语法遵循相同的规则（修改WINDOW子句中已有的窗口名）。 参阅SELECT查看更过资料。
+
+对这些窗口函数（在这个框架而不是整个分区上的），frame_clause指定构成window frame的行。 如果frame_end将它的缺省值省略为 CURRENT ROW，会有如下限制： frame_start不能为UNBOUNDED FOLLOWING，frame_end不能为UNBOUNDED PRECEDING，并且 相比frame_start，在上述列表中，frame_end选项不能出现的早。 例如：不允许RANGE BETWEEN CURRENT ROW AND valuePRECEDING。 默认的帧选项是RANGE UNBOUNDED PRECEDING，该选项与RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW相同； 它将帧设置为允许所有分区中的行通过ORDER BY中最后出现的当前行启动（如果没有ORDER BY，那么就是所有行）。 一般情况下，UNBOUNDED PRECEDING意味着帧从分区中的第一行启动，同样类似的UNBOUNDED FOLLOWING表示帧以分区中的最后一行结束 （不管RANGE或ROWS模式）。 ROWS模式中，CURRENT ROW表示帧以当前行启动或结束； 但是在RANGE模式中是以ORDER BY中第一次出现的行启动，最后一次出现的行结束。 valuePRECEDING和valueFOLLOWING目前只允许ROWS模式。 这也就意味着，帧从当前行之前或之后的许多行启动或结束。 value必须是整型表达式，而不能包含变量，聚集函数，或者窗口函数。 值不能为空或负，但可以是零，表示选择当前行本身。
+
+内置窗口函数在Table 9-44中有描述。 其他窗口函数，用户可以自己添加。同样，任意内置或用户自定义聚集函数可以在窗口函数中使用。
+
+使用*的语法可以用来调用参数的聚集函数为窗口函数，如count(*) OVER (PARTITION BY x ORDER BY y)。 *通常不用于非聚集的窗口函数。与通常的聚集函数不同，聚集窗口函数不允许在 函数参数列中使用DISTINCT或ORDER BY。
+
+窗口调用函数只能在SELECT列，或ORDER BY子句中使用。
+
+
+聚集函数 OVER ([PARTITION BY colname] | [ORDER BY colname])
+
+rank()
+max
+min
+sum
+
+* ORDER BY 来控制行被窗口函数处理的顺序， 影响rank()的结果

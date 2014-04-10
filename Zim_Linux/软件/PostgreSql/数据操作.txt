@@ -1,0 +1,50 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-08-10T17:19:06+08:00
+
+====== 数据操作 ======
+Created 星期六 10 八月 2013
+
+===== 插入 =====
+\h INSERT
+
+* 插入一条或多条记录
+* 把子查询的结果插入另一个表中
+
+===== 导入或导出外部文件 =====
+\h COPY
+
+* 以csv, text方式高效导入导出
+* 简捷地生成报表
+
+===== 更新 =====
+UPDATE命令
+
+\h UPDATE
+
+* 更新所有行
+* 用where限制更新的行
+* from + where 根据另一个表，更新数据表
+* 结合from + subquery + where，根据子查询结果，更新数据表
+
+===== 删除 =====
+\h DELETE
+
+==== 删除行 ====
+
+==== 清空表 ====
+\h DELETE 
+* DELETE不带where条件，就会删除所有清空整个表
+
+\h TRUNCATE
+
+TRUNCATE TABLE 在功能上与不带 WHERE 子句的 DELETE 语句相同：二者均删除表中的全部行。但 TRUNCATE TABLE 比 DELETE 速度快，且使用的系统和事务日志资源少。 
+
+DELETE 语句每次删除一行，并在事务日志中为所删除的每行记录一项。TRUNCATE TABLE 通过释放存储表数据所用的数据页来删除数据，并且只在事务日志中记录页的释放。
+
+TRUNCATE TABLE 删除表中的所有行，但表结构及其列、约束、索引等保持不变。新行标识所用的计数值重置为该列的种子。如果想保留标识计数值，请改用 DELETE。如果要删除表定义及其数据，请使用 DROP TABLE 语句。
+
+对于由 FOREIGN KEY 约束引用的表，不能使用 TRUNCATE TABLE，而应使用不带 WHERE 子句的 DELETE 语句。由于 TRUNCATE TABLE 不记录在日志中，所以它不能激活触发器。 
+
+TRUNCATE TABLE 不能用于参与了索引视图的表。
+

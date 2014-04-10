@@ -1,0 +1,13 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-04T11:38:56+08:00
+
+====== CarrierWave ======
+Created 星期四 04 四月 2013
+
+比paperclip更加灵活的文件上传gem
+
+设置
+
+rails g uploader image
+

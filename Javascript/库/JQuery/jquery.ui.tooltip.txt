@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-09-10T11:01:57+08:00
+
+====== jquery.ui.tooltip ======
+Created 星期二 10 九月 2013
+
+1. 替代title属性的作用
+2. 显示任意内容，如图片，视频，格式化文本，而不仅仅是title属性的内容
+3. 通过ajax获取内容
+4. popup动画
+5. 控制popup的位置

@@ -1,0 +1,11 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-11-11T17:07:14+08:00
+
+====== performance test ======
+Created 星期一 11 十一月 2013
+
+controller action
+get, post
+
+model method

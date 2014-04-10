@@ -1,0 +1,35 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-03T10:05:40+08:00
+
+====== Wireshark ======
+Created 星期五 03 一月 2014
+
+查询过滤器
+
+语法：	Protocol	.	String 1	.	String 2	Comparison operator	  Value	Logical Operations	Other expression
+例子：	http	 		request	 	method 	==					"POST"	or				icmp.type
+
+* string1和string2是可选的。
+
+**ip**
+addr
+src
+dest
+
+**tcp**
+port
+dstport
+
+
+**http协议**
+request.method
+
+host
+
+=== 比较操作符 ===
+contains
+matches
+==
+
+捕捉过滤器

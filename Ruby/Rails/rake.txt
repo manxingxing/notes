@@ -1,0 +1,102 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-24T23:45:57+08:00
+
+====== rake ======
+Created 星期日 24 六月 2012
+
+http://jasonseifer.com/2010/04/06/rake-tutorial
+http://railscasts.com/episodes/66-custom-rake-tasks
+http://martinfowler.com/articles/rake.html
+
+Rake is a general-purpose command-runner that Rails used for many things. 
+You can see the list of available rake commands in your application by running 
+	
+	''rake -T''
+
+''rake db:fixtures:load''
+	Rails by default automatically loads all fixtures from the test/fixtures folder for your unit and functional test. Loading involves three steps:
+	
+		1. Remove any existing data from the table corresponding to the fixture
+		2. Load the fixture data into the table
+		3. Dump the fixture data into a variable in case you want to access it directly。这就是为什么可以在test 中使用 User(:001)的原因。
+	
+rake db:setup
+	1. remove existing database
+	2. create development and test databases according to database.yml(没有production,需要 RAILS_ENV=production)
+	3. rake db:seed	, load seed data
+
+rake db:schema:load
+	1. erase contents in existing databases
+	2. Load a schema.rb file into the database
+
+===== 编写rake 任务 =====
+//dependancy-based build language//
+* 一个task可以追加的形式，重复定义。定义中的依赖，action会逐渐累加。这让task定义变得更加灵活和开放。
+
+==== namespace ====
+
+namespace :name do
+	# task
+	# file
+	# directory
+end
+
+==== 调用另一个rake任务 ====
+
+''Rake::Task[[task_name].invoke''
+
+==== 依赖关系 ====
+* 被依赖的任务以线程的方式并行运行
+* 如果被依赖任务又依赖其他任务，这些次级会先于它们执行
+* 共享的次级以来只会被执行一次，这是一个非常好的特性
+
+task :task_name => [:first_task, :another_task] do
+	# 
+end
+
+
+==== File task ====
+这部分 和 make程序的功能 类似
+You can think of a file task as telling the build system how to make the output file - indeed this is exactly the notion in **make** - you list the output files you want and tell **make** how to make them.
+
+file 'build/dev/rake.html' => 'dev/rake.xml' do |t|
+  require 'paper'
+  maker = PaperMaker.new t.prerequisites[0], t.name
+  maker.run
+end
+
+file 类任务里，block块的第一个参数指向任务本身，有两个方法：
+t.prerequisites ：  依赖的文件
+t.name : task name 所指的文件
+
+=== directory ===
+
+directory "testdata/examples/doc"
+
+相当于 mkdir -p
+
+
+=== 可用文件管理命令 ===
+利用FileUtils包，引入了文件管理方面的命令，例如：
+cp
+mv
+sh 	# 执行字符串形式的shell命令
+uptodate?
+
+* fileUtils里的命令基本上都能 以像bash命令一样调用，不用加FileUtils前缀
+
+**FileList**
+* 类数组结构
+FileList['articles/mock/mocksArentStubs.xml']
+FileList['*.c']
+
+=== rule ===
+
+rule '.o' => ['.c'] do |t|
+  sh "cc #{t.source} -c -o #{t.name}"
+end
+
+rule '.class' => [  proc { |tn| tn.sub(/\.class$/, '.java').sub(/^classes\//, 'src/') } ] do |t|
+  java_compile(t.source, t.name)
+end

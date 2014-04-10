@@ -1,0 +1,14 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-08-02T16:20:07+08:00
+
+====== dynamic form ======
+Created 星期四 02 八月 2012
+
+
+**install**
+	''gem install 'dynamic_form'''
+**Gemfile:**
+	''gem 'dynamic_form'''
+
+

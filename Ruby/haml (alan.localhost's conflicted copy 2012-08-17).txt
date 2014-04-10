@@ -1,0 +1,23 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-31T15:14:50+08:00
+
+====== haml ======
+Created 星期二 31 七月 2012
+
+'''
+%tag{:attr=>value}
+.class
+#id
+\   escape
+*word*    <em> </em>
+=
+&=   evaluate ruby code and insert sanitized text
+&    sanitize
+!=   evaluate ruby code and insert unsanitized text(raw html)
+!    unsanitize
+-    evaluate ruby code, but not insert
+/    close tags
+~    perserver whitespace
+'''
+

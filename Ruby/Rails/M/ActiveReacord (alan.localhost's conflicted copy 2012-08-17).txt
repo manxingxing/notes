@@ -1,0 +1,31 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-25T00:04:54+08:00
+
+====== ActiveReacord ======
+Created 星期一 25 六月 2012
+
+===== 类方法： =====
+
+f = User.new
+
+==== 实例方法 ====
+f.save
+
+f.create
+
+f.destroy
+
+f.reload	#从数据库中加载对应id的对象
+
+f.update_attributes( options_hash )
+f.attributes=
+f.valid?		# 是否符合Model 的 validates 规定。
+f.persisted?
+destroyed?
+new_record?
+
+
+f.errors.full_messages
+
+f.blank?

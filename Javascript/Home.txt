@@ -1,0 +1,398 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-09-13T09:56:42+08:00
+
+====== Home ======
+Created Thursday 13 September 2012
+
+===== 特点 =====
+* "对象" 的概念和R, Ruby不同，不是泛称。primitive value不是对象。
+* var 变量声明, hoisting
+* 便捷的数字 ↔ 字符串转换
+* 过多的隐式转换
+* 数字类在整数和小数之间，没有值得注意的区分。
+* 分为Immutable Primitive Values and Mutable Object
+References。前者函数式编程思想，后者是面向对象的编程思想。
+* 尽量少地抛出异常
+* 字符串以UTF-16存储
+* 从null的含义里划分出了 undefined
+* NaN 是 唯一 一个不等于自身的值
+* 两种函数定义方式，但函数声明语句定义的函数却在hoisting行为上有些不同，可以在定义之前使用。
+* 在对象中，**属性(property)**  和 **方法(method)(继承的 或是 自身定义的)** 混在一起，这给用 for-in 遍历对象的属性时造成干扰
+* 带标签的break, continue
+* __基于 原型 的继承__
+* 同是词法作用域，但内部作用域链的函数却可以直接修改外部作用域链的变量。在R里，这是必须通过 <<-  超级复制符号才能进行的操作。
+* 用 特殊的arguments 对象，指代实参列表。用它实现了不定个数形参。虽然形式没ruby, R那么直观，但却更加强大。
+* 几个随函数调用定义的特殊对象： this (其实是个关键字啦),  arguments
+
+===== 基本语法 =====
+	
+
+==== 注释 ====
+
+**单行注释**
+	//
+
+**多行注释**
+	/* */
+* 最好不要使用多行注释的形式，因为可能和正则表达式弄混。
+
+==== 标识符 ====
+**除允许$符号外，和R相同。**
+
+* 允许字母，数字，下划线和 **$ 符号**
+* 不能以数字开头
+* 其他字符不能出现在标识符中
+* 大小写敏感
+
+
+
+==== 变量和常量 ====
+* 常量用const关键字定义，**常量名全大写**。
+* 变量用var关键字定义。**变量名/方法名一般用小写驼峰体，类名用大写驼峰体。**
+
+**变量声明**
+	* you should always declare your variables with **var**.这样产生的结果才和预期相同。
+	* 变量需要先声明(可以不初始化)后使用。
+	* **you must always use var to declare local variables in functions.否则使用的将是同名的全局变量。**
+
+If you attempt to read the value of an undeclared variable, JavaScript generates an error. In ECMAScript 5 strict mode (§5.7.3), it is also an error to assign a value to an undeclared variable. Historically, however, and in non-strict mode, if you assign a value to an undeclared variable, JavaScript actually creates that variable as a property of the global object, and it works much like (but not exactly the same as, see §3.10.2) a properly declared global variable. This means that you can get away with leaving your global variables undeclared. This is a bad habit and a source of bugs,  Although you can get away with not using the var statement when you write code in the global scope, 
+
+==== 命名惯例：camelCase和CamelCase ====
+
+* CamelCase形式通常表示对象。
+* camelCase形式通常表示变量和函数
+* **常量名全大写**
+
+==== 保留字 ====
+
+* 一些关键字，如typeof, return, true, 控制语句关键字。
+* strict 模式下不能使用的
+* java的关键字
+* 一些全局变量和函数，例如Date,Array, arguments, Error, Math, String,RegExp, undefined.
+* 现在没有使用，但以后可能使用。其实有很多保留字仅仅保留了而已，却从来没在js中使用过。
+
+==== 分号 ====
+* semicolon is **optional** 
+* 复合语句(包括函数)后面不需要分号
+* 分号是为**单个语句**设计使用的。
+
+==== literal字面量 ====
+	A literal is a data value that appears directly in a program。没有和symbol链接而直接出现的对象。
+	'''
+	12
+	1.2
+	"hello world"
+	'Hi'
+	true
+	false
+	/javascript/gi	#正则表达式字面量
+	null
+	'''
+
+
+===== 基本数据类型 =====
+* typeof 关键字 获取变量的类型
+
+* 数字
+* 文本
+* 逻辑值
+* null
+* undefined
+* 其他的都是对象
+
+
+==== 特殊的几个对象 ====
+
+=== wraper object ===
+	number, string字面量不是对象，但是它们却像对象一样可以调用几个方法，如"sfadfsa".length。
+	
+	当它们调用方法时，会生成一个临时的String, Number对象，对它们调用方法后，返回结果，但这个临时对象会立即消失。这使得string, number字面量不能被修改(只读)。
+		'''
+		a = "sfasdf"
+		a.newprop = "new"		#对临时对象增加属性，但临时对象会很快消失。
+		a.newprop	#undefined
+		'''
+
+
+
+
+=== the global object ===
+	每个javascript session都有唯一的一个global object。很多预定义的函数，对象，常量如Math, String, Array, null 等都是这个全局变量的属性。用户在函数之外定义的变量也是如此。
+	* 对浏览器来说，全局变量是Window对象，不仅包括上述的“属性”，还包括浏览器特有的一些属性。
+
+
+
+=== this ===
+	1. 在constructor 函数中，this 表示要生成的对象。
+	2. 在方法中， this表示调用该方法的对象。从实例的方法中访问实例。
+	3. 在函数式调用的函数中，this指向__全局变量(The global object)。__
+
+
+
+
+==== toString, valueOf ====
+* 当需要字符串类型时，Js 会自动转换。
+* 即使没有为object定义toString方法，仍然会自动具有该方法。
+
+
+==== 类型转换 ====
+
+**隐式转换**
+	* 操作符或者语句(如if)期望某种类型的参数，并且将他们自动转换。
+	* 要注意的是，逻辑比较操作符(>,<之类)**不是**将它的操作数转换成逻辑值，而是将操作数转换成可比较的统一类型。&&, || 之类会转换它们的操作数为true/false。
+
+**显式转换**
+	String(), Number(), Boolean() 不带new操作符时就是 **类型转换函数**。
+	**object->primitive**
+		'''
+		valueOf()
+		toString()
+		'''
+
+		* 如果是date，则使用toString()
+		* 其他类型，先执行valueOf，如果没有值，不能将其转换成primitive，再使用toString。
+
+**数字格式化输出和输入**
+	num.toString(base)	#按指定进制方式转换成字符
+	num.toFixed(n)	#小数位数
+	num.toPrecision(n)	#显著数字位数
+	num.toExponential(n)	#科学计数法，小数点后位数。
+	
+	Number(string)
+	parseInt(string,base)
+	parseFloat(string,base)
+
+**+ 号 的类型转换**
+* 如果两个操作数都是数字，或都是字符串，计算结果是显而易见的
+* 否则，如果有操作数可以转换成有意义的字符串primitive value，则将另一个也转换成字符串
+* 如果都不能转换成字符串，则执行算术加法运算
+
+
+
+===== 变量和作用域 =====
+* 没有block作用域
+
+* 在函数体外，用var声明定义的变量是全局变量的一个属性，这个句式能说明这一点：
+		var a = 10
+		this.a   -> 10
+* 在函数体内，用var声明的变量是局部变量，可以看作是"call object"的一个属性。
+* 复合语句内定义的变量不具备局部作用域
+
+
+==== 全局变量 ====
+* 在函数外部声明的变量
+* **函数内部未用var声明的变量**
+
+全局变量 可视作是 the **global object **的一个属性，可用属性存取表达式操作
+		var a = 10
+		this.a   -> 10
+
+
+==== 局部变量 ====
+* 在函数内部通过var声明的变量
+* 函数实参
+
+局部变量 可视作是 the **Call object **的一个属性。"call object" 是个类比的说法，用来描述实现细节，可能并不存在
+
+call object 在函数每次执行时都重新创建。
+
+==== Hoisting ====
+* 在函数体内，**可以使用**尚未声明的变量，但此时值为undefined
+* 不管变量在函数体内何处声明，都能在函数体内任意地方使用，且会覆盖函数外部的同名变量
+
+-  尽管有hoisting，但写函数时，最好把所有的变量声明放在函数体头部
+
+	javascript先处理函数体内所有的声明语句，然后才顺序执行函数体内代码。初始化则执行到的时候才进行。这就好像把所有的声明都提到了函数体最上面。这样竟然可以在声明语句前面使用这个变量！
+
+
+==== 词法作用域 ====
+和R 几乎相同，除：
+* R里用 术语 environment，JS里用 术语 call object 
+
+===== 表达式 =====
+
+==== 操作符 ====
+
+==== 比较运算符 ====
+* 数字相等要注意**binary floating-point number 特性**
+* 只有当内容完全相同时，字符串才相等。
+* 对象只有当他们都引用同一个对象时，才相等。即使属性和值都一样，也不一定相等。
+
+>, >=, <, <=
+
+==(会隐式转换), ===(严格相等)
+!=, !==
+
+字符串比较
+UTF-16
+
+String.localCompare()
+
+NaN
+唯一一个不等于自身的值
+
+null == undefined
+null !== undefined
+
+
+
+==== 算术运算 ====
+* 除法不用担心整数相除问题
+* JavaScript算数是比较省心的
+
++, - , *,  /,  %(求余)
+++ 自加 前缀/后缀
+- - 自减 前缀/后缀
+
+除了基本的运算符外，其他的运算都委派给了[[./Math_orgnization_object.txt|Math对象]]。
+
+
+**特殊数字**
+Number.NaN  == NaN
+Number.POSITIVE_INFINITY == Infinity
+Number.NEGATIVEINFINITY == -Infinity
+Number.MAX_VALUE	#正数里支持的最大值。1.7976931348623157e+308
+Number.MIN_VALUE	#正数里支持的最小值。5e-324
+
+isNaN()函数 判断是否是一个计算的结果是否是NaN。也可以通过 x!=x来判断，如果为true，则是NaN。
+
+IsFinite() 除NaN, Infinity, -Infinity外的所有有限数。
+
+==== 逻辑运算符 ====
+
+&&
+||
+!
+
+==== 位操作符 ====
+&
+|
+~	取反
+^	XOR
+
+==== 赋值操作符 ====
+=
++=, -= 等等...
+
+<<=,  >>=, >>>=
+
+
+**赋值 Vs 引用**
+	* 对primitive value(readonly)来说，= 赋值语句意味着赋值。
+	* 但对对象来说，赋值语句是在引用
+'''
+ b = a			#b是a的一个引用。
+ b.name ="b"		#修改引用会波及被引用的对象，他们共享一套属性和值。
+ a.name  			# => b
+'''
+
+
+
+
+==== eval(string) ====
+1. 在当前上下文中执行语句
+2. If your string would make sense as a standalone script, it's legal to pass to eval(),otherwise, eval() will through a syntaxError.
+
+===== 语句 =====
+
+==== 条件 ====
+
+=== 布尔值 ===
+'''
+trucy: 所有
+'''
+__有值的量__''都可以看作true''
+''falsy:''
+''    false''
+		null
+		""		#空字符串。new String("") 和 ""不同哦～
+		0, -0
+		NaN
+		undefined
+
+
+=== if/else ===
+* **和R相同。**
+
+=== switch+case+break ===
+* **和C++类似。**
+* statement不需要用大括号括起来。
+* 可能需要显式的break
+* 类似与goto
+
+switch(//expression//) {
+  case //expression//:
+    // Execute code block #1.
+    break;  // Stop here
+  case //expression//:
+    // Execute code block #2.
+    break;
+  case //expression//:
+    // Execute code block #3.
+    break;
+  default: 
+    // Execute code block #4
+    break;
+}
+
+==== 循环 ====
+
+=== for loop ===
+* 和C++相似
+
+
+=== for-in 循环 ===
+* variable 可以是任何可以做左值的东西，例如变量，数组的元素，属性访问表达式
+* 每次循环时， 从object中遍历其属性，将属性名复制给variable。在variable部分，可以是有副作用的表达式，可以精简代码，但也会使代码难读一点。
+* 只会遍历对象中 **可枚举** 的属性。例如不会遍历像toString这样的内置方法
+
+for (//variable// in //object//) {
+	statements;
+}
+
+例如：
+
+var o = {x:1, y:2, z:3};
+var a = [], i = 0;
+for(a[i++] in o) /* empty */;
+
+**遍历的顺序**
+一般按照属性定义的时间顺序遍历。但是，由于继承关系，解释器实现等因素，有些属性的遍历顺序不可依靠。
+
+
+=== while, do..while ===
+* do..while语句需要 分号 结尾， while 不需要
+* 和java语法相同
+
+ do {
+	statements
+} while(cond);
+
+=== jumper ===
+'''
+continue
+break
+'''
+
+
+==== 语句标签 ====
+任何复合语句块(if, while, for只是特例)都可以有前置的标签，复合语句块中的break或continue可以利用这个标签，中止复合语句块的执行，从语句块中跳出来，如：
+
+label:  statement
+
+例如：
+
+example_block: {
+  var a = 10;
+  if (a > 2) {break example_block;}
+  console.log('not run');
+}
+
+通常的用途是： 用break, continue从嵌套的循环中，跳出到指定层级。
+
+* break 可从指定标签的语句块中退出
+* continue只在循环中有意义，用来跳出指定循环的当前次循环。
+
+==== 异常 ====
+异常也可以看作是某种

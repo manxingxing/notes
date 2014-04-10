@@ -1,0 +1,31 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-09T22:31:04+08:00
+
+====== tree ======
+Created 星期六 09 六月 2012
+
+参数：
+	-L n
+		目录深度
+	-a
+		包括隐藏文件
+	-d
+		只列出目录
+	-P
+		使用通配符限定文件名模式
+	-p
+		包含权限说明
+	-u
+		包含用户名
+	-g
+		包含所有组
+	-s
+		size
+	-h
+		human readable size
+	-I
+		与-P相反，不现实符合模式的文件
+		
+
+

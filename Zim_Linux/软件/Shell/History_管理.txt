@@ -1,0 +1,31 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-04-06T16:15:51+08:00
+
+====== History 管理 ======
+Created 星期日 06 四月 2014
+
+history
+列出所有历史记录
+
+重新执行历史记录中某条命令
+!n
+!-n	# 倒数
+
+使用上一条完整语句
+sudo !!
+
+只使用上次命令的第一个参数
+new_cmd  !^
+
+只使用上次命令的最后一个参数
+new_cmd !$
+
+只使用上次命令的某一个参数
+new_cmd !cmd:n
+
+知道历史命令里的关键词，执行之
+!keyword
+
+反向搜索历史
+ctrl + r

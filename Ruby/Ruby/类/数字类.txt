@@ -1,0 +1,47 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-12T16:47:43+08:00
+
+====== 数字类 ======
+Created 星期六 12 五月 2012
+
+整数包含Integer, **Fixnum, Bignum**类
+浮点数为**Float**类
+
+===== 方法 =====
+
+==== 整数-浮点转换 ====
+4.to_f	to float
+4.3.to_i	to integer
+
+==== ACSII和数值转换 ====
+120.chr	##从ASCII值到字符
+?A
+
+==== 迭代 ====
+结果是一个Enumberable:Enumerator类型变量。
+downto
+upto()
+step(a,b)
+times
+
+==== 其他 ====
+4.class	#查询class
+between?()		#比较操作：在...和...之间？
+.abs		绝对值
+
+
+负整数相除，结果向负无穷舍入。这和其他语言不一样。例如：
+-7/3  -> -3
+其他语言获得 -2
+
+负整数进行取余运算，也有向负无穷舍入的特点
+-7%3 -> -2
+其他语言是 -1
+
+当整数超出Fixnum 类 的范围时，自动转换成Bignum类。
+
+Float类不会自动转换成BigDecimal。所以要注意Float溢出的情形。 溢出点有 Infinity, -Infinity, 和 0
+
+
+

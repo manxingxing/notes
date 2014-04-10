@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-12-18T23:30:58+08:00
+
+====== imagemagick ======
+Created Tuesday 18 December 2012
+
+===== convert -resize 改变尺寸 =====
+* 是字母x, 不是乘号
+
+==== widthxheight  fit-in ====
+至少一个维度等于指定尺寸，没有维度大于指定尺寸
+
+==== widthxheight^  fit out ====
+至少一个维度等于指定尺寸，没有维度**小于**指定尺寸
+
+==== widthxheight!  exact ====
+
+==== widthxheight>  zoom in ====
+只要任意维度大于指定尺寸，就进行缩小操作。
+
+==== widthxheight< zoom out ====
+只要任意维度小于指定尺寸，就进行放大操作。
+
+

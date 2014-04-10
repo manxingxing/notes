@@ -1,0 +1,28 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-13T10:45:02+08:00
+
+====== AJAX ======
+Created Tuesday 13 November 2012
+
+===== XMLHTTPRequest对象 =====
+* 复杂，难以使用
+
+==== property ====
+	readyState	-> onreadyStateChange = callback
+		0: 未初始
+		1: 开启
+		2: 已传递
+		3: 接受中
+		4. 已载入
+	status: 相应代码 
+	responseText
+	responseXML
+
+
+==== methods ====
+
+	open(url,method)
+	send(数据)
+	abort
+

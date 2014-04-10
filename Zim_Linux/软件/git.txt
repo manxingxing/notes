@@ -1,0 +1,422 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-06T15:45:31+08:00
+
+====== git ======
+Created 星期三 06 六月 2012
+
+===== 概念 =====
+
+==== 对象模型 ====
+**git 会把每次提交的文件全部内容记录下来。**
+
+=== 对象 ===
+	什么都是对象。（废话）
+	不同类型的对象有：
+	
+
+== commit ==
+		一个commit对应与一个tree. 另外还包含tree的parent tree，提交者信息。
+		一个commit本身并没有记录哪些修改。所有的修改都是通过与父提交的内容比较而得到。
+		
+		''git show -s --pretty=raw commit_SHA''
+
+
+== tree ==
+		目录结构
+		
+		''git ls-tree tree_SHA''
+
+
+== blob ==
+		* 单个文件。同一目录下内容相同的文件共享一个blob对象。
+		* git可以检测文件移动，但不会现实记录文件的重命名。
+		
+		''git show blob_SHA''
+
+
+== tag ==
+		包含被标记的对象名，对象类型以及tag，tag创建人。
+
+
+=== 对象名 ===
+	SHA1
+	* 从内容计算得到。对目录来说，其内容是内部目录/文件
+	* 即便位于两个不同的仓库中，如果内容相同，其对象名也相同
+	* 比较对象名就相当于比较了内容。git从整体上检查两个对象内容是否相同，而不是比较内容。
+
+==== 工作目录 ====
+
+1. Git的 '工作目录' 存储着你现在**签出(checkout)**来用来编辑的文件. (checkout: 签出/提取 指定分支下的文件以供编辑)
+2. 工作目录只用来**临时**保存签出(checkout) 文件的地方, 你可以编辑工作目录的文件直到下次提交(commit)为止.
+3. 当你在项目的不同分支间切换时, 工作目录里的文件经常会被替换和删除. 所有历史信息都保存在 'Git目录'中 ;　
+
+==== Git 目录 ====
+指 ''.git'' 文件夹
+
+.git 文件夹内的 HEAD 文件记录这当前在哪个分支下。当使用checkout切换分支时，文件内内容相应变化
+
+==== 暂存区/索引 ====
+Staging area
+
+将要提交的变更列表。放入索引的变更在下次commit时被提交。
+
+
+===== 创建一个仓库 =====
+
+==== 本地创建 ====
+
+	''git'' ''init''
+
+
+==== 从网络仓库或其他文件夹创建 ====
+
+	''git'' ''clone''
+
+
+===== 基本流程 =====
+	
+	**修改->缓存改动->提交**
+
+
+==== 缓存改动 ====
+	''git add file1 file2''
+	
+	很多版本控制系统都提供了一个 "add" 命令：告诉系统开始去跟踪某一个文件的改动。但是Git里的 ”add” 命令从某种程度上讲更为简单和强大. git add 不但是用来添加不在版本控制中的新文件，也用于添加已在版本控制中但是刚修改过的文件; 在这两种情况下, Git都会获得当前文件的快照并且把内容**暂存**(stage)到**索引**中，为下一次commit做好准备。
+
+**把修改从暂存区撤出**
+	git reset HEAD paths
+
+
+==== 查看当前状态 ====
+		''git status''
+	查看未缓存（也就是不会被提交的改动）：
+		''git diff''
+	查看已缓存的改动（也就是将要被提交的改动）：
+		''git diff --cached''
+	查看所有改动（当 commit -a时提交的内容）
+		''git diff HEAD''
+
+
+==== 提交 ====
+
+	'''
+	git commit -m "message"
+	#设置提交信息
+	git commit -a
+	#相当于git add . + git commit
+	git commit --amend
+	#这次的改变和上次的改变合并成一次，并重新编辑提交信息。
+	'''
+
+
+=== commit注释: ===
+	commit注释最好以一行短句子作为开头，来简要描述一下这次commit所作的修改(最好不要超过50个字符)；然后空一行再把详细的注释写清楚。这样就可以很方便的用工具把commit注释变成email通知，第一行作为标题，剩下的部分就作email的正文.
+
+
+=== amend模式 ===
+* 将这次提交和上次提交合并在一起。
+* 用于编辑上次提交。
+
+	''git commit --amend''
+
+
+===== 分支管理 =====
+
+==== 查看现有分支 ====
+'''
+# 查看本地分支
+git branch
+# 查看包括远程分支在内的所有分支
+git branch -a
+'''
+
+
+==== 产生分支 ====
+	
+	* fromWhichBranch不指定，则从本地master分支中产生分支。
+
+=== 产生新的分支 ===
+* 默认从当前分支产生新的分支
+	''git'' branch newbranch [fromWhichBranch]
+
+
+=== 产生分支并转到该分支上 ===
+	
+	git checkout -b newbranch fromWhichBranch
+
+
+=== 产生远程分支 ===
+
+当远程分支不存在时，
+	''git push origin localbranch:remote''
+将产生指定名称的远程分支。也可remotebranch为空，此时创建同名远程分支。
+
+
+==== 删除分支 ====
+
+=== 删除本地分支 ===
+	
+	''git branch -D branch_name''
+	
+
+=== 删除远程分支 ===
+	
+	''git push origin :remote_branch''
+
+
+==== 分支切换/签出 ====
+	
+	''git'' checkout to_branch
+
+
+==== 分支合并 ====
+将another_branch合并到当前分支	
+
+	'''
+	git merge another_branch
+	git rebase another_branch
+	'''
+
+
+**合并**会将指定分支的改变同时也反应到当前分支(即合并到当前分支)，这个分支却保持不变。合并完成后，会在当前分支的log中留下记录，就像一次提交一样。其中有冲突的文件则会添加如冲突标记。
+
+* rebase 与 merge的不同是，rebase会首先暂存当前分支的私有变更，应用another_branch上的改变后，再重新应用私有变更。
+* 除非fast-forward的情况下，merge会产生一个merge类提交，这种提交并不包含变更信息，给查看提交信息带来麻烦。而rebase用助于产生“线性”的提交历史。
+
+=== 冲突 ===
+	冲突：同一个文件在两个分支里按不同的方式被修改了。
+
+在有问题的文件上会有冲突标记。有冲突(conflicts)的文件会保存在索引中，除非你解决了问题了并且更新了索引，否则执行 git commit都会失败。
+如果执行 git status 会显示这些文件没有合并(unmerged)。
+
+解决冲突和平常的修改代码没什么两样，编辑完成后，
+git add
+git commit
+或者 git commit -a
+
+== 图形客户端 ==
+
+git mergetool
+
+在.gitconfig文件中可以设置合并工具，例如meld。执行这个命令后，会有比较友好的界面提示
+
+
+== rebase冲突解决 ==
+
+rebase冲突和merge不同之处在于:  merge 一次性完成，标记冲突的位置。而rebase则是在遇到冲突的提交时就停止了，需要用户解决冲突之后：
+git add filename
+git rebase --continue
+
+或者当遇到冲突时，跳过冲突处理步骤，这时行为有些像merge情况下的冲突
+git rebase --skip
+
+git rebase --abort
+
+
+=== fast-forward ===
+
+通常，一个合并会产生一个合并提交(commit), 把两个父分支里的每一行内容都合并进来。
+
+但是，如果当前的分支和另一个分支没有内容上的差异，就是说当前分支的每一个提交(commit)都已经存在另一个分支里了，git 就会执行一个“快速向前"(fast forward)操作；git 不创建任何新的提交(commit),只是将当前分支指向合并进来的分支。
+
+例如： 如果master分支自从和branch分离后再也没有新的修改，那么默认在合并时，会进行fast-forward，即合并但不创建merge commit，这样就像一直在master上开发一样。不会保留该分支的信息。
+
+===== 与远程库同步 =====
+
+==== 和远程文件夹建立联系 ====
+
+1. 如果git仓库是由clone产生的，那么本地库和远程库会自动建立联系。远程库将自动被命名为origin。也可以在clone时自定义：
+	''git clone [--origin name] Address''
+
+2. 如果要把本地库推送到一个新建立的远程库，直接push即可：
+
+	git push git@github.com:befdata/befdata.git
+	
+	虽然可以一直使用完整的网络地址如https, git, 但为了方便，最好为远程其个名字
+	
+	''git remote add name URL/Git_address''
+	
+	这样就在两者之间建立了联系，push/pull 操作都可省略库名称/地址
+
+
+==== 推送改变到远程 ====
+* 除推送变更外，还可以产生新的远程分支，或者删除远程分支。
+
+	''git push orgin localbranch:remotebranch		# 假设远程库名称为origin''
+	
+	* 如果remotebranch为空，则会推送当前分支到远程文件夹的同名分支。如果远程分支不存在，则创建之。
+	* 如果localbranch为空，则删除远程remotebranch
+	
+	''git push --all''
+	推送所有分支到同名的远程分支
+
+
+== 全局设置  push.default ==
+设置当直接使用git push(不带任何参数)时，默认的推送方式
+nothing - do not push anything.
+matching - push all branches having the same name in both ends(推送所有在远程上有对应分支的本地分支).  目前的默认值
+
+下面的三个都仅推送当前分支
+upstream - push the current branch to its upstream branch. (实际上，远程分支名称和本地分支名称可以不相同的)
+simple - like upstream, but refuses to push if the upstream branch’s name is different from the local one. (只有当upstream和本地分支同名时，才推送)
+current - push the current branch to a branch of the same name. (FIXME: 只看名称，不管upstream设置? )
+
+
+==== 拉取远程改变到本地，并合并 ====
+
+== 拉取远程变更，并进行merge操作 ==
+	''git''  ''pull orgin'' ''remotebranch:localbranch''
+	
+	* 省略localbranch会拉取remotebranch到**当前**分支，所以：小心点
+	FIXME:  #省略remotebranch的话，可能就是master了吧
+	
+	#拉取并合并所有**本地同名**分支
+	''git pull origin --''**all**
+	
+
+== 使用rebase而不是merge ==
+添加 --rebase 参数拉取远程修改，并将这些commit置于本地commit之下，就好像本地修改是基于新的远程分支上一样。这样在在push的时候，就能使远程分支的改动历史呈现线性，方便查看。
+
+	''git pull --rebase''
+	
+**过程**	
+	1.把本地 repo. 從上次 pull 之後的變更暫存起來
+	2. 回復到上次 pull 時的情況 
+	3. 套用遠端的變更 
+	4. 最後再套用剛暫存下來的本地變更
+
+
+===== 读懂历史 =====
+
+==== 查看历史 ====
+
+=== 设置范围 ===
+**用commit表示**
+	 git log -n num	# 限制显示的提交数
+	 git log --skip=num  # 限制跳过提交数
+	 git log --no-merges   # dont show merge commits
+	
+	 git log v2.5__..__        # commits since (not reachable from) v2.5
+	
+	分支:
+	 git log test__..__master  # commits reachable from master but not test
+	 git log master__..__test  # commits reachable from test but not master
+	 git log master__...__test # commits reachable from either test or
+			                        #    master, but not both
+
+**提交人**
+--comiitter=<pattern>
+--author=<patterh>
+
+**提交时间**
+--since , --after
+--until, --before
+
+	 git log --since="2 weeks ago" # commits from the last 2 weeks
+
+**提交message**
+	''--grep=<pattern>''
+	
+	使用下面的flag，选择使用的正则表达式特性
+
+	-i, --regexp-ignore-case
+	           Match the regexp limiting patterns without regard to letters case.
+       --basic-regexp
+       -E, --extended-regexp
+       -F, --fixed-strings
+       --perl-regexp
+
+**目录和文件**
+	 **git log Makefile      # commits that modify Makefile**
+	 **git log fs/           # commits that modify any file under fs/**
+	
+**修改内容**！！！
+	 git log -S 'foo()'     # commits that add or remove any file data
+		                        # matching the string 'foo()'
+
+
+当然你也可以组合上面的命令选项；面的命令就是找出所有从"v2.5“开 始在fs目录下的所有Makefile的修改.
+
+	 git log v2.5.. Makefile fs/
+
+
+=== 调整历史显示样式 ===
+
+git log --reverse	逆序
+git log --topo-order	#同分支的一系列改动放在一起。
+git log --date-order	#按时间显示改动
+git log --stat
+git log --graph
+
+== 格式化 ==
+git log --pretty=oneline  , short,  medium, full, fuller, raw
+	    
+	     --format="%h : %s"
+			%h: 提交对象名
+			%s: message
+			%an: 提交人
+			%r：提交日期
+
+
+==== 差异比较 ====
+提交
+
+	git diff rev1 __..__ rev2	#只在rev2中存在的改动
+	git diff rev1 __...__ rev2	#查看rev1,rev2共有父分支 与 rev2 差异。 这样查看自从rev2和rev1分离 (diverge)后rev2的所有改变。
+	--stat参数			#概括文件中的修改
+
+
+
+==== 撤销 ====
+
+=== Reset ===
+* 撤销**本地提交**， 仅在“被撤销的提交”**还未**提交到远程时使用。
+* 不产生"撤销"提交
+* 被撤销提交信息将被删除
+
+	#__默认 __删除之间所有提交记录，但**保留**代码级修改，**清空**index信息。清空 staging area。
+	git reset --mixed HEAD (HEAD^, HEAD^^, HEAD^^^, HEAD~4)
+	#删除之间的所有提交记录，**保留**代码级修改，**保留**index信息。存放到 staging area中。再次运行commit将回复此次reset操作。
+	git reset --soft HEAD (HEAD^, HEAD^^, HEAD^^^, HEAD~4)
+	#删除之间的所有提交记录，**重置**代码级修改，**清空**index信息。
+	git reset --hard HEAD (HEAD^, HEAD^^, HEAD^^^, HEAD~4)
+	
+
+
+=== Revert ===
+* 撤销之前的commit， 并生成一个"撤销"提交。经常在“被撤销的提交”**已经**被提交到远程时使用。
+* 被撤销提交信息保留，之后产生一个"撤销提交"。
+	''git revert HEAD ( HEAD^ , HEAD~2)'' 
+
+* 撤销指定的提交，执行和该次提交完全相反的操作，并将这些回撤操作放到staging area里。
+* git revert需要当前的 working tree是干净的，也就是说，从上次提交后没有修改。这是为了不和revert引入的回撤修改混在一起。
+
+
+===== Tag =====
+给任何一个tree对象添加标签
+	
+	''git tag tag_name commit_ID''
+	
+
+===== gitignore =====
+
+忽略文件默认为当前目录的.gitignore。
+
+也可以通过修改全局配置git-config的excludesfile指定全局忽略文件。
+
+	''$: git config --global core.excludesfile ~/.gitignore''
+养成一开始就设置好.gitignore的好习惯，
+
+==== .gitignore的语法 ====
+
+* #为注释行，空行不匹配任何文件，这两个特征可以使.gitignore文件可读性强一些。
+* 通过!取反。
+* 斜线/结尾的字符，被当做文件夹处理，文件夹下的所有文件将被忽略。
+* 除去以上三种情况，其他时候使用标准的glob模式匹配。
+* 开头的斜杠( / ) 表示 GIT 根目录
+
+==== glob语法 ====
+
+* [ab09]		?		    [0-9a-zA-Z]		\
+匹配任意字符	匹配多种可能	匹配单个字符	匹配一个范围	转义字符

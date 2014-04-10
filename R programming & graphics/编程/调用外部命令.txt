@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-01T13:56:12+08:00
+
+====== 调用外部命令 ======
+Created Monday 01 April 2013
+
+Not all Windows executables properly respect redirection of output, or may only do so from a console application such as Rterm and not from Rgui
+
+it cannot be assumed that redirection or piping will work in system (redirection sometimes does, but we have seen cases where it stopped working after a Windows security patch), and system2 (or shell) must be used on Windows
+
+shell is a more user-friendly wrapper for system under windows. cmd.exe is the shell on windows. there is no shell function on Unix.

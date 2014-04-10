@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-04-28T00:57:51+08:00
+
+====== 环境变量 ======
+Created 星期六 28 四月 2012
+
+系统PATH 在 /etc/profile 中设置
+
+用户PATH  在 ~/.profile 或者 ~/.bash_profile 中设置

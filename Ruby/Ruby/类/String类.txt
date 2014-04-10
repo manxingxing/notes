@@ -1,0 +1,221 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-12T16:21:40+08:00
+
+====== String类 ======
+Created 星期六 12 五月 2012
+
+===== literal string 字面字符串 =====
+
+==== 构建字符串 ====
+	1. 单行字符串用引号构建： 双引号或单引号
+	2. 多行字符串用: 
+		a. %q{ } 构建。除{} 外，可以使用其他分界符如：|	 <> () !  ##这和sed有些相似。
+		b. <<分界字符串   ... 分界字符串 构建。这样不太可能出现分解符与字符串内容冲突的问题，也更易读(?)
+			y = <<-BEGIN_OF_TEXT
+				This is the string
+				end
+			BEGIN_OF_TEXT
+
+* 多行字符串中的分隔符不能出现在实际的字符串中，否则应该用 \ 给escape掉。
+
+==== 输入流字符串 ====
+
+
+
+===== 字符串操作 =====
+	'a'*4	##重复4次！
+	.length
+	.reverse
+	.chop		#删除最后一个字符
+	.strip		去除头尾的大段空白
+
+	
+
+==== 大小写转换 ====
+'''
+.capitalize
+.downcase
+.upcase
+.swapcase
+'''
+
+
+delete
+count
+squeeze
+
+
+strip
+lstrip
+rstrip
+squish  (Rails提供的)
+titlize
+
+==== 迭代 ====
+each_line
+each_char
+each_byte
+
+==== substring ====
+[index]
+[start, length]
+[range]
+
+slice(index)
+slice(strat, length)
+slice(range)
+
+==== 合并 ====
+
+=== + ===
+'''
+不会对后面的操作数自动进行to_s操作，需要手动转换
+- 字符串内插通常比 + 操作更简练一些
+'''
+
+
+=== << ===
+'''
+左边操作数需要是一个左值
+- 和 + 一样，也不会对右边操作数进行to_s转换
+
+如果右操作数是一个整数，则代表对应码点的字符
+
+a << 65  #  65 对应字符A
+'''
+
+
+=== concat ===
+
+==== split, partition ====
+类似于R中的strsplit
+	
+	''.split(pattern)''  #返回一个数组，由拆分后的子字符串组成。
+						默认按空白(空格，换行)拆分。
+
+* pattern 可以是普通字符串，也可以是正则表达式
+
+=== 提取出整数 ===
+* 提取出字符串中第一个数字
+* 如果没有数字，返回nil，不会抛出错误
+to_i 
+
+==== 查询 ====
+
+=== 返回逻辑值 ===
+'''
+includes?(str)
+starts_with?(str)
+ends_with?(str)
+'''
+
+正则表达式：
+类似于perl:
+	=～	操作符
+
+
+=== 返回匹配位置 ===
+'''
+
+index(substring [, offset]) → fixnum or nil click to toggle source
+index(regexp [, offset]) → fixnum or nil
+'''
+
+
+=== 返回匹配的文本 ===
+
+== 返回第一个匹配的部分 ==
+str[regexp] → new_str or nil
+str[regexp, fixnum] → new_str or nil
+	第二个参数是后向引用的编号：
+		0 代表全部匹配文本
+以下类似：
+slice(regexp) → new_str or nil
+slice(regexp, fixnum) → new_str or nil
+slice(regexp, capname) → new_str or nil
+
+== 返回所有匹配的部分 ==
+.scan(pattern)	#返回一个数组，由匹配正则表达式的字符段组成
+
+=== 返回 matchData 对象 ===
+
+	''字符串.match(pattern)''
+
+* match方法中的pattern可以是/.../形式，也可以是字符串。当pattern需要用户输入时，这种形式要方便的多。
+* match方法支持后向引用。和其他语言一样，正则表达式中括号包围的部分可供后向引用。在有后向引用时，match的结果是一个数组：0下标表示整个正则表达式匹配的内容，1，2，3下标分别表示第n个括号中正则表达式匹配的内容。
+	result = "This sentence has a float number: 20.30".match(/(\d+)\.(\d+)/)
+	result[0]	# 20.30
+	result[1]	#20
+	result[2]	#30
+	
+	TODO: 双引号中的正则表达式不支持后向引用？
+	
+
+==== 遍历 ====
+
+	字符串**.scan**(pattern) **{** //|截获的变量|//	statements **}**
+	字符串**.scan**(pattern) **do** //|截获的变量|//
+		statements
+	**end**
+
+
+==== 替换 ====
+
+'''
+str[fixnum] = new_str click to toggle source
+str[fixnum, fixnum] = new_str
+str[range] = aString
+str[regexp] = new_str
+str[regexp, fixnum] = new_str
+str[regexp, name] = new_str
+'''
+
+
+方法：
+'''
+.sub(pattern,replacement)
+.sub!(pattern,replacement)
+.gsub(pattern,replacement)
+.gsub!(pattern,replacement)
+'''
+
+
+===== 插写(interpolation)—在字符串中引用表达式的值 =====
+
+	**#{表达式或变量名}**
+
+或者将任意表达式的值转换成字符串：
+	表达式**.to_s**
+	
+	puts "print 5 a:  #{'a'*5}"
+	
+* 只能使用双引号
+
+
+===== % 呈现 =====
+TODO: %呈现
+
+%w{bla bal}
+用字符串分割的文本来快速创建数组。**{ } 可用其他分割符替代, 例如 []，|等**。
+
+%q{bla bal}
+用字符串分割的文本创建多行文本。**{ } 可用其他分割符替代**。
+
+%r("sdfsf") 
+	产生正则表达式
+
+%x{command}  执行shell命令
+
+
+===== 格式化 =====
+printf	打印在屏幕上，返回nil
+sprintf	打印在屏幕上，返回这个字符串
+
+% 操作符是上面方法的操作符形式
+'''
+"%4.2f" % 2.3334   => "2.33"
+"%d: %s"  % [4, 'error'] => "4: error"
+'''
+
+	

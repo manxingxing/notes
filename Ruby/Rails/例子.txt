@@ -1,0 +1,65 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-21T01:13:20+08:00
+
+====== 例子 ======
+Created Sunday 21 October 2012
+
+===== 1. permenant link =====
+
+==== id-permlink形式 ====
+
+=== migration ===
+
+'''
+create_table :blogs do |t|
+'''
+	'''
+	t.column :permlink, :string
+	end
+	'''
+=== model ===
+
+'''
+def to_param
+  "#{id}-#{permalink}"
+end
+'''
+
+
+permlink可以在保存前由其他列生成
+
+'''
+before_save do	
+'''
+	''self.permlink = self.title.to_parameterize''
+'''
+end
+'''
+to_parameterize函数把字符串中的空白用 横线 -  代替。
+
+=== Controller ===
+	''@product = Product.find(params[:id])''
+
+
+==== permlink 形式 ====
+
+=== migration ===
+和前面一样
+
+=== Model ===
+
+'''
+def to_param
+  permalink
+end
+'''
+
+
+=== Controller ===
+	''@product = Product.find_by_permalink(params[:id])''
+	
+==== Gem: permalink_fu@github ====
+
+* 处理重复冲突
+* 以数组形式指定任意列生成permlink

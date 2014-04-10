@@ -1,0 +1,324 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-21T13:01:42+08:00
+
+====== Test ======
+Created 星期四 21 六月 2012
+
+TODO: 在console中使用fixture。users(:david) 怎么不行？在test文件中是可以使用的。
+TODO: 在 rails console 使用已有的helper。
+
+* When your requirements change, you often need to update your tests.  We recom-
+mend updating the tests first, (which should make them fail), and then updating your
+code (which would make them pass).
+
+
+===== Fixtures =====
+
+==== YAML格式 ====
+* 空格缩进
+* 冒号
+
+==== 在test文件中使用fixture。 ====
+:rails:rake  -> rake db:fixtures:load
+
+	''models(:symbol)	#model名对应于文件的名称。这里使用''**model名称的复数**''。''
+例如：
+	''users(:david)''
+	''users(:david).id''
+
+
+==== 转化成所属的类 ====
+
+	''users(:david).find''
+
+
+===== Actions =====
+
+==== get(action, parameters = nil, session = nil, flash = nil) ====
+	''parameters : ''An optional hash of request parameters，与**url_for参数类似**
+	''session : An optional hash of session variables''
+	''flash	:  An optional hash of flash values.''
+例如：
+	''get(:show, {'id' => "12"}, {'user_id' => 5})''
+	''get(:view, {'id' => '12'}, nil, {'message' => 'booya!'})''
+	
+
+
+==== post(action, parameters = nil, session = nil, flash = nil) ====
+例如：
+	''post :create, :post => { :title => 'Some title'}''
+
+
+==== delete(action, parameters = nil, session = nil, flash = nil) ====
+
+==== put(action, parameters = nil, session = nil, flash = nil) ====
+
+===== Assertions =====
+* 每个assert方法的最后一个参数都是message。
+
+flunk					#相当于false。用于还未写的test中，提醒这部分test还未写。
+assert
+assert_nil
+assert_not_nil
+assert_valid(record) 		Ensures that the passed record is valid by Active Record standards and returns any error messages if it is not.
+
+**比较**
+* 比较类assert的第一个参数是预期值，第二个参数是实际值。
+assert_same(expected, actual, message="")
+assert_not_same
+assert_equal( obj1, obj2, [msg] ) 						Ensures that obj1 == obj2 is true.
+assert_not_equal( obj1, obj2, [msg] ) 					Ensures that obj1 == obj2 is false.
+assert_in_delta( expecting, actual, delta, [msg] ) 			Ensures that the numbers expecting and actual are within delta of each other.
+
+**字符串模式**
+* 第一个参数是正则表达式，第二个参数是实际字符串
+assert_match
+assert_no_match
+
+**异常**
+assert_raise
+assert_nothings_raised
+
+**类型判别**
+assert_instance_of( class, obj, [msg] ) 		Ensures that obj is of the class type.
+assert_kind_of( class, obj, [msg] ) 			Ensures that obj **is or descends** from class.
+assert_respond_to( obj, symbol, [msg] ) 		Ensures that obj has a method called symbol.
+assert_send( array, [msg] ) 				Ensures that executing the method listed in array[1] on the object in array[0] with the 										parameters of array[2 and up] is true. This one is weird eh?
+
+**判断一个动作的结果**
+''assert_difference(expressions, difference = 1, message = nil) ''**{...}** 	#执行 block后，expression的值变化多大？	
+										Test numeric difference between the return value of an expression as a result of what is evaluated in the yielded block.
+assert_no_difference(expressions, message = nil, &block) 	
+										Asserts that the numeric result of evaluating an expression is not changed before and after invoking the passed in block.
+**路由**
+**extras 参数 作为  query string 使用。default不使用？**
+
+assert_recognizes(expected_options, path, extras={}, message=nil)				从path到 controller/action
+assert_generates(expected_path, options, defaults={}, extras = {}, message=nil) 	从controller/action 到 path
+				**options  hash should contain a :path with the incoming request path and a :method containing the required HTTP verb.** 
+assert_routing(path, options, defaults={}, extras={}, message=nil) 					前两个组合起来。
+
+
+
+
+**页面**
+assert_response		#response code，
+						:success to indicate 200, 
+						:redirect to indicate 300-399, 
+						:missing to indicate 404,
+						:error to match the 500-599 range
+assert_redirected_to(options = {}, message=nil)		是跳转到了options( controller/action) 表示的URL吗？
+assert_template									采用的模版或partial
+
+===== Functional test =====
+''assert_select(selector, equality?, message?) ''
+''assert_select(element, selector, equality?, message?)'' 
+
+**selector** : 	 may be a **CSS selector expression (String)**, an expression with substitution values, or an HTML::Selector object.
+
+**equality? :	**功能强大的判断条件
+	次数类：
+		**值		意义**
+		true	存在	#默认参数
+		false	不存在
+		integer	次数
+		range	次数范围
+	字符串类：
+		**值				意义**
+		String/Regexp 	at least one element matches the string or regular expression.
+		
+
+=== 同时进行多个检验 ===
+需要将各类分开, 组成一个 hash。
+
+    :text - Narrow the selection to elements that have this text value (string or regexp).
+    :html - Narrow the selection to elements that have this HTML content (string or regexp).
+    :count - Assertion is true if the number of selected elements is equal to this value.
+    :minimum - Assertion is true if the number of selected elements is at least this value.
+    :maximum - Assertion is true if the number of selected elements is at most this value.
+
+例如：
+
+'''
+assert_select "title", {:count => 1, :text => "Welcome"},"Wrong title or more than one title element"
+'''
+
+
+===== Integration test =====
+
+==== 注意 ====
+1. rails 在产生model/controller的时候不会自动产生integration_test。需要手动产生。
+	''rails generate integration_test name'' 
+2. 不会自动加载fixtures。需要手动在每个integration_test文件的类定义中使用：
+	''fixtures(table_names)	对应于fixtures文件夹下的文件。''
+如：
+	''fixtures :all'' 	或者
+	''fixtures :posts''
+
+
+==== additional assertion: ====
+
+redirect?	上次是一个redirect吗？
+follow_redirect!	跟随redirect
+
+
+'''
+post_via_redirect(path, parameters = nil, headers = nil) 
+get_via_redirect
+put_via_redirect
+delete_via_redirect
+request_via_redirect
+'''
+
+
+参数和post, get, put 相同
+
+===== Test helpers =====
+
+==== callbacks ====
+
+例如：
+	在每个test语句块之前
+		 ''def setup''
+	'''
+	    @post = posts(:one)
+	  end
+	'''
+
+
+	在每个test语句块之后。
+		  ''def teardown''
+	'''
+	    @post = nil
+	  end
+	'''
+
+setup和teardown可有四种方式调用：
+	1. ''method''
+	2. ''setup :method_name''
+	3. ''setup { block }''
+	4. ''setup lamda {|args| .... }''
+
+== macro ==
+test "should get index" do
+	.....
+end
+
+==== 几个变量 之一 ====
+'''
+assigns –  instance variables in actions
+cookies 
+flash
+session
+'''
+
+
+他们都是类似hash的形式，只有assign有些不同。assign可以使用字符串形式的键名，不能使用symbol类型的键名。但可以使用 assign(:symbole)形式。
+
+==== 几个变量之二 ====
+
+    @controller – The controller processing the request
+    @request – The request
+    @response – The response
+    ''@env[]''
+
+===== 执行测试 =====
+**rake**
+
+rake test 	Runs all unit, functional and integration tests. You can also simply run rake as the test target is the default.
+rake test:functionals 	Runs all the functional tests from test/functional
+rake test:integration 	Runs all the integration tests from test/integration
+rake test:units 	Runs all the unit tests from test/unit
+rake test:recent 	Tests recent changes
+
+* **You don't need to run the db:test:prepare task when you're running the entire test suite via Rake. When run via Rake (rake test:units), the test environment is prepared for you.**
+**Rails by default automatically loads all fixtures from the test/fixtures folder for your unit and functional test. 在integration test时需要指定使用的fixtures.**
+rake db:fixtures:load 或 rake db:test:prepare 只需要在单独运行一个test文件时才需要。当运行 rake test时，会自动准备test数据库。 
+
+
+===== Spec =====
+
+
+==== 安装 ====
+gemfile:
+	rspec-rails
+	factory_girl_rails
+	capybara
+	guard-rspec
+bundle install
+''rails generate rspec:install''
+
+==== 建立文件 ====
+
+==== 分组：describe 和 context ====
+
+类 -> 方法 -> 情景
+
+==== it ====
+每个it表示一个小测试
+
+its {:attribute} { ... }
+
+==== should, expect, specify ====
+shoulde/should_not  表示期望 + matcher
+expect + to 表示期望块内代码改变某个值，或抛出异常。
+
+==== matcher ====
+表示一些测试条件
+== 
+be_false
+FIXME: be_true
+be_valid
+be_blank
+
+==== pending ====
+测试占位符。
+
+
+==== 测试对象 ====
+
+subject { @user }
+
+==== 常量 ====
+
+page
+response
+
+==== 动作 ====
+
+=== 点击 ===
+
+== button ==
+**click_button** "sign in"		#参数是button上现实的字符
+
+== link ==
+**click_link** "链接显示的字符"
+
+=== URL访问 ===
+**visit** root_path
+
+== 填写表单 ==
+**fill_in** "表单名称" , with: "填写内容"
+
+
+==== 行为结果 ====
+
+=== 测试html标签内容 ===
+
+have_content("内容")
+have_selector("标签名", text: "标签内含 内容" )
+have_link("链接名", href: user_path(user)
+
+
+
+==== Model test ====
+
+	''respond_to(:name)''
+
+Rspec::let
+	create local variable
+	The argument of let is a symbol, and it takes a block whose return value is assigned to a local variable with the symbol’s name.
+it
+specifiy
+

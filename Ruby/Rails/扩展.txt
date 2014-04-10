@@ -1,0 +1,23 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-02-27T11:43:01+08:00
+
+====== 扩展 ======
+Created 星期三 27 二月 2013
+
+
+
+=== controller ⇔  view helper ===
+
+== controller => view helper ==
+helper_method :symbol
+
+== controller <= view helper ==
+* helper 方法: 其实就是先 require，再include
+
+''helper module''
+''helper :symbol''   # symbol 指向一个module，在symbol的基础上加上 _helper后缀，寻找相应的module，require并include之
+
+
+
+

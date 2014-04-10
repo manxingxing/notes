@@ -1,0 +1,30 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-01T13:46:29+08:00
+
+====== 统计 ======
+Created Monday 01 April 2013
+
+nls non-linear least square model.
+ 
+ 
+gam generalized additve model.
+ 
+lowess locally weighted scatter smoothing. 给定 x,y，返回包含平滑后的坐标的列表， 可以用 lines 添加。
+ 
+loess formular version of lowess.在前者基础上改进的版本。以 formula 方式支持一个 应变量和多个自变量。返回一个模型。
+ 
+predict 给定模型和自变量取值，返回预测值。自变量取值一般以数据况形式输入， 列名对应于自变量名称。
+ 
+aov 方差分析
+ 
+TukeyHSD Tukey Honest Significant Differences. Tukey 多重比较。返回因子水平间 差异的置信区间，有 plot method。
+ 
+dnbinom density function of negative binomial distribution. 负二项分布密度函数。在
+ 
+rnbinom 从指定的负二项分布中随机选取若干个值
+ 
+
+rpois 从泊松分布中随机选取若干个值 
+
+density 核密度估计。返回包含密度曲线上点的坐标。可以用 lines 或 plot 函数作图。

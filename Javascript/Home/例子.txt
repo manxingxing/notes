@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-01-04T23:29:57+08:00
+
+====== 例子 ======
+Created Saturday 04 January 2014
+
+为每个javascript值赋予一个唯一的字符串
+

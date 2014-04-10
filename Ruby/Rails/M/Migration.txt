@@ -1,0 +1,287 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-09T16:58:49+08:00
+
+====== Migration ======
+Created 星期一 09 七月 2012
+
+一个migration文件是一个继承自ActiveRecord::Migration的类。类内定义有up/down方法。
+* 而最近引入的change方法可以合并up/down，但仅能适用于**可推测出逆转操作**的情况。
+* Migration 即可以修改数据表结构，也可以进行**数据迁移**。
+* **Irreversible migration:**  Migrations of that kind should raise an ''ActiveRecord::IrreversibleMigration'' exception in their down method.
+
+===== 生成和删除migration文件 =====
+
+* migration名称 可以是 CamelCase，也可以是 下划线连接。都可以。
+* migration文件名和 类名应该一致！修改时要注意。
+* 在创建模型, scaffold, migration时，如果指定需要的列和类型，那么migration文件内会自动产生这些部分
+* 需要增加或删除单列时，给migration命名为 "AddXXXToYYY" 或 "RemoveXXXFromYYY"的形式， 并在其后指定增加/删除 列的名称和属性，那么这写部分或自动进入migration文件中。
+
+
+==== 伴随着modek, scaffold产生 ====
+* 生成model时自动创建migration file
+* 使用 ''--skip-model'' 参数禁止自动创建migration
+	
+	''rails generate model Name attr: type attr:type''
+	''rails generate model --skip-migration''
+	
+	''rails destroy model Name''
+
+
+==== 手动产生migration文件 ====
+
+当对已有数据库进行一些操作(如增加删除行)时，需要手动产生migration文件。
+
+'''
+rails generate migration Name field:type field:type
+rails generate migration AddXXXToYYY column:type
+rails generate migration RemoveXXXFromYYY column:type
+
+rails destroy migration Name
+'''
+
+
+===== 命令 =====
+
+==== db:migrate ====
+apply all pending migrations
+
+'''
+rake db:migrate
+rake db:migrate Version=
+
+'''
+* Version是迁移文件的数字日期前缀。
+* 根据Version判断是向前迁移 还是 向后迁移。如果向前，则会执行 __(__''current, version''__]__ 的所有迁移中的up操作。
+* 如果向后，则执行从__(__''version, current''__]__ 所有迁移的down操作。
+* migrate会同时执行 db:schema:dump。同步数据库的更改到schema.rb。
+
+==== db:migrate:up ====
+* 无Version时，和db:migrate相同，一路执行到最新的migration 文件。
+* 有Version时，只执行Version对应文件中的up部分
+* 仍会检查是否已经执行。如果已经执行，则do nothing
+'''
+
+rake db:migrate:up Version=
+'''
+
+
+==== db:migrate:down ====
+* 无Version时，会一路撤销到最起始状态！！！
+* 有Version时，只执行Version对应文件中的down部分
+'''
+
+rake db:migrate:down Version=
+'''
+
+
+==== db:create, create_all ====
+
+create根据database.yml创建**默认环境**的数据库
+create_all根据database.yml创建**所有指定环境**的数据库
+
+==== db:drop, drop_all ====
+
+drop根据database.yml删除**默认环境**的数据库
+drop_all根据database.yml删除**所有指定环境**的数据库
+
+
+==== db:schema:load ====
+
+从schema.rb中加载数据表结构到当前环境的数据库中
+
+
+==== db:schema:dump ====
+
+导出数据表结构
+
+==== db:seed ====
+
+从seed.rb加载数据到当前数据库
+
+==== db:setup ====
+
+''db:create +  db:schema:load + db:seed''
+
+
+==== db:reset ====
+
+''db:drop + db:create +  db:schema:load + db:seed''
+
+==== db:test:prepare ====
+1. 检查是否有pending migration
+2. db:schema:dump
+3. db:schema:load
+
+在默认的test框架下，rake test会自动执行这个命令。
+对Rspec框架，需要手动执行这句。
+
+==== db:rollback STEP ====
+
+==== db:forward	STEP ====
+
+==== db:migrate:redo STEP ====
+
+先执行down部分，再执行up部分。
+
+===== Structure migration =====
+
+==== Up/Down ====
+
+	* 如果没有执行过，则使用其up操作；反之，如果已经执行过，再次执行时会执行down操作
+	* down操作应该严格是up操作的反过程。并且最好以完全相反的顺序逆转up的操作。
+
+
+==== change ====
+
+	并不是所有的transformation都是可用的。目前，在change中可用的tranfomation有：
+		add_column			rename_column
+		add_index			rename_index
+		add_timestamps		remove_timestamps
+		create_table			rename_table
+	其他的操作，就只能使用up/down了。
+
+
+==== column types ====
+* Rails处理ActiveRecord和各种数据库数据类型的映射。对每种数据库，都有一个adapter文件，里面有一个native_database_types hash变量。例如postgresql数据库有文件：PostgreSQLAdapter。
+
+--------常用---------------------------
+	integer: 注意控制size，默认最多11个数字
+	string：注意验证size，默认255个字符
+	text： 性能问题。If you must use a text column in a performance-critical application, put it in a seperate table
+	decimal: 建议使用。尽量不要使用float
+	datetime
+	timestamp: 两个datetime类型的列：create_at/on, updated_at/on。属于magic column
+	boolean: 接受的值比较广泛，如true, false, T, F, 0, 1。但建议统一使用true/false
+	references/belongs_to: 外键列。
+---------不常用-----------------------
+	float: 采用近似表示，在需要精度的场合慎用。
+	time: very rare
+	binary: 有性能问题。如果真的需要，查询时使用select只选择这列出来。
+	primary_key
+
+* **TableDefinition#references** will add an appropriately-named **_id column(foreign key)**, plus a corresponding _type column if the **:polymorphic** option is supplied. 	
+* **TableDefinition#primary_key **Appends a primary key definition to the table definition. (其实是调用column(name, type="primary_key")
+
+==== column options ====
+* 由于每种数据库默认的设置不同，在不同数据库间转移数据时，有可能发生数字精度的损失，所以最好永远设置数字精度。
+
+=== :default ===
+
+=== :null ===
+	是否允许NULL值
+
+
+=== :limit=>size ===
+* 对数字，字符串有不同的意义
+
+=== precision ===
+
+=== :scale ===
+	小数位数
+	
+
+==== 使用 table object ====
+
+* 使用''create_table, change_table''时，产生一个table object对象。
+
+=== 数据表级改变 ===
+	
+	''create_table(name, options)''
+	参数
+	'':id''
+		* Whether to automatically add a primary key column. Defaults to true. 
+		* **Join tables for has_and_belongs_to_many should set it to false.** 
+	
+	''change_table(name)''
+	
+	另两个数据表级改变是：
+	''drop_table(name)''
+	''rename_table(old_name, new_name)''
+
+
+=== column declearation ===
+
+	'''
+	t.column(name, type, options)
+	'''
+		**short-hand**
+			'''
+			t.integer
+			t.references
+			t.index
+			'''
+	'''
+	t.change
+	t.change_default	#改变默认值
+	t.rename
+	t.remove		#普通列
+	t.remove_references	#外键列，和belongs_to相同
+	t.remove_belongs_to
+	t.remove_index
+	t.remove_timestamps
+	'''
+
+
+
+==== 不使用table object ====
+	
+	''add_column(table_name, column_name, type, ''**options**'')''
+	
+	''rename_column(table_name, column_name, new_column_name)''
+	
+	''change_column(table_name, column_name, type, options)''
+	
+	''remove_column(table_name, column_name)''
+	
+	''add_index(table_name, column_names, options)''
+		Adds a new index with the name of the column. 
+		options include **:name** and **:unique** (e.g. { '':name => "users_name_index", :unique => true'' }).
+	''remove_index(table_name, index_name): Removes the index specified by index_name.''
+
+
+
+
+===== Data migration =====
+
+* 这个部分是需要注意的。容易因此成为Bad migration
+* 假如要为刚刚新增的列填充数据，最好执行 **reset_column_information** 来重新加载数据表的列信息
+
+==== SQL ====
+* In most cases, you should craft your data migration in raw SQL using __execute__ command that is available inside a migration class
+* 速度快，效率高
+* 不会导致bad migration
+
+	''execute(SQL)''
+	
+
+==== Migration Model ====
+* 使用依赖于model内容的语句是危险的。如果现在这个model已经消失了，或者有些方法、列已经消失了，那么依赖于这些内容的migration就不能再运行了。
+* 所以，在migration class 内定以一个同名migration model(同样继承自ActiveRecord::Base)，甚至可能还需要一些方法。这样创建的model只在该migration class中有效。就能够恢复model - database间的关联。
+
+==== 大数据量 ====
+如果条目数不超过1000， 使用 .all获取是可以的。
+
+当数据表很大时，考虑两种方法：
+1. 使用find_each，而不是.all
+2. 如果仅是对部分行进行操作，那么:
+	Sheetcell.where(condition).find_each
+3. 使用raw sql
+
+
+===== schema.rb =====
+
+* never edit it manually
+* check into version controll。important for an new instance of app
+
+===== seeds.rb =====
+* seed存储样例数据，schema.rb存储数据表结构。
+* The contents of seed.rb is simpliy a series of create! statements.
+* 最好使用create 等命令的 "bang! version"。这样如果有错误，在执行时就能知道
+* 最好添加数据前，先使用delete_all 显式删除所有已有数据。
+
+===== Bad migration =====
+
+根源在于：model 和 migration/database 的更改不是同步的。model的修改先从github下同步下来，假如model发生了变化，依赖于原来model的migration就坏掉了。
+
+migration model就是为了补上这个链接而设立的。

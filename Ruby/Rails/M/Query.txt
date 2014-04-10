@@ -1,0 +1,288 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-19T13:44:17+08:00
+
+====== Query ======
+Created 星期四 19 七月 2012
+
+基本围绕着这个SQL语句
+SELECT DISTINCT * FROM tablename 
+		LEFT JOIN ON ... 
+		WHERE ...
+		ORDER BY
+		GROUP BY
+		LIMIT
+		OFFSET
+		HAVING
+
+
+===== conditions =====
+
+
+==== 格式 ====
+
+=== String ===
+* 最好使用placeholder，有两种：? 和 symbol
+
+== question mark(问号). 按位置匹配 ==
+	''where("description LIKE ? AND color = ?", "%#{terms}%", "black")''
+
+
+== symbol 及 hash table。按symbol匹配 ==
+	''where("subject LIKE :foo OR body LIKE :foo AND color=:color", :foo=>"%woah%",:color=>"black")''
+
+
+=== Hash ===
+用于相等类比较。在下列三种情况下更简洁
+	a. 等于
+	b. 区间
+	c. 数组
+
+==== 比较操作 ====
+	> >=
+	< <=
+	=	<> 或者 != (不等于)
+	BETWEEN
+	IN (1,2,3)
+	LIKE 	#用  % 做通配符
+通配符
+	%		#用在LIKE中做通配符
+检验NULL
+	''WHERE("title ''__IS NULL")__
+	'':title=>nil''
+算术
+	+ - * /  
+
+
+==== 逻辑关系 ====
+	AND
+	OR
+	NOT
+
+
+==== summary ====
+	SUM
+	AVG
+	MIN
+	MAX
+	COUNT
+
+
+==== Math(有些需要一些库，不知怎么解决） ====
+	abs
+	sqrt
+	exp
+	log(底，值)
+	ln
+	random 产生0-1之间的随即数
+	mod(y,x) 余数
+	sin, cos, tan, ...
+	degress, radians 弧度，角度转换
+	round, ceil, floor
+
+
+===== find =====
+
+第一个参数是查找方式： :all, :first, :last, primary_key
+
+'''
+find(id, *args)	#id 可以是数组
+find(:all, *args)  -> all(args)
+find(:first, *args)-> first(args)
+find(:last, *args) -> last(args)
+first(n,*args)
+last(n,*args)
+'''
+
+* find(id)当查找不到记录时，会抛出异常。其他方法则只返回nil。
+
+
+===== dynamic finder =====
+
+'''
+find_all_by_firstname
+find_by_firstname_and_lastname
+find_last_by_lastname
+'''
+
+
+* 每个finder helper都有后缀为 ！ 的版本。当未查找到记录时，抛出异常。
+* you can customize dynamic finders by chaining them to the end of scopes or relations, however they must be the last call since they return the actual values. 不能连接(chain)起来，所以这种方法用的越来越少了。__建议使用where__
+
+==== Find or Create it if not found ====
+'''
+find_or_create_by_firstname_and_lastname(:firstname=>"alan",:lastname=>"man")
+find_or_initialize_by
+'''
+在使用where查询符合指定条件的记录时，结合first_or_create，则在找到时直接返回结果，未找到时以查询条件创建新的记录。
+
+first_or_create接受一些额外的参数赋值，当创建新的对象时，使用这些参数。
+	''Client.where(:first_name => 'Andy').first_or_create(''**:locked => false**'')''
+
+函数返回一个对象，可能是已有的记录，也可能是新建的记录。使用new_record?判断。
+
+===== dynamic scope =====
+* 和dynamic finder相似，都是通过method_missing来实现。
+* 是chainable的。可以和其他方法联用。
+
+	''scoped_by_<attribute>''
+	''scoped_by_title_and_intro''
+	''User.scoped_by_type(:normal).order(:firstname)''
+	
+===== where clause =====
+* 是最为建议的方式
+* chainable
+	
+	''where(cond)''
+
+
+===== order, reverse_reorder =====
+	对应于SQL的ORDER BY部分
+	* 多个排序间用空格分开
+	* DESC, ASC
+例如：
+'''
+order(:title)
+order("title DESC,intro DESC")
+'''
+
+
+===== select =====
+	对应于SQL的SELECT 部分。
+	* 使用select选取的部分数据是只读的。因为数据不完整。修改部分数据可能造成不一致的记录。
+	* 经常和group+SUM等联合在一起使用
+	'''
+	select(:title)
+	select([:id, :title])
+	select("mon_hrs+tues_hrs as two_day_total")
+	FIXME: select(
+	'''
+**:***'', "mon_hrs+tues_hrs as two_day_total")	# :* 表示所有其他未指定的列''
+
+===== limit(num) =====
+	相当于LIMIT 2
+
+
+===== offset(num) =====
+	当有limit时，规定起始点。
+
+
+===== uniq =====
+* 相当于SQL中的 SELECT DISTINCT
+
+
+===== group =====
+	分组。经常和select+SUM等 联合在一起使用
+
+
+===== having =====
+	当使用GROUP BY时，HAVING 对 分组后的数据 增加条件限制。使用方法和where相似。
+
+
+===== include =====
+* eager loading
+	
+	见N+1问题
+
+
+===== join =====
+
+==== 使用sql语句 ====
+	''Client.joins('''**LEFT OUTER JOIN** **addresses** **ON** **addresses.client_id = clients.id'**'')''
+
+
+==== 使用association名称 ====
+* 只支持inner join
+* 多个association用数组组合起来
+* 嵌套关系用 => 表示
+
+
+	''Category.joins(:posts => [{:comments => :guest}, :tags])''
+	
+
+
+===== pluck		#只取一列 =====
+
+
+===== 单独的函数 =====
+	
+	select, from, 
+	
+	readonly	#限定查询出来的记录为只读
+	
+
+	count()
+	average()
+	minimus()
+	maximum()
+	sum()
+
+
+
+===== Scope =====
+* __Adds a class method for retrieving and querying objects. A scope represents a narrowing of a database query。such as __
+''where(:color => :red).select('shirts.*').includes(:washing_instructions).''
+* 有前面介绍的 chainable 类方法组成
+* scope也可以成为chain的一部分
+
+Scope增加一个__类方法__。格式为：
+	''scope(name, scope_options = {})'' 
+	例如：
+	''scope :red, where(:color => 'red')''
+	
+相当于：
+'''
+class Shirt < ActiveRecord::Base
+  def self.red
+    where(:color => 'red')
+  end
+end
+'''
+如果需要给scope方法提供参数，就像order, group一样。可使用lambda：
+	'''
+	class Shirt < ActiveRecord::Base
+	    scope :colored, lambda {|color| where(:color => color) }
+	'''
+
+	''  end''
+
+**lambda 类似于 R 中的 匿名函数**
+
+
+===== Exists? =====
+	''exists?(id = nil)''
+
+Returns true if a record exists in the table that matches the id or conditions given, or false otherwise. The argument can take five forms:
+
+    **Integer** - Finds the record with this primary key.
+    **String** - Finds the record with a primary key corresponding to this string (such as '5').
+    **Array** - Finds the record that matches these find-style conditions (such as ['color = ?', 'red']).
+    **Hash** - Finds the record that matches these find-style conditions (such as {:color => 'red'}).
+    **No args** - Returns false if the table is empty, true otherwise.
+
+
+===== 使用raw sql =====
+* ActiveRecord考虑了数据库之间的差异。因此大多数情况应该考虑使用ActiveRecord的方法。
+* migration中使用较多？
+* you should have a special reason to be using it instead of the more concise alternatives provided by ActiveRecord
+
+
+==== find_by_sql(sql) ====
+
+==== count_by_sql(sql) ====
+* sql参数的SELECT部分必须是 ''SELECT count(*) FROM''
+
+
+===== 效率 =====
+
+==== 大量查询 ====
+find_each	#每次抽取一定数量的记录，再把其中每条记录传递给block
+find_in_batch 	#每次抽取一定数量的记录，将这些记录作为一个整体递给block
+
+==== N+1 问题 ====
+**eager loading**
+可以理解为预加载。一次将相关的查询都执行，减少查询次数。
+
+	''Post.includes(:comments).where("comments.visible", true)''
+
+include参数和joins 相同。

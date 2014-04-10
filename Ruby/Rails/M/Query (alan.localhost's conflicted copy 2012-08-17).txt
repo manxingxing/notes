@@ -1,0 +1,248 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-19T13:44:17+08:00
+
+====== Query ======
+Created 星期四 19 七月 2012
+
+基本围绕着这个SQL语句
+SELECT DISTINCT * FROM tablename 
+		LEFT JOIN ON ... 
+		WHERE ...
+		ORDER BY
+		GROUP BY
+		LIMIT
+		OFFSET
+		HAVING
+		
+
+===== 两个级别上的查询 =====
+
+它们的使用方法和意义相同。
+
+==== 关联表时，设置查询条件 ====
+见关联表部分
+
+==== 当查询时才设置查询条件 ====
+1. 使用广义的find
+2. 使用灵活分散的方法
+3. **使用raw sql: **''find_by_sql''
+
+===== 构建查询条件-> conditions =====
+
+* 使用单引号包围字符串
+
+==== operators ====
+	+ - * /  %
+	> >=
+	< <=
+	=	<> 或者 != (不等于)
+	BETWEEN
+	IN (1,2,3)
+	LIKE 	#用  % 做通配符
+
+
+==== 逻辑关系 ====
+AND OR NOT
+
+==== summary ====
+	SUM AVG MIN  MAX COUNT
+
+
+==== Math(有些需要一些库，不知怎么解决） ====
+	abs
+	sqrt
+	exp
+	log(底，值)
+	ln
+	random 产生0-1之间的随即数
+	mod(y,x) 余数
+	sin, cos, tan, ...
+	degress, radians 弧度，角度转换
+	round, ceil, floor
+
+
+===== 广义find(args) =====
+
+第一个参数是查找方式： :all, :first, :last, primary_key
+
+'''
+find(id, args)
+find(:all, args)  -> all(args)
+find(:first, args)-> first(args)
+find(:last, args) -> last(args)
+'''
+
+* find(id)当查找不到记录时，会抛出异常。其他方法则只返回nil。
+
+**参数表**
+**conditions**
+	对应于sql语句的where部分
+	1. 字符串形式：不要用
+	2. placeholder: 最常用的形式
+		a. ?
+				''Client.where("orders_count = #{params[:orders]}")''
+		b. hash key + hash table
+		'''
+			      Client.where("created_at >= 
+		'''
+**:start_date**'' AND created_at <= ''**:end_date**''",''
+	  	      **{**'':start_date => params[:start_date], :end_date => params[:end_date]''**}**'')'' 
+	4. hash：在下列三种情况下更简洁
+		a. 等于
+		b. 区间
+		c. 数组
+		'''
+		Client.where(:locked => true)
+		Client.where(:created_at => (Time.now.midnight - 1.day)..Time.now.midnight)
+		Client.where(:orders_count => [1,3,5])
+		'''
+
+**order**
+	对应于SQL的ORDER BY部分
+	* 多个排序间用空格分开
+	* DESC, ASC
+
+**select**
+	对应于SQL的SELECT 部分。
+	* 使用select选取的部分数据是只读的。因为数据不完整。修改部分数据可能造成不一致的记录。
+	* 经常和group+SUM等联合在一起使用
+
+**limit**
+	相当于LIMIT 2
+
+**offset**
+	当有limit时，规定起始点。
+
+**group**
+	分组。经常和select+SUM等 联合在一起使用
+
+**having**
+	当使用GROUP BY时，HAVING 对 分组后的数据 增加条件限制。使用方法和where相似。
+
+**include**
+	见关联表部分
+
+**join**
+	见关联表部分
+
+
+===== 单独的函数 =====
+提供rails风格的一些单独的函数。
+这些函数提供了很大的灵活性。
+
+	first
+	last
+	all
+	
+	
+	**where	#相当于conditions参数**
+	uniq	#相当于 SELECT DISTINCT
+	order, reverse_reorder
+	select, from, 
+	limit, offset
+	group, having
+	**include, joins	#见关联表部分**
+	readonly	#限定查询出来的记录为只读
+	pluck		#只取一列
+
+	count()
+	average()
+	minimus()
+	maximum()
+	sum()
+
+
+===== Dynamic finder =====
+find_all_by_
+find_by_
+find_last_by_
+
+每个finder helper都有后缀为 ！ 的版本。当未查找到记录时，抛出异常。
+
+**多个field的finder可以连接起来！**就像这样：
+	**Client.find_by_first_name_and_locked("Ryan", true)**
+参数按照finder名称顺序赋值。
+
+===== Scope =====
+Adds a class method for retrieving and querying objects. 
+A scope represents a narrowing of a database query。
+
+Scope增加一个类方法。格式为：
+	''scope :名称 ,  where等条件''
+	例如：
+	''scope :red, where(:color => 'red')''
+
+scope生成的方法能够像where, find等一样使用，也可以和它们连接在一起使用，例如：
+	Shirt.red
+	
+如果需要给scope方法提供参数，就像order, group一样。可使用lambda：
+	'''
+	class Shirt < ActiveRecord::Base
+	    scope :colored, 
+	'''
+**lambda {|color| where(:color => color) }**
+''  end''
+
+**lambda 类似于 R 中的 匿名函数**
+
+===== Find or Create it if not found =====
+'''
+first_or_create
+first_or_create!
+first_or_initialize
+'''
+在使用where查询符合指定条件的记录时，结合first_or_create，则在找到时直接返回结果，未找到时以查询条件创建新的记录。
+
+first_or_create接受一些额外的参数赋值，当创建新的对象时，使用这些参数。
+	''Client.where(:first_name => 'Andy').first_or_create(''**:locked => false**'')''
+
+函数返回一个对象，可能是已有的记录，也可能是新建的记录。使用new_record?判断。
+
+===== Exists? =====
+	''exists?(id = nil)''
+
+Returns true if a record exists in the table that matches the id or conditions given, or false otherwise. The argument can take five forms:
+
+    **Integer** - Finds the record with this primary key.
+    **String** - Finds the record with a primary key corresponding to this string (such as '5').
+    **Array** - Finds the record that matches these find-style conditions (such as ['color = ?', 'red']).
+    **Hash** - Finds the record that matches these find-style conditions (such as {:color => 'red'}).
+    **No args** - Returns false if the table is empty, true otherwise.
+
+
+
+===== 关联表查询 =====
+
+==== 在association同时提供的方法 ====
+
+==== JOINS ====
+
+==== 使用sql语句 ====
+	''Client.joins('''**LEFT OUTER JOIN** **addresses** **ON** **addresses.client_id = clients.id'**'')''
+
+
+==== 使用association名称 ====
+* 只支持inner join
+* 多个association用数组组合起来
+* 嵌套关系用 => 表示
+
+
+	''Category.joins(:posts => [{:comments => :guest}, :tags])''
+
+
+===== 效率 =====
+
+==== 大量查询 ====
+find_each	#每次抽取一定数量的记录，再把其中每条记录传递给block
+find_in_batch 	#每次抽取一定数量的记录，将这些记录作为一个整体递给block
+
+
+
+==== N+1 问题 ====
+**eager loading**
+可以理解为预加载。一次将相关的查询都执行，减少查询次数。
+
+	''Post.includes(:comments).where("comments.visible", true)''
+
+include参数和joins 相同。

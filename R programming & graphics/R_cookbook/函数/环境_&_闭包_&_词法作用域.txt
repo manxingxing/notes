@@ -1,0 +1,85 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-05-09T21:28:33+08:00
+
+====== 环境 & 闭包 & 词法作用域 ======
+Created 星期四 09 五月 2013
+
+===== 环境 =====
+环境包含两类对象
+1. 定义在其中的 name/symbol  - value 对
+2. 其父环境
+	parentenv() 函数获得父环境
+
+
+==== 几种环境 ====
+
+=== <environment: R_GlobalEnv> ===
+globalenv()
+.GlobalEnv
+
+=== package environment ===
+
+== <environment: package:pkgName> ==
+用户可见的对象
+从namespace中export出来的对象
+
+== <environment: namespace:pkgName> ==
+一个包内所有的对象
+对包内函数可见的所有包内对象
+
+**特殊的base包**
+baseenv()
+.BaseNamespaceEnv
+
+=== <environment: R_EmptyEnv> ===
+emptyenv()
+
+=== attach ===
+
+=== 函数执行时产生的内部环境 ===
+以函数被调用处环境为父环境创建的求值环境。
+当这个环境不再使用时，会自动清理
+
+
+==== Manipulate environment ====
+
+=== 建立 ===
+''new.env(parent=)''
+
+=== 访问环境内元素 ===
+
+''ls(envir= )''
+''envir$symbol''
+
+===== 闭包 =====
+闭包指
+1. 函数定义
+2. 函数的环境
+
+==== 几个相对环境 ====
+**函数的环境**
+
+**函数所在的环境**
+
+**函数被调用处的环境**
+
+==== search path ====
+
+.GlobalEnv -> packages -> Autoloads -> baseenv() -> emptyenv()
+
+==== 词法作用域 ====
+用来寻找与name/symbol关联的value的一套规则
+
+=== console中输入的对象名 ===
+search path
+
+=== 函数中的unbounded object ===
+
+== 定义在 .GlobalEnv 中的函数 ==
+函数的环境 -> (父环境) -> search path
+
+== package中的函数 ==
+namespace -> imported namespace -> base -> search path
+
+

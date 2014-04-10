@@ -1,0 +1,83 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-12-20T11:52:15+08:00
+
+====== markdown ======
+Created Thursday 20 December 2012
+
+[[http://wowubuntu.com/markdown/|Markdown 语法说明 (简体中文版)]]
+
+
+上面这个链接是比较完整的markdown语法。下面只记录生疏的部分：
+
+==== HTML标签 ====
+
+不在markdown范围的HTML标签，可以直接书写
+
+**区块标签**
+
+如div, table。但是必须前后加空行与其他内容分开， 且开始标签和结束标签不能用制表符缩进。
+
+区块HTML标签内的markdown语法标记被会被解释
+
+**inline** 
+inline HTML标签使用没有限制
+
+==== 特殊字符 ====
+
+特殊字符会被自动转换成HTML实体
+
+==== 嵌套 ====
+
+=== 列表内嵌套 ===
+
+== 列表内段落 ==
+与上一个段落用空行分开，首行缩进四个空格或一个TAB，后面的行最好也缩进，比较美观，但没有要求
+
+== 列表内代码区块 ==
+代码区块本来就需要缩进四个空格或一个TAB，嵌套在列表内时，需要在此基础上，再缩进四个空格或一个TAB
+
+== 列表内引用 ==
+和普通段落相同，缩进四个空格或一个TAB,  然后以 符号 > 开头
+
+==== 分割线 ====
+三个以上的减号， 下划线，或星号
+
+==== 链接 ====
+
+=== 参考式链接 ===
+
+1. 用一个名称指代一个URL地址
+[id]: URL "title"
+
+具体格式为：
+链接内容定义的形式为：
+* 方括号（前面可以选择性地加上至多三个空格来缩进），里面输入链接文字
+* 接着一个冒号
+* 接着一个以上的空格或制表符
+* 接着链接的网址
+* 选择性地接着 title 内容，可以用单引号、双引号或是括弧包着
+
+2. 在他处引用这个地址
+[显示内容][id]
+
+**简略写法**
+在引用时，如果显示内容和id相同，id部分就可以留空，甚至省略。例如
+
+I get 10 times more traffic from [Google][] than from
+[Yahoo][] or [MSN].
+
+  [google]: http://google.com/        "Google"
+  [yahoo]:  http://search.yahoo.com/  "Yahoo Search"
+  [msn]:    http://search.msn.com/    "MSN Search"
+
+
+==== 图片 ====
+
+
+==== 自动链接 ====
+不为链接设置显示文字，让链接裸露在外
+* 用尖括号包围
+
+<http://www.google.com>
+<user@gmail.com>

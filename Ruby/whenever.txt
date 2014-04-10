@@ -1,0 +1,68 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-02-22T10:43:22+08:00
+
+====== whenever ======
+Created 星期五 22 二月 2013
+
+===== 安装 =====
+	''gem 'whenever', :require => false''
+
+
+===== 初始化配置文件 =====
+	
+	''wheneverize''
+将会生成config/schedule.rb
+
+==== 设置output log ====
+set :output, "#{path}/log/cron.log"
+
+===== 建立任务 =====
+
+==== 格式 ====
+every 时间设置 do
+	任务配置
+end
+
+==== 时间设置 ====
+14.minutes
+1.day
+:at => "4:28 PM"
+
+=== shortcuts ===
+:hour
+:day
+:sunday
+:month
+:year
+
+:reboot
+
+
+==== 任务配置 ====
+支持不同层次的任务
+
+=== runner ===
+Rails 代码中的方法
+	''runner 'Model.method'''
+
+
+=== rake ===
+rake 任务
+	''rake 'db:setup'''
+
+
+=== command ===
+系统软件命令
+	''command 'rm log/*'''
+	
+
+==== 查看将要生成的crontab内容 ====
+
+===== 写入crontab 文件 =====
+	''whenever --write-crontab --set 'environment=production'''
+
+
+===== 修改任务，并更新crontab文件 =====
+
+	''whenever --update-crontab --set 'environment=production'''

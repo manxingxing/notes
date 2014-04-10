@@ -1,0 +1,97 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-10-12T00:05:50+08:00
+
+====== 对象 ======
+Created 星期六 12 十月 2013
+
+
+**所有非 数字，字符串，逻辑值，null, undefined的变量都是"对象"。**
+
+* 类似于hash。
+* 对象中的数据称为 Property
+* 对象中的函数称为 method
+
+
+==== 属性 ====
+
+//object is a collection of name/value pairs, or a string-value map.
+
+=== 属性存取 ===
+* access the properties of an object with . or []
+[]
+点号
+
+=== 属性判断 ===
+in
+
+obj.hasOwnProperty
+obj.propertyIsEnumerable
+
+
+=== 属性遍历 ===
+
+== for + in ==
+仅可遍历enumerable的属性
+
+Object.keys	#类方法
+仅可遍历enumerable的属性
+
+Object.getOwnPropertyNames(obj)
+所有属性
+
+=== 增加和删除对象属性 ===
+	* 给不存在的属性赋值会自动增加该属性
+	* 使用delete操作符删除指定属性。
+	''delete object.property''
+	
+delete **操作符**
+* 不能删除var声明的变量
+* 不能删除函数
+* 不能删除函数参数
+* 不能删除内置及核心属性
+
+在ECMAScript 5 中，只有当其 操作数 是 属性访问表达式 时才能正常工作。
+
+=== getter 和 setter ===
+
+a = {
+get bla() {},
+set bla(val) {}
+}
+
+==== 属性的属性 ====
+
+=== 查询属性描述 ===
+
+Object.getOwnPropertyDescriptor(object, propertyName)
+
+== 对普通属性来说 ==
+* value
+* writable
+* enumerable
+* configurable
+
+== 对getter和setter来说 ==
+get: 一个function。
+set: 一个function。如果没有set，就表示不可写
+enumerable
+configurable
+
+=== 创建新属性或修改已有属性的descriptor ===
+Object.defineProperties	# 多个属性
+Object.defineProperty	# 仅一个
+
+=== 阻止向对象中添加属性 ===
+Object.preventExtensions(obj)
+Object.seal(obj)
+Object.freeze(obj)
+
+==== method ====
+Technically, it is only JavaScript objects that have methods. But numbers, strings, and boolean values behave //as if// they had methods .
+
+In JavaScript, null and undefined are the only values that methods cannot be invoked on.
+
+
+
+

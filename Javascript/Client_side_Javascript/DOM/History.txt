@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-13T12:11:53+08:00
+
+====== History ======
+Created Tuesday 13 November 2012
+
+length
+
+back()
+forward()
+go(number|URL)	# number 负数表示后退步数，整数表示前进步数，0导致刷新当前页面。

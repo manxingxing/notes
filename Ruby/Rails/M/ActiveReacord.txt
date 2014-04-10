@@ -1,0 +1,174 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-25T00:04:54+08:00
+
+====== ActiveRecord ======
+Created 星期一 25 六月 2012
+
+===== 作用和地位 =====
+1. Map between 数据表和ActiveRecord类
+2. 对象的CRUD
+3. Association
+4. validation
+5. callbacks
+
+* It's common to use **non-ActiveRecord model** class to encapsulate data and logic for the view helper。对于这样的类，不要继承ActiveRecord::Base
+
+===== 数据表 =====
+* 约定： 数据表名成是模型名的复数形式。
+	在application.rb中修改从类名"猜测"数据表名的规则。
+		-> config.active_record.pluralize_table_name=true
+		-> FIXME: config.active_record.table_name_prefix
+		-> FIXME: config.active_record.table_name_suffix
+* 用 类方法 ''table_name'' 获得/设置 模型对应的表名。
+	**table_name**是负责从类名猜测得到数据表名称的方法。
+* 用类方法 ''columns_names'' 获得所有列名。
+* 使用
+	self.''set_table_name = 'tablename'''
+	self.primary_key = 'pk'
+	修改数据表的映射关系。
+
+
+===== Attributes =====
+
+* ActiveRecord的属性并不是以实例变量的形式存在的。有下列几种获取和设置的方法：
+
+==== 获取和设置ActiveRecord::Base类实例对象的属性 ====
+
+=== read_attribute, write_attribute ===
+* 在override getter/setter的时候非常有用。
+* 因为它们直接从数据表中读取， getter/setter。
+
+=== 以方法的形式 ===
+* 自动获得getter, setter, 和一个 以 __?__ 结尾的查询方法，查询该列是否存在。
+
+@user.attr
+@user.attr=
+
+=== 以hash的形式 ===
+
+@user[:attr]
+@user[:attr]=
+
+=== 获取所有属性 ===
+* attributes， attributes= 
+
+==== 设置属性默认值 ====
+
+=== migration ===
+	''t.column :name, :string, :default=>""''
+
+
+=== 自定义getter ===
+在model中，重定义getter/setter
+
+	'''
+	def name
+	'''
+		'''
+		read_attributes(:name) || "default"
+		'''
+	'''
+	end
+	'''
+
+	'''
+	def name=(val)
+	'''
+		'''
+		write_attribute(:name,val) unless val.blank?
+		'''
+	'''
+	end
+	
+	或者
+	
+	def name
+	'''
+		'''
+		read_attributes(:name) || write_attribute(:name,"default")
+		'''
+	'''
+	end
+	'''
+
+
+==== Serialize ====
+* 指的是在一个text类型的数据表列中存储YAML形式的文本。形式一般是 __--{"key":value}__ 形式的文本。
+* 这种列可以用来存储和当前记录有关的preferences设定。
+
+
+在model中：
+	''serialize :column_name, Hash''	#允许存储的类名。限制可存储数据形式
+
+
+==== Mass assignment ====
+'''
+new(hash), create(hash)
+update_attributes(hash)
+'''
+
+
+==== Typecast ====
+
+<attrbute>_before_type_cast
+
+==== 控制属性访问 ====
+* 保护列不被mass assigment
+* 或者保护列不被修改
+
+attr_protected	#黑名单模式。**不在名单的可以**进行mass assignment
+attr_accesible	#白名单模式。**在名单的才可以**进行mass assignment
+attri_readonly	#一旦保存，便不能再修改。
+
+===== 对象实例 =====
+
+==== Create ====
+1. 传入整个hash
+	''new(hash), create(hash)''
+2. 先创建空的，再逐一赋值
+
+=== 判断是否新的未保存对象 ===
+'''
+persisted? 
+new_record?
+'''
+
+
+==== Read: 请转至Query 部分 ====
+
+==== Update: ====
+* 使用setter/hash形式修改单个属性。
+* update_attributes
+* update_attribute #**不经过validation**
+
+
+=== update by condition ===
+类方法：
+	''update_all(赋值部分，条件部分)''
+	
+* **两个参数既可以是hash形式，也可以是Sql语句形式。**
+* 使用SQL UPDATE WHERE 语句.
+* 更多地用于script代码，而不是controller中。
+
+=== wrappers ===
+* toggle!, toggle
+* increment, increment!
+* decrement, decrement!
+
+=== touch ===
+修改timestamp列(默认是''updated_at''列) 为 当前时间。
+
+==== Delete ====
+
+==== delete, destroy ====
+* 有实例方法版本，也有类方法版本。类方法版本接受id或id组成的列表
+* delete使用SQL DELETE直接删除对象对应的数据行
+* destroy会先加载实例，删除，并触发before_destroy callback.
+
+=== 条件删除：delete_all(cond), destroy_all(cond) ===
+* 区别和delete/destroy一样
+
+=== 是否已经删除 ===
+''destroyed?''
+

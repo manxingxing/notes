@@ -1,0 +1,20 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-10-21T21:03:23+08:00
+
+====== 待整理 ======
+Created 星期一 21 十月 2013
+
+
+==== ECMAScript 5 才支持 ====
+
+**JSON类对象**
+	之前可以用eval来运行json字符串得到对象，但是要考虑安全性。
+	
+	.toJSON
+	JSON.stringify
+	JSON.parse
+
+
+
+

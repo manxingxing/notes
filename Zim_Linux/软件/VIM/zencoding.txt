@@ -1,0 +1,87 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-07-22T11:42:39+08:00
+
+====== zencoding ======
+Created 星期一 22 七月 2013
+
+主要快捷键形式为  Ctrl+y + 其他键
+, 逗号展开
+i 自动填充图片大小
+a 用链接标签包围链接
+/ 切换注释
+
+==== 展开缩写 ====
+
+输入 div>p#foo$*3>a 这样的缩写,然后按 ctrl + y + __,__ 来展开(注意那个逗号)
+
+
+==== 多行缩写 ====
+
+输入如下:
+
+test1
+test2
+test3
+
+ESC回到普通模式，再按V进入行选择模式，选中这三行按 **ctrl + y + ,**   接着它会提示你要使用的tag名称，TAG: 输入 ‘ul>li* 会变成如下的样子
+
+<ul>
+    <li>test1</li>
+    <li>test2</li>
+    <li>test3</li>
+</ul>
+
+如果是输入blockquote，那么会变成这样
+
+  <blockquote>
+      test1
+      test2
+      test3
+  </blockquote>
+
+==== 跳转 ====
+
+=== 跳转到下一个标签编辑位置 ===
+
+输入ctrl + y + n 进入插入模式
+
+=== 跳转到上一个标签编辑位置 ===
+
+输入ctrl + y + N 进入插入模式
+
+==== 更新标签中图片大小 ====
+
+假如有以下内容
+
+<img src="foo.png" />
+
+光标移动到img标签上，按下ctrl + y + i 该插件会自动获取foo.png的大小并插入宽高属性 看起来像这个样子
+
+<img src="foo.png" width="32" height="48" />
+
+==== 切换注释 ====
+
+如有以下段
+
+<div>
+    hello world
+</div>
+
+光标移动到此段落，输入ctrl + y + /变成
+
+<!-- <div>
+    hello world
+</div> -->
+
+再次输入则还原
+
+==== 生成url连接 ====
+
+将光标移动到一个url上，如：
+
+http://www.google.com/
+
+输入ctrl + y + a 它会自动获取url页面的标题并生成一个连接
+
+<a href="http://www.google.com/"></a>

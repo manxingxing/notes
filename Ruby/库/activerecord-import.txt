@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-22T12:12:46+08:00
+
+====== activerecord-import ======
+Created Monday 22 April 2013
+@import  @performance
+
+Model.import array_of_models
+Model.import column_names, array_of_values
+Model.import column_names, array_of_values, options
+
+==== options ====
+validate: true/false		# default is true
+timestamps: true/false 	# default is true
+
+==== Benchmark ====
+
+https://github.com/zdennis/activerecord-import/wiki/Benchmarks
+
+values - validation >  model - validation > values + validation > model + validation
+
+==== timestamp ====
+
+When importing data the timestamp fields will continue to work as expected and each timestamp column will be set.

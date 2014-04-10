@@ -1,0 +1,20 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-21T00:52:43+08:00
+
+====== ActiveModel::Dirty ======
+Created 星期三 21 十一月 2012
+
+在实例化的对象中已经修改，但还没有进入数据库中时的状态，为dirty
+
+person.changed?
+person.login_changed?
+person.avarta_file_name_changed?
+
+person.changed	# 哪些属性被修改
+person.changes	# 被修改的属性及修改前后的值
+person.name_change	# name属性修改前后的值
+person.name_was		# name属性修改前的值
+
+
+在对象已经被修改且保存之后，其previous_changes 方法记录这之前的修改，其结果类似与 changes 方法

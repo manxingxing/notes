@@ -1,0 +1,137 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-07-24T16:46:20+08:00
+
+====== CSV ======
+Created 星期三 24 七月 2013
+
+===== String =====
+
+==== From String ====
+* 可接受可选block，每行将作为参数传入
+CSV.parse(text)   -> CSV(设置了header) 或者 Array(没有设header)
+CSV.parse_line(text)  -> array 或者 CSV::Row
+
+==== To String ====
+CSV.generate do |csv|   		//# the csv object is passed in//
+	csv << CSV::ROW 或者 Array of arrays
+end
+
+CSV.generate_line CSV::ROW 或 Array
+
+===== File =====
+
+==== From File ====
+
+=== A Line at a Time ===
+  CSV.foreach("path/to/file.csv") do |row|
+    # use row here...
+  end
+
+=== All at Once ===
+  arr_of_arrs = CSV.read("path/to/file.csv")
+
+==== To File ====
+CSV.open path, mode='w' do |csv|
+	csv << CSV::ROW 或者 Array
+end
+
+f = CSV.open path, mode = 'w'
+f << CSV::ROW 或者 Array
+f.close
+
+
+===== CSV::ROW =====
+A CSV::Row is part **Array** and part **Hash**(当设置header时)
+* mix-in了Enumerable模块
+
+#[]			 #field 的别名
+#[] = 
+#field  
+#field?
+
+#delete
+#delete_if &block   # 两个参数： header, field_value
+
+#header
+#header? 
+#include?      #header的别名
+
+#<<
+#push
+
+#to_csv
+#to_hash
+#to_a
+
+===== CSV.new 参数 =====
+* 通过查看CSV类的DEFAULT_OPTIONS常量，了解默认设置
+
+col_sep:	","
+:row_sep:	:auto
+:quote_char:	'"'
+:field_size_limit:	nil
+:converters:	nil
+:unconverted_fields:	nil
+:headers:	false
+:return_headers:	false
+:header_converters:	nil
+:skip_blanks:	false
+:force_quotes:	false
+
+
+===== 专题 =====
+
+==== header ====
+**获得header**
+读取第一行后关闭文件。为了优雅的方式关闭文件，最好使用CSV.open方法
+
+CSV.open path, options do |csv|
+	csv.readline
+end
+
+* 如果没有设置header，那么读取之后就是一个数组。
+
+* 如果设置了header: true或first_row，那么csv读取的行将是一个CSV::ROW对象，在它上面调用header方法，获得数组形式的header
+
+**写出header**
+CSV.generate headers: %w{a b c}, //write_headers//: true do |csv|
+	csv << [1,2,3]
+end
+
+
+==== 限制读取的行 ====
+已mix-in Enumerable模块。可以使用drop(n)来跳过前面的行
+
+
+==== 行数 ====
+__$INPUT_LINE_NUMBER__ 或者 __$.__  
+当前读取文件的行号
+或者
+f.lineno	# f是一个CSV对象
+
+==== chunk ====
+
+==== converters ====
+* 通过查看CSV类的Converters和HeaderConverters常量，来了解现在已经定义了什么converter
+
+=== 定义converter ===
+修改CSV类的Converters和HeaderConverters常量。这两个常量没有freeze，就是为了让用户定义更多的converter。例如：
+* converter是一个Proc类对象(proc或者lambda)
+
+CSV::Converters[:mytime] = lambda{|s| 
+  begin 
+    Time.parse(s)
+  rescue ArgumentError
+    s
+  end
+}
+
+=== 在使用时定义 ===
+CSV.new方法有两个参数： converters 和 header_converters
+默认它们为空，即不应用任何converter。
+* 接受一个symbol或者数组，指向将要应用的converter
+* 或接受一个Proc对象。
+
+
+

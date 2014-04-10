@@ -1,0 +1,19 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-05-09T22:03:38+08:00
+
+====== S3 类 ======
+Created 星期四 09 五月 2013
+
+@method_dispatch
+
+FIXME: dispatch的过程可以理解为**重置参数**后，把method里的代码贴过来?
+
+method 都是在和generic同一个求值框架内计算的
+
+在通过UseMethod和NextMethod切换方法的时候：
+Unevaluated arguments remain unevaluated. Missing arguments remain missing.
+
+==== internal generic ====
+.S3PrimitiveGenerics
+?InternalMethods

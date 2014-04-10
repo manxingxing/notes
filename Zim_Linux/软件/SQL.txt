@@ -1,0 +1,83 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-02-01T22:54:50+08:00
+
+====== SQL ======
+Created 星期五 01 二月 2013
+
+
+
+==== 分隔符 ====
+分号		SQL 结束
+逗号		分隔罗列的项
+单引号	包围字符，日期
+#		Access中用来包围日期
+		Access LIKE 中表示单个数字
+双引号	Access 中和单引号相同，用来包围字符串列名
+		其他数据库用来包围 包含空格的列名
+[]		Access 中用来包围 包含空格的列名
+* SELECT 子句中表示所有列
+		Access LIKE 中表示任意个字符
+  ?		Access LIKE 中表示 单个 字符、
+  %		其他数据库 LIKE 中表示任意个字符
+_(underscore)	其他数据库 LIKE 中表示 单个 字符
+- - (double dash)	注释行
+/* */		注释段落
+&		variable
+. (点号)	tablename.columnname
+
+
+==== Performance ====
+1. 避免使用 不相等检验(<> !=) ，因为不相等检验的效率偏低
+
+==== Constant value in select clasue Vs. Table of constants ====
+
+=== Constant value in select clasue ===
+
+=== Table of constants ===
+* 一行，若干列，每列存储一个常数。
+* FROM 子句中包含这个表
+* SELECT 子句中可以引用这个表的列，常数会自动填充到所有的结果行中
+* 不涉及 WHERE 子句
+
+
+=== unescape ===
+\_
+\%
+''	但单引号包围的字符串中，用连续的两个单引号表示一个单引号
+
+
+==== Case sensitive ====
+数据库都默认按照用户输入存储。但字符串比较时
+* Oracle 是 case sensitive
+* Access 忽略大小写。
+
+===== 事务 =====
+在一个事务中的所有变化，要么全部成功，要么全部回滚。
+* 在关闭autocommit特性的情况下，事务由两个commit之间的部分组成。
+* commit 会将改变持久化
+* rollback 回滚事务中的所有变化
+'''
+commit;
+rollback;
+'''
+
+
+===== 字符串处理函数 =====
+length
+
+upper
+lower
+
+concat
+	不同数据库提供了不同的操作符，例如&, ||, +
+
+
+=== 日期处理 ===
+
+	''to_char(date, "yyyy")''
+
+Access 中：
+
+	''year(date)''
+

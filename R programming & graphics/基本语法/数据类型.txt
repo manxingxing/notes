@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-12T00:06:15+08:00
+
+====== 数据类型 ======
+Created Friday 12 October 2012
+
+===== Class =====
+
+==== Date ====
+
+==== Factor ====
+factor 		构建 factor。设 exclude=NULL，数据中的 NA 值也将被当作一个独立的 level。 默认情况下，NA 值会被去除。用 levels 自定义 level 顺序。不在 levels 中的元 素会成为 NA(意为不知道属于哪个 level)。labels 为 levels 提供 optional name。
+ 
+as.factor 	转化为 factor ordered  构建 ordered factor as.ordered  转化为 ordered factor
+gl 产生 factor。n:level 数目，k 每个 level 重复数，level 默认名称是 1:n，用 labels 更 改。
+ 
+levels 		提取 factor 的 levels
+ 
+nlevels		levels 数目
+
+===== Type =====
+
+==== string ====
+我的笔记里字符串处理一章：
+[[file:///D:/Archive/%E6%89%80%E5%8A%A1/%E6%8A%A5%E5%91%8A/An%20introduction%20to%20R/Rnotes.md|D:\Archive\所务\报告\An introduction to R\Rnotes.md]]
+

@@ -1,0 +1,188 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-25T09:43:14+08:00
+
+====== IO ======
+Created 星期五 25 五月 2012
+
+===== IO 种类 =====
+STDIN, $stdin
+STDOUT, $stdout
+STDERR, $stderr
+
+ARGF, $<		# 不是ARGV。如果命令行参数中有文件名，那么ARGF相当与这些文件参数连接起来构成的单个文件
+
+DATA
+
+
+===== 标准输入输出 =====
+* 定义在Kernel中的一些和IO类中的同名方法
+
+gets	从标准输入获取一行数据，相当于R 中readLines(n = 1)
+puts	
+readlines	从标准输入接受多行数据，合并成一个数组。相当于R中readLines(n = -1)
+
+
+open	# 功能更多
+
+==== 重定向 ====
+
+<  , > ,  >>
+
+===== 文件流 =====
+
+
+
+==== 一次性打开，访问，关闭 ====
+
+	''File.readlines('/path/to/file')	#一个向量，每行一个元素''
+
+	''File.read('path/to/file')		#一个单一字符串。''
+	File.foreach(path, &block)
+
+
+==== 创建一个文件流对象 ====
+	f = File.new("path/to/file", 'mode')	#mode和R中函数file的mode非常相似。
+	f = File.open("path/to/file","mode")
+	f.gets
+	f.readline
+	f.readlines
+	f.each
+	f.each_line
+	f.close							#完毕后必须关闭文件连接
+	
+
+With no associated block, **File.open** is a synonym for **::new**. If the optional code block is given, it will be passed the opened file as an argument, and the **File object will automatically be closed** when the block terminates. In this instance, File.open returns the value of the block.
+
+	File.open('path/to/file/') do
+		代码块		#代码块对整个文件操作
+	end
+	
+	File.open('/path/to/file').each("分界符") 	默认为换行符
+	File.open('/path/to/file').each_byte			按字节读入，返回的也是ASCII码，用.chr方法转化成字符。
+	
+	File.open('/path/to/file').readlines
+	
+	File 类的方法：
+		readline
+		readlines
+
+
+==== 文件流对象的方法 ====
+
+=== 读取 ===
+**一次性**
+readlines
+
+**按行**
+.gets
+readline
+.each
+lines
+
+**按字符**
+getc
+readchar
+each_char
+chars
+
+**按字节**
+getbyte
+readbyte
+bytes
+each_byte
+
+**关闭**
+close
+
+**判断文件结束**
+eof?
+
+$_  伪全局变量存储当前行(gets, readline)内容
+#fileno	gets, readline的调用次数
+
+=== 写出 ===
+puts
+putc
+<<
+
+write
+syswrite
+
+printf
+
+
+==== 设置 ====
+
+=== 分界符 ===
+* 重定义  $/  (默认分界符)全局变量
+* each接受一个字符参数作为分界符
+		File.open('/path/to/file').each(',') {|f| statements}
+
+each_byte方法，逐字节读入。
+
+
+TODO:  File.open(ARGV.first __||__ 'bot_data', 'w')	从命令行中获取文件名，如果不存在，则读取bot_data
+
+
+==== mode ====
+ Mode |  Meaning
+  -----+--------------------------------------------------------
+  "r"    |  Read-only, starts at beginning of file  (default mode).
+  -----+--------------------------------------------------------
+  "r+" |  Read-write, starts at beginning of file.
+  -----+--------------------------------------------------------
+  "w"  |  Write-only, truncates existing file
+         |  to zero length or creates a new file for writing.
+  -----+--------------------------------------------------------
+  "w+" |  Read-write, truncates existing file to zero length
+          |  or creates a new file for reading and writing.
+  -----+--------------------------------------------------------
+  "a"   |  Write-only, starts at end of file if file exists,
+         |  otherwise creates a new file for writing.
+  -----+--------------------------------------------------------
+  "a+" |  Read-write, starts at end of file if file exists,
+          |  otherwise creates a new file for reading and
+          |  writing.
+  -----+--------------------------------------------------------
+   "b" |  Binary file mode (may appear with
+        |  any of the key letters listed above).
+        |  Suppresses EOL <-> CRLF conversion on **Windows**. And
+        |  sets external encoding to ASCII-8BIT unless explicitly
+        |  specified.
+  -----+--------------------------------------------------------
+   "t" |  Text file mode (may appear with
+       |  any of the key letters listed above except "b").
+
+
+=== 二进制文件 ===
+mode:binary
+IO#binmode
+
+
+=== 编码 ===
+
+mode后面附加编码名称
+* 可附加两个编码名称，前面的是外部编码，后面的是内部编码。
+* 大多情况下，只附加一个编码，即外部编码
+r:utf-8
+w:utf-9
+r:GBK:utf-8
+
+IO#set_encoding
+
+
+=== 随机访问 ===
+* 支持随机访问的IO: file, stringIO
+* 以byte为单位
+
+seek
+pos
+tell
+rewind
+
+===== 输出数据到文件 =====
+
+pstore
+yaml
+

@@ -1,0 +1,84 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-09T16:57:23+08:00
+
+====== 数据类型 ======
+Created 星期二 09 四月 2013
+
+===== 数据类型 =====
+
+==== 数字 ====
+smallint
+int
+serial
+float(n)
+real
+numeric(p, s)
+money
+
+==== 字符 ====
+char
+char(n)
+varchar(n)
+text
+
+==== boolean ====
+boolean
+
+==== 时间 ====
+date
+time
+timestamp
+interval	=>  有个OVERLAP 操作符，用于比较两个interval是否重叠
+timestamptz	with time zone
+
+
+==== 时间和日期函数 ====
+
+=== 当前时间 ===
+NOW()  
+current_timestamp
+
+=== DATEPART('month', datetime) ===
+取出年，月，日或时间信息。
+* 可以用来按月分组！！！
+
+year, month, day, hour, minute, second
+
+
+==== 数组 ====
+有两种数组定义的语法
+
+=== postgresql语法 ===
+* 不必定义数组长度
+colname type[n]	--- n 是可选的
+
+=== SQL99语法 ===
+* 必须定义数组长度
+colname type array[n]
+
+=== 插入数据 ===
+以形式
+{val, val, val}
+形式插入或更新数据
+
+==== 类型转换 ====
+CAST (colname AS type)
+colname::type
+
+type 'string'
+'string'::type
+CAST ( 'string' AS type )
+type ( 'string' )	# 函数调用语法
+
+CAST()语法遵循SQL标准。type 'string'语法是标准的一个扩展： SQL只是给少数几种数据类型声明了这个语法，但PostgreSQL允许将其用于所有类型。 ::和函数调用的语法 是PostgreSQL的历史用法。
+
+==== 几何形状 ====
+box
+line
+point
+polygon
+inet		# ip地址
+macaddr
+lseg		# 线段
+

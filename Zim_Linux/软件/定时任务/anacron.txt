@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-03-30T16:21:16+08:00
+
+====== anacron ======
+Created 星期日 30 三月 2014
+
+执行 系统关机期间未能执行的cron定时任务
+
+以天为单位， 或者在开机时，检查 /var/spool/anacron/下几个文件中的时间戳(表示上次执行该定时任务时的时间)，来判断该定时任务是否已经执行，如果没有，则在指定delay后，开始执行。
+
+/etc/cron.daily, /etc/cron.hourly等目录下都有一个 0anacron 任务，当执行时，会更新/var/spool/anacron下对应文件内的时间戳。
+
+=== 配置文件 ===
+
+''/etc/anacrontab''
+
+内容：
+1 5 cron.daily  run-parts --report /etc/cron.daily
+7 10  cron.weekly run-parts --report /etc/cron.weekly
+@monthly  15  cron.monthly  run-parts --report /etc/cron.monthly
+
+检查间隔(天)  延迟时间(分钟)  任务名称(对应/var/spool/anacron/下文件)   命令
+
+

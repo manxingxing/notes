@@ -1,0 +1,224 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-19T18:59:07+08:00
+
+====== Controller ======
+Created 星期四 19 七月 2012
+
+===== 产生和撤销 =====
+	'''
+	rails generate controller Name action1 action2
+	rails destroy controller Name
+	'''
+
+
+
+===== action =====
+* 没有返回值。如果不生成视图，就显式调用 return。
+* action的作用是查询数据，并生成视图，或者发送文件。
+* 需要将一些不直接生成视图(或发送文件)的方法设为protected 或 private
+
+==== 生成视图 ====
+* 没有显式调用render和redirect_to时，这时会默认寻找views文件夹下对应action的view文件。
+* 显式调用render和redirect_to后，其后的代码就不会执行了。one-view-per-path
+
+=== render ===
+参见 [[Rails:Views]]
+
+=== redirect_to ===
+参见 [[Rails:Views]]
+
+* 可在redirect_to 时，传递flash数据，以及notice,alert 这两种 特殊的flash。
+
+==== 发送文件 ====
+
+一种是发送文件，一种把数据转化为文件发送(这个还不懂呢)
+'''
+send_file(path, options = {}) 
+send_data(data, options = {})
+'''
+ 
+
+* 放在public/files 下的文件，不用设置绝对路径。
+* 这通常需要设置专门的download method。在点击链接时调用。
+
+**参数：**
+	:filename	#建议的文件名
+	:dispostion	#inline 或者 attachment。
+	:type		#MIME type
+
+这些参数其实都有一个默认的值，存放在常量：DEFAULT_SEND_FILE_OPTIONS 中。
+
+
+=== 文件的存放路径 ===
+存放在public/files下的文件，会交给网页服务器管理。这就不能利用Rails 的权限管理来限制对文件的下载。
+因此，如果需要对文件进行权限控制，就不能放在public/下
+
+=== performance ===
+
+//When you use the default behaviour of send_file to send the file out to the user, your rails process will read through the entire file, copying the contents of the file to the output stream as it goes.//
+
+//you have a limited number of rails processes available to handle application requests。下载文件需要占用一个进程，但是如果下载量很大时，这些有限的进程就不足以应付，从而让网站的其他功能也陷入瘫痪之中。//
+
+//Threads(线程)帮不上太大用处。Jruby 通过 Java 的多线程确实可以提高效率，但这仍然不是最终的解决方案。// 
+
+**最终的解决方案是使用 网页服务器的提供的module完成。例如apache 的X-sendfile。并且让其支持public之外的文件夹。详见 **http://www.therailsway.com/
+
+在对应环境的配置文件中设置。
+	'''
+	config/environments/production.rb
+	config/environments/development.rb
+	'''
+	     ''.....''
+
+
+=== Restful file download ===
+如果使用了Resources，那么下载功能可以放在 respond_to 内。让下载管理更加方便。
+
+在下列文件中注册 render 支持的MiME类型。
+config/initializers/mime_types.rb:
+	Mime::Type.register "application/pdf", :pdf
+
+在controller的action中使用：
+	'''
+	respond_to do |format|
+	   format.html	#转到相应的view(html格式)
+	   format.pdf { render :pdf => generate_pdf(@client) }
+	   format.eml	
+	'''
+**#转到相应的view(eml格式)**
+''end''
+
+TODO: 详细还需要进一步学习。
+
+===== Params =====
+params： 一个类似hash的列表。
+
+数据在action或view间跳转时，信息的流动主要就是通过 params 来实现的。
+
+==== 两个来源 ====
+* query strings. URL 里 ? 后面的部分
+* POST data. 来自表单
+
+==== 类型 ====
+URL是一维的。
+
+一般来说，是一系列的键-值对。“值”并不一定是简单的值，也可以是 数组 或者 嵌套的 hash。
+
+=== 数组 ===
+To send an array of values, append an empty pair of square brackets “[]” to the key name:
+ 
+	''/clients?ids[]=1&ids[]=2&ids[]=3''
+
+The value of params[:ids] will now be ["1", "2", "3"]
+
+=== hash ===
+To send a hash you include the key name inside the brackets:
+'''
+<input type="text" name="client[name]" value="Acme" />
+<input type="text" name="client[phone]" value="12345" />
+<input type="text" name="client[address][postcode]" value="12345" />
+<input type="text" name="client[address][city]" value="Carrot City" />
+'''
+the value of params[:client] will be {"name" => “Acme”, “phone” => “12345”, “address” => {"postcode" => “12345”, “city” => “Carrot City”}}.
+
+=== routing 参数 ===
+由routes匹配的参数。除:controller, :action之外，所有的内容都会做为parms的一部分。
+
+
+
+===== Filters =====
+filter 是在 指定action 执行前，后，或期间 执行的方法。类似于callbacks。
+	~~Filters are methods that are run before, after or “around” a controller action.~~
+
+**before_filter**
+	A common before filter is one which requires that a user is **logged in** **for an action to be run.** 
+	通常这也需要几个定义几个方法：login, login?
+
+
+**after_filter, around_filter**
+
+==== 限制filter作用的action ====
+
+	'''
+	:only=>[:index,:show]
+	:except=>[:bla,:sample]
+	'''
+
+
+==== 控制filter的继承 ====
+具体的controller 继承了ApplicationController，因而在ApplicationController中定义的 filter 会 成为全局filter。
+
+如果不想在某个具体的controller中使用，则在controller定义中使用：
+	''skip_filter(*names)''
+相当于同时执行：
+'''
+skip_before_filter(*names)
+skip_after_filter(*names)
+skip_around_filter(*names)
+'''
+
+
+===== Controller中可以使用的变量 =====
+
+==== request 可用的方法 ====
+'''
+request.request_method
+request.method
+request.get?, put?, delete? head?
+
+request.remote_ip
+
+request.session
+requset.cookies
+
+request.host
+request.domain(n=2)
+request.port
+request.url, full_path, request_uri
+
+
+request.query_string
+
+request.path_parameters
+request.request_parameters
+request.query_parameters
+'''
+
+
+==== request.env变量 ====
+FIXME: 前面的方法都是request.env的wrapper?
+
+=== 网站信息 ===
+SERVER_SOFTWARE
+SERVER_NAME
+SERVER_PORT
+SERVER_PROTOCOL
+
+=== 当前网址信息 ===
+QUERY_STRING
+HTTP_COOKIE
+
+在此request之前的request 地址，即源地址。
+__HTTP_REFERER__
+
+=== request信息 ===
+
+REQUSET_HOST
+REQUSET_URI
+REQUEST_METHOD
+QUERY_STRING
+
+用户信息
+
+HTTP_USER_AGENT
+REMOTE_HOST
+REMOTE_ADDR
+
+
+
+
+
+
+
+

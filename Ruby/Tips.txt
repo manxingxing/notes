@@ -1,0 +1,21 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-20T16:21:19+08:00
+
+====== Tips ======
+Created Saturday 20 April 2013
+
+=== 在controller中使用 view helper ===
+@tip @view-controller
+
+**view_context**
+An instance of a view class. The default view class is ''ActionView::Base''
+
+http://stackoverflow.com/questions/5943188/how-can-i-use-image-path-inside-rails-3-controller/5944188#5944188
+
+You can use view_context in your controller when doing 'view' tasks like generating links. The good thing about it is you don't have to include the view helpers in your controller.
+
+e.g. in your controller you can create a variable which will be a html link with link_to or url_for if you just want the link, 'only_path' option set to false should give you absolute url. 
+
+''view_context.url_for(:action => 'login', :controller => 'members', :only_path => false)''
+

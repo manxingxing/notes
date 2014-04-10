@@ -1,0 +1,20 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-08-10T17:54:55+08:00
+
+====== 视图 ======
+Created 星期六 10 八月 2013
+
+\h CREATE VIEW
+
+
+==== CUD through Views ====
+语法和操作table一样。
+* Update, delete只允许对View内行操作
+只有这样的view可以进行CUD操作
+1. 只有一个table
+2. 没有summary
+
+check option
+是否只允许在view where条件之内的修改。如果CUD的行不在View的可视范围内，则禁止这样的操作。
+

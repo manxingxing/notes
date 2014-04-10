@@ -1,0 +1,110 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-06-10T09:42:20+08:00
+
+====== find ======
+Created 星期一 10 六月 2013
+
+http://www.cnblogs.com/skynet/archive/2010/12/25/1916873.html
+
+===== 搜索目录 =====
+
+多个目录间用空格分开
+
+find /apps -path "/apps/bin" -prune __-o__ –print 在/apps目录下查找文件，但不希望在/apps/bin目录下查找
+
+文件类型
+
+-type 
+	l : link
+	f : file
+	d : directory
+
+find . __!__ -type d –print 在当前目录下查找除目录以外的所有类型的文件 
+
+=== depth ===
+maxdepth
+mindepth
+
+depth: TODO: 首先在当前目录中查找，再在其子目录中查找
+
+==== 文件名模式 ====
+-name 匹配模式 
+-iname 匹配模式 
+-lname 匹配模式 
+-ilname 匹配模式 
+-regex 匹配模式	对路径进行匹配，不仅仅是文件名
+-iregex 匹配模式
+-wholename PATTERN 
+
+
+=== 文件大小 ===
+-size 数字+单位
+
+数字：
+	+n	
+	-n
+	n  
+单位有： 
+	c : 字节
+	k : 千字节
+	M
+	G
+参见find --help
+
+-empty 选项 
+
+==== 时间戳表示 ====
+
++n   大于n天以前
+-n	过去几天以内
+n	当天
+
+**修改**
+mtime [+-]n
+mmin [+-]n
+newer FILE
+**change : 状态变化，如建立过符号链接，修改过权限，所有者**
+ctime	天为单位
+cmin	分钟为单位
+cnewer	FILE
+**access**
+atime	
+amin
+anewer FILE
+
+
+=== 负数：指定时间以内 ===
+-n
+-newer !file
+
+**整数不带符号**：指定时间当天，当分钟。。
+-mtime 1
+
+=== 一段时间 ===
+-n 3 +n 2
+-newer file1 __!__ file2
+
+
+=== 指定时间之前 ===
++n
+-newer file
+
+==== 进行操作 ====
+-exec cmd {} \;
+-ok  和 exec相同，但在执行命令之前提示
+| xargs cmd
+
+==== 权限 ====
+-perm 八进制／rwx符号
+
+-perm a=rwx
+-perm 777
+
+-perm -ug=rw
+-perm -220
+
+-user 
+-group
+-nouser
+-nogroup

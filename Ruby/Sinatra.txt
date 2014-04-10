@@ -1,0 +1,53 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-02-12T15:55:14+08:00
+
+====== Sinatra ======
+Created 星期三 12 二月 2014
+
+http://www.sinatrarb.com/intro-zh.html
+
+
+==== 为不同的错误情况，显示不同的错误页面 ====
+
+为所有错误显示同一个出错页面
+
+error do
+	#codes here
+end
+
+=== 抛出不同类型的错误 ===
+error MyCustomeError do
+	# codes here
+end
+
+=== 根据状态码 ===
+
+get '/secret' do
+	status 403
+end
+
+error 403 do
+	# codes here
+end
+
+error 400..510 do
+	#codes here
+end
+
+==== 在action间共享变量 ====
+
+=== 利用settings对象 ===
+
+set :var, 'value'
+set :a => val1, :b => val2
+enable [[:option]] # set 的变种
+disable [[:option]] #set的变种
+set :css_dir, Proc.new{}
+
+在action里，使用**settings.val**获取变量的值
+
+=== ruby本身支持的其他方式 ===
+类变量
+
+

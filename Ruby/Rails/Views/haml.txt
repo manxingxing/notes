@@ -1,0 +1,36 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-31T15:14:50+08:00
+
+====== haml ======
+Created 星期二 31 七月 2012
+@haml 
+
+http://haml.info/docs/yardoc/file.REFERENCE.html
+
+DOCTYPE
+	!!!		#XHTML 1.0 Transition 或者 HTML 4.01 Transitional
+	!!! Strict 	#XHTML 1.0 Strict	或者  HTML 4.01 Strict
+	!!! Frameset #XHTML 1.0 Frameset 或者 HTML 4.01 Frameset
+	!!! 5		#XHTML 5 或者 HTML 5
+	!!! 1.1		#XHTML 1.1 Transition
+	
+
+%{:attr=>value}
+.class
+#id
+\   escape
+*word*    <em> </em>
+#{} 	interpolation。 和 erb中一样
+=
+&=   evaluate ruby code and insert sanitized text
+&     sanitize
+!=   evaluate ruby code and insert unsanitized text(raw html)
+!   unsanitize
+-   evaluate ruby code, but not insert
+/    html comments
+-#	haml commetns
+~   perserver whitespace
+
+**object reference notation**
+%td[@user] 		->  <td id=**"user-15"**>  </td>

@@ -1,0 +1,132 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-06T15:34:51+08:00
+
+====== Array ======
+Created 星期六 06 十月 2012
+
+===== 类方法 =====
+
+==== 创建 ====
+ 
+	a = []
+	a = [1,2,3]
+	a = %w{1 3 4}
+	a = Array.new()	#空参数
+	a = Array.new([1,2,3])		#从已有对象**复制。另一种面向对象机制。**
+	a = Array.new(%w(1 2 3))	#字符数组
+
+* 用符号 [ ] 构建数组。同时也用该符号索引(访问)数组。
+* 元素间用逗号隔开
+* 索引从0开始
+* 负数下标则从末尾开始，-1表示最后一个元素。
+* 索引的部分也可以赋值。
+* puts 方法对数组来说，会隔行打印每隔元素。
+* inspect 会将对象以字符形式显示
+* p 方法相当于 inspect + puts obj.inspect
+
+
+===== 对象方法 =====
+
+==== 索引和赋值 ====
+  [], slice
+  []=, slice()=
+  first(n), last(n)
+  at(index), fetch(index,default), fetch(index, block)
+  values_at(index1,...)
+
+==== 比较 ====
+  ==
+  <=>
+  eql? 	#根据array的**hash**值比较
+
+==== 查询元素 ====
+  includes?
+  empty?
+  find_index/index(val),find_index/index(&block==TRUE)
+  rindex(val)	#reverse lookup
+
+=== 是否uniq? ===
+Array.class_eval do
+    define_method :uniq? do
+      self.uniq!.nil?
+    end
+end
+或者另一种语法
+Array.send(:defind_method, :uniq?) do
+  self.uniq!.nil?
+end
+
+==== 元属性 ====
+  length, size
+  count(obj)
+
+==== 编辑 ====
+  clear
+  pop,push
+  shift,unshift
+  insert(pos,element,...)
+  delete,delete_at, delete_if,reject!(&block)
+  keep_if,select!
+
+  drop(n),drop_while(&block) #drop first n elements. 在block返回true 前一直删除。
+  take(n),take_while(&block)	#take first n element
+
+  fill: fill all or part of array elements with values
+  replace(another_array)
+
+==== 迭代 ====
+  each, each_index(|index|), reverse_each
+  collect/map
+  cycle(n)
+  reject,select/find_all
+  detect/find	#the first match
+  zip
+
+==== 排列组合 ====
+  combination, permutation
+  product(another_array)
+  利用Enumerator#to_a 结合，查看元素。
+  sample(n)	
+
+  repeated_combination(n)	#n可以大于数组长度
+  repeated_combination(n)	#n可以大于数组长度
+
+==== 排序 ====
+  sort,sort_by
+  reverse
+  rotate(cnt=1),rotate!(cnt=1)
+  shuffle,shuffle!
+
+==== 预处理 ====
+  compact: remove nil elements
+  flatten(level)
+  join()
+  uniq, uniq!
+
+
+==== 集合操作 ====
+交集
+	''arrayA & arrayB''
+union
+	''arrayA | arrayB''
+difference
+	''arrayA - arrayB''
+concatation
+	''arrayA + arrayB''
+	''arrayA.concat(arrayB)''
+	
+是否子集subset?
+
+[arrayA - arrayB].empty?  如果true，则arrayA 是 arrayB 的子集
+[arrayA & arrayB] == arrayA   如果true, 则arrayA 是 arrayB 的子集
+
+==== 删除 ====
+delete_at
+delete
+     Deletes items from self that are equal to obj. 实时改变
+delete_if
+drop(n)	#前n个元素
+drop_while(&block)	#从开始到条件为真为止。
+reject!
+keep_if

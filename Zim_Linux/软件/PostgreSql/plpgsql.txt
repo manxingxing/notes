@@ -1,0 +1,508 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-09-29T22:35:45+08:00
+
+====== plpgsql ======
+Created 星期日 29 九月 2013
+
+'''
+declare
+   name type := value;
+begin
+   statements
+end
+'''
+
+
+===== 安装 =====
+在console里：
+1. 切换到需要安装语言的数据库
+2. CREATE EXTENSION //language_name//
+
+在终端
+createlang //language_name// template1/数据库名称
+# 加在template1上的language，会被后续新建的数据库继承。
+
+====== declare ======
+* 函数中使用的所有变量，都需要实现在这个块中声明
+* 循环变量一般会自动声明，所以不需要在这个块中声明
+* 命名参数也不需要在这里声明，不过这在早期的postgres中是不支持的
+
+**name** [ //CONSTANT// ] **type** [ COLLATE collation_name ] [ NOT NULL ] [ { //DEFAULT | := } expression// ]
+
+===== 变量初始化 =====
+* 以这种形式初始化时，只能赋值标量。record等符合类型需要在select into等句式中初始化。
+
+var_name type := value
+var_name type DEFAULT value
+
+===== 常量 =====
+
+使用 CONSTANT 修饰，并且初始化变量值
+
+CONSTANT var_name type := value
+
+===== 引用另一个对象的类型 =====
+
+* ROW type
+* 引用数据列的类型，而不需要特意去查schema定义
+* 对多态函数，多态类型参数/返回值的类型随调用变化，只有在调用时才能确定。所以能动态引用其类型，很重要。
+
+arow **RECORD**
+var_name%TYPE
+tablename**%ROWTYPE**
+tablename.columnname**%TYPE**
+
+===== 复合类型对象 和 record =====
+
+var_name tablename**%ROWTYPE**
+var_name 复合类型
+var_name record
+
+一般用来存储  SELECT 或 FOR 句式 的结果。
+
+
+===== 其他隐式声明的变量 =====
+
+==== FOUND ====
+如果上次select或其他返回值，或更改值的语句，成功地返回了值，或成功地修改了值，则FOUND为true
+
+==== $0 ====
+* 对多态函数，有$0变量，指向返回值。
+When the return type of a PL/pgSQL function is declared as a polymorphic type (anyelement,
+anyarray, anynonarray, anyenum, or anyrange), a special parameter $0 is created
+
+* 经常需要引用$0的类型，即
+	''$0%TYPE''
+或者 定义成别名
+	var_name ALIAS FOR $0;
+
+
+==== $1, $2, .. $n ====
+函数参数，依次为第 1, 2, .. n 个参数
+* 包括OUT参数
+
+===== 别名 =====
+* 为位置参数定义别名
+* 在多态函数中，为多态的返回值 $0 定义别名
+* 其他任何情况
+
+''newname ALIAS FOR oldname;''
+
+
+====== statements ======
+鉴于plpgsql语言的特殊性，仅有少数几种语句可以用在 plpgsql中
+
+===== 空语句 =====
+* 可能在条件分支， 异常处理分支中有用
+
+NULL;
+
+
+===== 赋值 =====
+variable := expression;
+
+* 在这里，variable仅为单个简单对象，例如简单数值，数组中的单个元素，rowtype / record 中的一列。
+* 复杂的复合类型，record的赋值参见下面 ->>
+
+也可以直接用query的结果初始化，但要略去select关键字，就像：
+var var_type := **foo from bar where id = 1**;
+
+===== pl/pgsql语言中的SQL语句 =====
+
+==== 没有返回值的sql语句 ====
+	直接书写即可
+	
+For any SQL command that does not return rows, for example INSERT without a RETURNING clause,
+you can execute the command within a PL/pgSQL function just by writing the command.
+
+==== 执行有返回值的sql语句，但抛弃结果 ====
+* 普通的select语句不允许出现在 plpgsql中，除非其带有 INTO子句
+
+**select**
+	* **用perform替代select**
+	PERFORM //query//
+例如
+	perform $1::date
+
+**insert**/update/delete
+	不带returning语句不就得了。。。
+
+
+==== 保存单行查询结果到变量 ====
+* target 变量类型须为 record, 复合类型， tablename%ROWTYPE 类型 或者 多个标量变量。
+record variable, row-type variable, or list of scalar variables。
+* 如果INSERT/UPDATE/DELETE的returning子句返回结果多于一行，就会产生错误
+
+	SELECT select_expressions INTO [STRICT] //target// FROM ...;
+	INSERT ... RETURNING expressions INTO [STRICT] //target//;
+	UPDATE ... RETURNING expressions INTO [STRICT] //target//;
+	DELETE ... RETURNING expressions INTO [STRICT] //target//;
+
+**STRICT** 修饰符
+If the STRICT option is specified, the query must return exactly one row or a run-time error will be
+reported, either **NO_DATA_FOUND** (no rows) or **TOO_MANY_ROWS**
+
+If STRICT is not specified in the INTO clause, then target will be set to the first row returned by the
+query, or to nulls if the query returned no rows.
+
+For INSERT/UPDATE/DELETE with RETURNING, PL/pgSQL reports an error for more than one re-
+turned row, even when STRICT is not specified. This is because there is no option such as ORDER BY
+with which to determine which affected row should be returned.
+
+==== 保存多行查询结果 ====
+
+
+
+==== 执行statement_string（字符串形式的sql语句） ====
+
+EXECUTE //command-string// [ INTO [STRICT] target ] [ USING expression [, ... ] ];
+
+**字符串插值:**
+* expression的值，可在statement_string中以 $1, $2, .. $n的形式引用
+
+EXECUTE ’SELECT count(*) FROM mytable WHERE inserted_by = **$1** AND inserted <= **$2**’
+INTO c
+USING //checked_user,// //checked_date//;
+
+* there is no plan caching for commands executed via EXECUTE
+
+=== 构建statement_string ===
+
+**(一)**
+为了正确处理外源字符串中的引号，需要使用quote_* 系列函数。
+
+|| 等 字符串操作
+quote_ident
+quote_literal
+quote_nullable
+tablename::regclass
+
+**(二)**
+format
+* 类似于 printf
+
+%s	string
+%I	identifier
+%L	literal
+%%	%
+%n$	第n个参数
+
+
+===== 流程控制语句 =====
+
+==== 条件语句 ====
+* 条件表达式操作和普通sql一样，例如 AND, OR , IN
+
+=== IF ===
+* ELSIF 也可以是 ELS__E__IF
+
+<<LABEL>>
+IF boolean_expression  THEN 
+	.. 
+ELSIF  boolean_expression THEN
+	 ..
+ELSE
+	..
+END IF [label]
+
+
+=== CASE ===
+和ruby一样，CASE有两种记法：
+（一）
+CASE search-expression
+WHEN expression [, expression [ ... ]] THEN
+	statements
+ELSE
+	statements
+END CASE;
+
+* 条件expression可以有多个
+* 如果没能在case分支找到匹配，且没有ELSE分支，就会抛出 CASE_NOT_FOUND 异常
+
+**例如：**
+CASE x
+WHEN 1, 2 THEN
+	msg := ’one or two’;
+ELSE
+	msg := ’other value than one or two’;
+END CASE;
+
+（二）
+CASE
+WHEN boolean-expression THEN
+	statements
+ELSE
+	statements
+END CASE;
+
+**例如**：
+CASE
+WHEN x BETWEEN 0 AND 10 THEN
+	msg := ’value is between zero and ten’;
+WHEN x BETWEEN 11 AND 20 THEN
+	msg := ’value is between eleven and twenty’;
+END CASE;
+
+==== 循环语句 ====
+
+=== LOOP ===
+* 无限循环，除非有EXIT令其退出。
+
+[ <<label>> ]
+LOOP
+	statements
+END LOOP [ label ];
+
+=== WHILE ===
+[ <<label>> ]
+WHILE //boolean-expression// 
+LOOP
+	statements
+END LOOP [ label ];
+
+
+=== FOR ===
+（一）**遍历 整数区间**
+
+[ <<label>> ]
+FOR name IN [ REVERSE ] expression .. expression [ BY expression ] 
+LOOP
+	statements
+END LOOP [ label ];
+
+* name 不需要事先声明。自动声明为integer，在退出循环时销毁
+
+**BY 子句**： step
+**REVERSE 修饰**： 按step递增，或递减
+
+例如：
+
+FOR i IN REVERSE 10..1 LOOP
+	-- i will take on the values 10,9,8,7,6,5,4,3,2,1 within the loop
+END LOOP;
+
+**（二）遍历query结果行**
+
+[ <<label>> ]
+FOR //target// IN //query// 
+LOOP
+	statements
+END LOOP [ label ];
+
+或者
+
+[ <<label>> ]
+FOR //target// IN **EXECUTE** //text_expression// [ USING expression [, ... ] ] 
+LOOP
+	statements
+END LOOP [ label ];
+
+
+* **target** is a record variable, row variable, or comma-separated list of scalar variables.
+* __target 需在 DELARE区块中声明，因为程序不能自动猜测其类型。__
+* The //query// used in this type of FOR statement can be any SQL command that returns rows to the
+caller: SELECT is the most common case, but you can also use INSERT, UPDATE, or DELETE with a
+RETURNING clause
+
+
+例如：
+
+DECLARE
+	r foo%ROWTYPE;
+BEGIN
+	FOR **r** IN SELECT * FROM foo WHERE fooid > 0
+	LOOP
+		-- can do some processing here
+	END LOOP;
+	**RETURN;**
+END
+
+
+**（三）遍历数组  - FOREACH**
+* 数组可以有多维的嘛
+
+[ <<label>> ]
+FOREACH //target// [ SLICE //number// ] IN ARRAY //expression//
+LOOP
+	statements
+END LOOP [ label ];
+
+* slice 的数字表示要遍历的维度
+* expression的值应该是一个数组
+* __target需要在 DECLARE区块声明，因为程序不能自动猜测其类型。__
+
+例如：
+
+FOREACH x IN ARRAY $1
+LOOP
+	s := s + x;
+END LOOP;
+RETURN s;
+
+
+
+=== Jumpers ===
+
+CONTINUE [ label ] [ WHEN boolean_expression ]
+EXIT [ label ] [ WHEN boolean_expression ]
+
+==== 异常处理 ====
+
+
+=== 产生异常 ===
+
+* 产生的异常，如果没有被异常处理分支捕获，就会级联终止函数运行。
+
+RAISE [ level ] USING option = expression [, ... ];
+RAISE [ level ] '//format//' [, //expression// [, ... ]] [ USING option = expression [, ... ] ];
+RAISE [ level ] condition_name [ USING option = expression [, ... ] ];
+RAISE [ level ] SQLSTATE 'sqlstate' [ USING option = expression [, ... ] ];
+
+RAISE ;	# 用在 异常处理分支 之内，表示把所捕获的异常原样抛出
+
+**几个level** (有点类似ruby里logger.level)
+DEBUG, LOG, INFO, NOTICE, WARNING, and EXCEPTION
+
+**format**
+* 功能相对简单，不需要更多的修饰记号了
+
+% 	按照出现的位置，用后面相应位置的 expression 的值代替
+%%	% 自身
+
+例如：
+RAISE EXCEPTION 'Nonexistent ID --> %', //user_id//
+      USING HINT = 'Please check your user ID';
+
+**condition**_**name 和 SQLSTATE**
+异常名称和异常识别码
+
+参见http://www.postgresql.org/docs/9.1/static/errcodes-appendix.html
+
+例如：
+RAISE division_by_zero;
+RAISE SQLSTATE '22012';
+
+**USING** **子句**
+
+可选的 option 有：
+MESSAGE, DETAIL, HINT, and ERRCODE(识别码或异常名)
+
+其值 expression 应该为 字符值
+
+其实
+* format 子句 对应于 MESSAGE 
+* SQLSTATE, condition_name 对应于 ERRCODE
+
+例如：
+RAISE 'Duplicate user ID: %', user_id USING ERRCODE = 'unique_violation';
+RAISE 'Duplicate user ID: %', user_id USING ERRCODE = '23505';
+
+
+=== 异常处理分支 ===
+EXCEPTION
+	WHEN //condition// [ OR //condition// ... ] THEN
+		statements;
+	WHEN //others// THEN
+		statements;
+
+**condition:** **异常名 或 异常识别码**
+参见http://www.postgresql.org/docs/9.1/static/errcodes-appendix.html
+
+**特殊的 others 异常名**
+不在前面WHEN分支捕获的其他所有异常
+
+例如：
+
+//INSERT INTO mytab(firstname, lastname) VALUES('Tom', 'Jones');//
+
+BEGIN
+    UPDATE mytab SET firstname = 'Joe' WHERE lastname = 'Jones';
+    x := x + 1;
+    y := x / 0;
+EXCEPTION
+    WHEN division_by_zero THEN
+        RAISE NOTICE 'caught division_by_zero';
+        RETURN x;
+END;
+
+**即使被捕获处理，异常也会ROLLBACK对数据库的改动**
+When an error is caught by an EXCEPTION clause, the local variables of the PL/pgSQL function remain as they were when the error occurred, but all changes to persistent database state within the block are rolled back.
+
+
+**获得异常的信息**
+SQLSTATE:  error code	
+SQLERRM: error message
+
+保存信息到新的变量 
+
+GET STACKED DIAGNOSTICS variable = //item// [ , ... ];
+
+可选的item
+* 对应于RAISE USING子句里的option
+RETURNED_SQLSTATE		text	the SQLSTATE error code of the exception
+MESSAGE_TEXT			text	the text of the exception's primary message
+PG_EXCEPTION_DETAIL		text	the text of the exception's detail message, if any
+PG_EXCEPTION_HINT		text	the text of the exception's hint message, if any
+PG_EXCEPTION_CONTEXT	text	line(s) of text describing the call stack
+
+===== 返回值 =====
+
+==== 单行结果 ====
+RETURN //expression;//
+* 返回单行结果
+
+RETURN;
+* 对含有OUT 参数的函数，这种形式返回OUT参数的值。也可省略不写
+* 对不返回值的VOID函数，这种形式从函数中退出。也可省略不写。
+
+==== 多个/行结果 ====
+
+* 将查询结果**附加**到结果集合中
+RETURN QUERY //select_query//
+RETURN QUERY EXECUTE //command-string// [ USING //expression// [, ... ] ];
+
+* 将expression的值**附加**到结果集合中
+RETURN NEXT //expression//;  
+
+
+* 这三个RETURN语句不会从函数中跳出，需要另一个**空 RETURN **语句
+
+As //successive// RETURN NEXT or RETURN QUERY commands are executed,
+the result set is built up. A final RETURN, which should have no argument, causes control to exit the
+function (or you can just let control reach the end of the function).
+
+一般来说，会伴随着循环语句，例如
+
+FOR **r** IN SELECT * FROM foo WHERE fooid > 0
+LOOP
+	-- can do some processing here
+	**RETURN NEXT** r; -- return current row of SELECT
+END LOOP;
+**RETURN;**
+
+**内存问题**
+postgresql把结果集临时保存，知道函数退出。如果结果集很大，可能会占用大量内存。
+
+====== 一些情况 ======
+
+===== 使用out 参数 =====
+out 参数也可以用 $1, $2, $n的形式引用。
+
+out参数在 plpgsql中比在sql中用处更大
+
+给out参数赋值，即相当于返回值了
+
+===== 多态函数 =====
+引用多态参数的类型
+arg_name%TYPE
+$1%TYPE
+
+引用多态返回值的类型 
+$0%TYPE
+
+
+===== 操作数组 =====
+
+
+

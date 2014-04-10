@@ -1,0 +1,160 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-18T11:24:05+08:00
+
+====== callbacks & Observer ======
+Created 星期三 18 七月 2012
+
+* callback在model对象的生命周期，挂载事件上去.
+* 回呼的方法最好放在protected或private下，確保從Model外部是無法呼叫的。
+* before_validation和before_save的差別在於後者不會經過Validation資料驗證。
+* 請避免before_開頭的回呼方法中，最後運算的結果不小心回傳false。這樣會中斷儲存程序。如果不確定的話，請回傳return true。這算是常見的地雷，而且不容易除錯(你會發現資料莫名地無法儲存成功)。
+
+===== Callbacks =====
+大致可分为三类
+1. validation前后
+
+	before_validation
+	before_validation_on_create
+	before_validation_on_update
+	after_validation
+	after_validation_on_create
+	after_validation_on_update
+2. 储存近数据库前后	
+	before_save		#这里的save包含了create和update，都是指保存到数据库。
+	around_save
+	after_save		#如果也定义了after_create或after_update，则执行顺序在他们之后。
+
+	before_create
+	around_create
+	after_create
+	
+	before_update
+	around_update
+	after_update
+3. 删除前后
+
+	before_destroy
+	around_destroy
+	after_destroy
+
+4. 其他
+	after_initialize	#包括通过new创建新对象或者从数据库中载入对象
+	after_find		#从数据库中载入对象。
+	**after_commit**
+	**after_rollback**
+
+
+==== 会引发callback的方法 ====
+
+    create
+    create!
+
+    destroy
+    destroy_all
+
+    save
+    save!
+    save(:validate => false)
+
+    toggle!
+    update
+    update_attribute
+    update_attributes
+    update_attributes!
+    valid?
+
+    all
+    first
+    find
+    find_all_by_attribute
+    find_by_attribute
+    find_by_attribute!
+    last
+
+
+==== 一些不会激发callback的方法 ====
+* 一般是一些只修改一个属性的方法。
+
+
+    delete
+    delete_all
+
+    toggle
+
+    update_column
+    update_all
+    update_counters
+
+    find_by_sql
+
+==== 有条件地激发callbacks ====
+
+和validation一样，也有下列参数：
+	:if
+	:unless
+它们接受symbol, string or  Proc.
+
+
+==== Callback class ====
+* 把callbacks逻辑，提取到一个类中使其可以被多个类使用。
+* callback class 就是一个普通类，只不过，它含有和callback名称相同的实例方法，且接受 //要检查的对象// 为 唯一参数
+* before_save等 类宏  可接受多种多样的参数。一个指向方法的symbol， 接受record参数的block块， 或者一个Callback class实例。
+
+class BankAccount < ActiveRecord::Base
+  before_save      EncryptionWrapper.new("credit_card_number")
+  after_save       EncryptionWrapper.new("credit_card_number")
+  after_initialize EncryptionWrapper.new("credit_card_number")
+end
+
+class EncryptionWrapper
+  def initialize(attribute)
+    @attribute = attribute
+  end
+
+  def before_save(record)
+    record.send("#{@attribute}=", encrypt(record.send("#{@attribute}")))
+  end
+
+  def after_save(record)
+    record.send("#{@attribute}=", decrypt(record.send("#{@attribute}")))
+  end
+
+  alias_method :after_find, :after_save
+
+  private
+    def encrypt(value)
+      # Secrecy is committed
+    end
+
+    def decrypt(value)
+      # Secrecy is unveiled
+    end
+end
+
+
+===== Observers =====
+* Observer支援的觸發條件，和Callback所定義的七種觸發條件是相同的
+* 與Callback不同的地方是，Observer通常是設計來做所觀察的Model以外的行為，例如在我們觀察了User，而在觸發的行為我們呼叫了其他類別的方法(UserMailer)，這不屬於User Model的責任範圍，因此在應用上我**們會將自己Model責任範圍內的行為使用Callback**，像是資料驗證或是更新。**本身責任範圍外的行為則使用Observer**，像是寄送Email或是呼叫背景處理等。
+
+==== 建立 ====
+
+	''rails g observer User''
+
+
+==== 注册 ====
+
+可配置的文件包括application.rb 以及三个environment对应的 .rb 文件。 其中application是全局的设置，并且可以被其他三个更具体的设置覆盖。类似继承关系。
+	
+	''config.active_record.observers = :user_observer''
+
+
+==== observer类 ====
+
+class PageObserver < ActiveRecord::Observer
+  __observe :user__
+
+  def __after_save__(user)
+    UserMailer.registration_confirmation(user).deliver # 寄送註冊確認信給 user
+  end
+end

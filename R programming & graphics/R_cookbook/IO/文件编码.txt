@@ -1,0 +1,21 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-01T13:49:42+08:00
+
+====== 文件编码 ======
+Created Monday 01 April 2013
+
+需要知道文件或变量的编码，才能正确地显示及处理字符。涉及到编码设置的函数有：
+
+read.table
+  fileEncoding
+  encoding
+file
+  encoding
+readLines
+  encoding
+----------------------------------
+转换函数
+  iconv
+
+Encoding()<-

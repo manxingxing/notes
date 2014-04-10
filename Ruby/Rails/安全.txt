@@ -1,0 +1,72 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-09T15:31:08+08:00
+
+====== 安全 ======
+Created 星期一 09 七月 2012
+
+===== 跨站攻击 =====
+
+==== 跨站GET攻击 ====
+
+在博客等其他网站上挂上会向其他网站发出危险请求的链接，图像。这些请求可能会利用目标网站存储在用户浏览器中的cookie，使请求通过验证。
+
+**解决方法**
+改变资源状态的动作应该使用POST请求
+
+==== 跨站POST攻击 ====
+黑客制作向目标网站发出POST请求的表单，利用目标网站存储在用户浏览器中的cookie来使请求通过验证。
+
+**解决方法**
+(1) 在application_controller.rb 中增加行：
+	''protect_from_forgery	#only non-GET, HTML/JavaScript requests are checked.''
+这会检查所有non-GET请求和javascript请求
+
+(2) 另一方面，RAILS 表单使用 form_for 等helper，这些helper会自动添加一个包含secret token 的hidden field，只有这些信息在服务器上完成认证以后，请求才能执行。
+
+<form accept-charset="UTF-8" action="/users/1" method="post">
+<input type="hidden"
+       value="67250ab105eb5ad10851c00a5621854a23af5489"
+       name="authenticity_token"/>
+</form>
+
+(3) 最后在layout 文件的header区域中添加：
+	''<%= csrf_meta_tags %>''
+
+
+===== 利用上传和下载文件 =====
+
+ __Make sure file uploads don't overwrite important files, and process media files asynchronously.__
+
+==== 防止用户提交的文件覆盖系统敏感文件 ====
+**攻击方法**
+例如文件名为 "../../etc/passwd" 导致上传后覆盖系统敏感文件。
+
+**解决方案**
+
+(1) 对文件名消毒，只允许包含指定集合的字符。一般来说，文件上传插件已经做了这部分工作
+
+(2) 给予网页服务器如apache以较低的权限，使其无法修改系统文件
+
+==== 异步后台处理较耗时的项目 ====
+**攻击方法**
+如果系统处理文件需要比较长的时间，而且不是以后台异步方式处理，这会加重服务器的负担。攻击者可以大量上传的方式使服务器瘫痪
+
+解决方案
+对需要较长处理时间的操作，以异步后台的方式处理。
+
+
+==== 不要在public 一级目录中存储用户提交的文件 ====
+在apache documentRoot 目录(一般是Rails 的 public 文件夹) 下的一些后缀的文件会在请求时执行，例如php, cgi文件。
+
+解决方案
+不要在用public 目录直接存储用户提交的文件，如果要在这里存储文件，也要放在其子文件夹下。
+
+==== 不要允许用户指定要下载的文件名 ====
+如果文件名由用户提供，那么黑客就能够下载任意文件。
+
+**解决方案**
+如果真的需要用户提供用户名，则检查该名称，是否和预期的目录相同
+
+在数据库中存储文件名，文件实际的名称则由此数据库条目计算得到。这样只有当用户输入的文件名能够匹配数据库中记录的文件名时，才开始传送对应文件。
+

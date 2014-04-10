@@ -1,0 +1,82 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-23T13:28:37+08:00
+
+====== 模块和命名空间 ======
+
+@extend @include 
+
+http://techbot.me/2008/09/including-and-extending-modules-in-ruby/
+http://rubyquicktips.com/post/1133877859/include-vs-extend
+include vs extend : http://vincent253.iteye.com/blog/135213
+
+* 模块类似于“超级类”(首字母也是大写)，可以使用与类相似的方式调用模块中的类、方法和变量。
+* 模块没有继承行为，没有实例概念，仅是一个组织方式。
+
+===== include =====
+**include** : mixes in specified module methods as **instance** methods in the target class
+1. module类的方法在被include到class之后，成为该class的实例方法
+2. module中定义在 ''def self.included(c) ... end 之内的方法，在被include之后，成为类的类方法''
+
+'''
+module Mb  
+  MB_VALUE = 1  
+  def self.included(c)  # class methods
+'''
+
+	''    def ''__c__''.mb_2  ''
+	''      puts "it is mb_2"  ''
+	''    end  ''
+	''  end''
+
+	''  def mb_1  ''
+	''    puts "it is mb_1"  ''
+	''  end  ''
+	''end''
+
+
+===== extend =====
+* module内的方法，将会挂载到 包含对象 的eiginclass上。
+* module里用attr_* 系列生成的变量会成为**类实例变量**
+**extend** : mixes in specified module methods as **class** methods in the target class
+
+===== 给特定类的对象／实例引入module的方法 =====
+这样，module里的方法就成了这个对象／实例的方法
+
+''obj.extend(module)''
+
+===== 一些模块 =====
+
+==== Enumerable模块 ====
+
+用于迭代访问数组结构。依赖于 each方法，一个类如果定义了each方法，就可以加入Enumerable模块，继而自动获得下列方法：
+
+		collect
+		detect
+		find
+		find_all
+		include?
+		max
+		min
+		select
+		sort
+		to_a
+
+
+==== Comparable模块 ====
+
+	用于比较。依赖于 <=> 方法，一个类如果定义了 <=> 方法，就可以加入Comparable模块，继而自动获得下列方法：
+
+		< , <= , > , >= , == , between? , 
+
+
+attr_accessor
+attr_reader
+attr_writer
+
+
+
+
+
+
+

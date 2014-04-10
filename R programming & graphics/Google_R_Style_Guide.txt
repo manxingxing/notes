@@ -1,0 +1,7 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-23T01:07:27+08:00
+
+====== Google R Style Guide ======
+Created Friday 23 November 2012
+

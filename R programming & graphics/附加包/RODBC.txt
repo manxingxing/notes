@@ -1,0 +1,37 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-23T01:08:49+08:00
+
+====== RODBC ======
+Created Friday 23 November 2012
+
+查看属性
+sqlTable(con)   列出数据库中的表
+sqlColumns(con,sqtable) 列出指定表中的列(字段)
+odbcTableExists(chan,"")
+
+删除操作
+sqlClear(con,sqtable)   清空指定的表
+sqlDrop(con,sqtable)    删除表
+
+
+读取
+sqlQuery(con,query) 发送查询，并获取数据
+sqlFetch(con,sqtable)   获取表中内容为数据框
+对Excel来说，使用sqlQuery时，表名称的形式需要是：[name$]。FUCK OFFICE
+sqlGetResults()
+
+写出
+sqlSave(con,sqtable,dat)    将数据框写出到新表，或以append方式增加到已有表
+sqlUpdate(con,sqtable,dat,index)    根据index中指明的索引列，用dat替换对应的行中的数据
+
+复制
+sqlCopy(con,query,destionation,destchannel) 发送查询，并将命中的记录保存到新表
+sqlCopyTable(con,srctable,desttable,desttable)  复制一个表。
+
+
+
+Finer Control
+通过odbc* 系列低等函数，操作后，再用sqlGetResults(con)获取结果。例如：
+odbcTables(con) 查询表的信息
+odbcQuery(con,query)    发送query进行创建表、删除表、更新表等操作。需要学习SQL教程。

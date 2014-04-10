@@ -1,0 +1,29 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-02-17T22:30:40+08:00
+
+====== 序列化 ======
+Created 星期一 17 二月 2014
+
+模仿key-value数据库，把hash, array以文本形式存储在关系型数据里
+
+==== serialize ====
+
+serialize :settings, Hash
+
+
+==== store ====
+在serialize基础上，允许添加accesstor
+
+主要方法： 
+
+store :settings, [:name, :email]
+
+store_acessor :settings, :more_option
+
+
+==== 系列化的优点 ====
+当不知道要保存多少字段时，可以不用在数据里建立大量冗余字段
+
+==== 缺点 ====
+以序列化的YAML形式存储，不能搜索和查询。

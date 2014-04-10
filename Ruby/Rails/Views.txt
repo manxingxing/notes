@@ -1,0 +1,407 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-21T12:13:32+08:00
+
+====== Views ======
+Created 星期四 21 六月 2012
+
+**escape**
+* 把存储在数据库或生成的raw html代码显示在网页上，而不是把它们直接插入html文件
+
+例如： >  成为 &lt;
+
+自从Rails 3 后，html escape自动执行，如果需要手动escape一段raw html 代码，使用 **h** 方法
+
+**h**''('<a href="http://example.com/">Example</a>')''
+=>  &lt;a href=\"http://example.com/\"&gt;Example&lt;/a&gt;
+
+**sanitize**
+去除可能存在隐患的tag和属性，例如onclick js 代码
+
+
+**根据是否满足条件，来显示链接**
+
+''link_to_if''
+''link_to_unless''
+''link_to_unless_current	# 如果链接的地址和当前页相同，则不创建为链接。在block内指定不创建为链接时的行为。''
+
+**高亮一段文本中一些单词**
+highlight
+
+**获取一段文本中一些单词及周围单词**
+excerpt
+
+**把字符串缩减到指定长度**
+truncate
+
+
+**sanitize一段html代码**
+sanitize
+
+strip_links
+strip_tags
+
+**以同样的排版(空白字符)显示从text-area输入的段落文本**
+simple_format
+
+
+**保护显示的email信息**
+''mail_to email, replace_at: "<at>", replace_dot: "DOT", encode: "javascript", subject: value, body: value''
+* encode: javascript 或 hex
+
+
+==== css ====
+
+	''stylesheet_link_tag -> 	<link type='text/css' />''
+		css 路径
+		其他参数
+
+
+==== js ====
+
+	''javascript_include_tag ->  <script type="text/javascript" src ></script>''
+		路径管理：
+			1. 如果启用了asset pipeline，则会使用app/assets, lib/assets or vendor/assets 文件夹下的javascript文件，而不是public文件夹。
+			2. 如果没有启用asset pipeline，在config/application.rb 中提供了一种管理javascipt文件的方法，将多个js 文件组合在一起。例如，
+				''javascript_include_tag ''**:defaults**
+				默认代表public/javascript下的jquery.js and jquery_ujs.js文件。
+				
+				:all 代表所有的js文件。用户可以在 application.rb中自定义自己的组合。
+
+
+
+
+===== yield和layout =====
+
+==== layout ====
+
+=== 为controller选择layout ===
+* 默认情况下，controller对应于同名的layout，如果没有对应的layout，则使用application.layout。
+* 如果要为controller指定其他的layout，在controller定义中添加：
+	''layout "layout_name"''
+	
+
+
+=== 为action选择layout ===
+except 和 only 参数。
+
+	''layout "product", :except => [:index, :rss]''
+	
+
+=== controller动态选择layout ===
+	
+	''layout script_to_generate_layout_name''
+
+例如：
+	'''
+	class ProductsController < ApplicationController
+	  layout :
+	'''
+**products_layout**
+ 
+		''private''
+		''  def ''**products_layout**
+		''    @current_user.special? ? "special" : "products"''
+		''  end''
+	     ''end''
+
+
+=== 为render选择layout ===
+	''render(options, ''**:layout=>"layout_name"**'')''
+
+
+==== yield ====
+使用在layout 文件中
+
+request -> routes -> controller -> view
+
+渲染一个view从controller指定的layout开始。当执行到yield时，插入要渲染的view文件。
+
+Technically, __yield__ is calling a block in this context as well. However, the block is the view your controller action was told to render.
+
+For example, let's say you have a StaticContentController that has an index action on it that represented your home page. With routes configured correctly, you visit your home page. Rails will load the layout file in views/layouts that is appropriate for that controller (application.html.haml, unless you overrode this with a layout for your controller). When it reaches the yield command, it inserts the view at views/static_content/index.html.haml at the location where yield is inside your layout. Then, it loads the rest of your layout file.
+
+== 一个layout多个yield块 ==
+一个layout可以用多个yield块，用名称区分。
+
+<html>
+	  <head>
+		  <%= __yield :head__ %>
+	  </head>
+	  <body>
+		  <%= __yield__ %>
+	  </body>
+</html>
+
+在view文件中，使用content_for 将一段erb代码插入到特定的yield块。
+
+	<% __content_for :head__ do %>
+		  <title>A simple page</title>
+	<% end %>
+
+
+===== render(options = {}, locals = {}, &block) =====
+* 如果在一个action中没有显式使用render，那么会自动render action对应的view文件。
+* render 不会中断 action运行，render之后的代码会继续执行。
+
+==== 参数 ====
+
+=== layout ===
+	选择另一个模板，而不是默认模板
+
+
+=== status ===
+	200-299	success
+	300-399	redirect
+	400-499	missing, not found
+	500-599	error, service unavailable
+
+
+=== content_type ===
+
+
+==== action ====
+	* 选择同一个controller下其他的 action对应的view文件.
+	* 以当前action所属controller对应的view文件夹为
+	
+	''render :action=> ""''
+	''render :edit''
+	
+		'''
+		def create
+		'''
+			'''
+			if !new_record.save
+			'''
+				'''
+				render "new"
+				'''
+			'''
+			end
+			'''
+		'''
+		end
+		'''
+
+==== template ====
+	* 选择另一个controller下某个 action对应的view文件
+	* 以"template root" 即app/view为根目录。
+
+	''render :template=> "controller/action"''
+	''render :template=>"shared/micropost"''
+
+__上述两种方式根据 路径特点分开。__
+
+~~file~~
+	~~任意路径的view文件。~~
+	~~linux 下 可不加 :file 键名，可根据 路径 特点推断。~~
+	
+~~关于layout~~
+		* ~~file is rendered without the current layout~~
+		* ~~设 :layout=>true 使用当前layout，或者指定其他layout~~
+
+
+==== partial ====
+* partial文件一般以 下划线 _____ 开头, 后缀是 __.html.erb。 用以和action对应的view文件区分开。
+* 在render的时候，不加下划线。文件名省略后缀。
+* path已经在app/views/路径下。前面的路径部分可以省略
+	
+	''render :partial => "path/to/file"''
+
+
+=== locals 参数 ===
+向local中传递任意变量。
+	''render :partial => "form", :locals => { :zone => @zone }''
+
+
+=== local variable:  object 和as参数 ===
+每一个partial中都可以有一个与partial 同名的 **local varaible**。使用__objec__''t''参数给这个local variable赋值:
+	''render :partial => "customer", :object => @new_customer''
+   这时，在customer partial内有一个 @customer  变量，值为 @new_customer
+   
+等同于：
+	''render :partial=>"customer", :locals=>{:customer=>@new_customer}''
+
+使用参数 __:as__ 给这个变量重命名：
+	''render :partial => "customer", :object => @new_customer,:as=>user''
+   这时，在customer partial内有一个 @user 变量，值为 @new_customer
+
+
+=== collection参数 ===
+
+When you pass a collection to a partial via the :collection option, the partial will be inserted once for each member in the collection.
+
+	''render :partial => "product", :collection => @products''
+	
+这时，partial中和@product 变量 依次取collection的每个元素。
+
+
+* ''使用collection时，在partial中会自动生成一个counter变量，表示当前partial已经渲染的次数。变量的名字是 (partial_name)_counter。''
+
+== :spacer_template参数 ==
+
+当使用collection时，在相邻的两个partial间插入另一个partial。
+	''render :partial => @products, :spacer_template => "product_ruler"''
+
+
+==== object ====
+
+形式：
+	  ''render @var''
+相当于：
+	''render :partial=>"var_class", :object=>@var''
+   将会寻找 以**@var 类名** 为文件名的partial。并将local_variable赋值为@var。 
+
+
+如果@var是一个 enumerable，则会对其每个元素都调用一次partial，就想collection一样。
+	''render @products''
+相当于：
+	''render :partial=>"product", :collection=>@products''
+
+**In the event that the collection is empty, render will return nil,** so it should be fairly simple to provide alternative content.
+'''
+
+<h1>Products</h1>
+<%= render(@products) || 'There are no products available.' %>
+'''
+
+==== :text	=>"" ====
+#纯文本，非HTML
+**参数**
+	:content_type=>"text/plain"
+
+
+==== :nothing=>true ====
+	经常伴随着 :status 参数
+
+
+==== :inline=> "erb script", :type=>"haml" ====
+	* 把erb, builder或其他类型代码  嵌入到controller中。
+	* 不赞成使用。不符合MVC
+	**参数**
+		:type	# 例如 haml，默认是erb
+
+
+==== MIME ====
+
+'''
+render :json=> @var
+render :xml=>@var
+'''
+* Rails 自动调用 to_json 和 to_xml，不需要显式调用
+
+
+===== redirect_to(options = {}, response_status = {}) =====
+
+**重定向到另一个地址**
+
+==== 参数 ====
+
+* options:  任意地址的表示方式
+* response_status: The redirection happens as a “302 Moved” header unless otherwise specified.
+* There are two special accessors for the commonly used flash names **alert** and **notice** as well as a general purpose **flash** bucket.
+
+==== 地址的表示方法： ====
+
+==== url ====
+
+* 完整url
+	"http://www.rubyonrails.org"
+* routes产生
+	''redirect_to photos_url		#=> http://localhost:3000/photos''
+
+
+==== Path ====
+* 不包含host的字符串，会使用默认的protocol, host, port 。
+	''"/images/screenshot.jpg"''
+* routes产生
+	''redirect_to photos_path		#=> /photos''
+
+
+==== Hash ====
+
+**url_for可以为多种类型表示方法生成url**
+
+一些参数有：
+	
+	:controller 
+	:action
+	:id
+	
+	:host
+	:protocol
+	:anchor	#Specifies the anchor name to be appended to the path. 
+	:trailing_slash	If true, adds a trailing slash, as in “/archive/2005/“
+	
+	
+例子：
+	''redirect_to :action => 'index'	#=> /current_controller/''
+	''redirect_to :action => 'find', :controller => 'books'	#=> /books/find''
+	''redirect_to :action => 'play', :anchor => 'player'		#=>/messages/play/''**#player**
+	''redirect_to :action => "show", :id => 5	#=> /books/5''
+
+
+==== 变量 ====
+* 使用url_fol 产生路径。既可以
+
+	''redirect_to @workshop		#=> /workshops/5	#调用了@workshop.to_s''
+	''redirect_to 	[@magazine, @ad]	#=> /magzine/4/ad/2	#调用url_for''
+
+
+==== :back ====
+
+- Back to the page that issued the request. Useful for forms that are triggered from multiple places. Short-hand for 
+	
+	''redirect_to(request.env["HTTP_REFERER"])''
+
+可以在redirect_to的同时传递flash消息。例如：
+
+
+===== head =====
+**create response consisting solely of http headers to send back to the browser**
+
+
+===== 在view中访问controller内容 =====
+view从只是从controller中继承了类变量。那些方法在view中是不可用的。(controller方法是为路由准备的)
+
+==== View Helper ====
+provides small snippets resuable methods for **views**
+路径：
+	app/help/
+* 每个controller都会有一个对应的helper文件。
+* helper method 在 view 中自动可用，但在Model 和 controller 中是不可用的。要显式使用include包含进来。
+
+==== helper_method ====
+在controller中使用
+	helper_method :method
+令指定方法在view中可用
+
+==== controller变量 ====
+在view中存在一个controller变量，可以知道当前的controller/action信息：
+
+* rails 3.x后， controller前不再加@符号
+* 获取名称
+	''controller.controller_name''
+	''controller.action_name''
+* 调用method
+	calling public methods is as simple as this:
+		''controller.public_method''
+	To call a private method you can do this:
+		''controller.send("private_method", args)''
+
+
+==== params ====
+'''
+params[:controller]
+params[:action]
+'''
+
+===== 在console中调试 helper功能 =====
+'''
+helper.method
+'''
+
+===== Conventions =====
+* 一个controller的所有action对应于一个layout文件。如果不存在则使用applicate.layout
+* 在一个code path中，只能有一个render 或 redirect_to。
+

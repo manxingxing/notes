@@ -1,0 +1,51 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-25T15:48:29+08:00
+
+====== Ruby和数据库 ======
+Created 星期五 25 五月 2012
+
+===== SQL语句 =====
+
+==== 创建，删除表 ====
+
+CREATE TABLE tablename (
+列名	数据类型		其他	,
+列名	数据类型		其他	,) ;
+
+DROP TABLE tablename
+
+==== 添加行 ====
+INSERT INTO tablename (后面数据列名顺序) VALUES (数据内容)  ;
+
+==== 删除行 ====
+DELETE FROM tablename WHERE  ;
+
+==== 修改行 ====
+UPDATE tablename SET  列 = 值 WHERE ;
+
+==== 判断 ====
+
+常用比较操作符
+IN	 类似于 R 中的 %in% 
+BETWEEN .. AND ..
+
+===== PostgreSQL =====
+
+==== 命令 ====
+\i  文件名	执行外部sql语句文件。
+\q			退出
+\h, \?		两种帮助
+
+==== 启动 ====
+
+=== 初始化表 ===
+initdb
+创建数据库
+createdb
+删除数据库文件
+dropdb
+添加用户
+createuser
+
+==== 服务管理 ====

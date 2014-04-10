@@ -1,0 +1,31 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-10T00:26:53+08:00
+
+====== 数字类 ======
+Created Saturday 10 November 2012
+
+==== 十六进制数字 ====
+0x+16进制字符
+
+==== binary floating-point number ====
+binary的意思是： 1/2， 1/4， 1/（2^n)。只有这些位置的数字是完全精确的。这意味着大多数的数字都是个“非常接近”的近似。例如：
+var x = .3 - .2;
+var y = .2 - .1;
+x == y	# false 
+x == .1	#false 不那么接近了。
+y == .1	#true 极其接近
+
+* 所有使用binary floating-point number的语言都有这个问题。包括R。
+* the problem arises when we attempt to compare values for equality. 因为比较时将会进行绝对精度上的比较。
+
+==== Property ====
+Number.MAX_VALUE	#js中支持的最大数字
+Number.MIN_VALUE
+Number.POSITIVE_INFINITY
+Number.NEGATIVE_INFINITY
+
+==== method ====
+toFixed(digit)
+toPrecision(digit)
+toExponential(x)	#科学计数法，小数点后位数。

@@ -1,0 +1,82 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-17T22:39:46+08:00
+
+====== authentication ======
+Created 星期二 17 七月 2012
+
+===== 简单验证 =====
+
+http_basic_authenticate_with :name=> ? ,
+							:password=> ? ,
+							:except=> [action list],
+							:only=>[action list]
+
+放在controller中。控制当执行特定action时的验证方式。
+
+
+===== 密码加密 和 验证 =====
+* 数据库中有 加密用的 salt列和加密后的密码列
+
+==== 加密 ====
+用随即产生的salt结合password，经过加密算法得到加密后的密码。
+
+=== salt ===
+* salt需要是一个足够长和随机的字符串
+* 在加密密码时使用
+
+	Time.now.to_s	# 不建议
+	Array.new(10) { rand(1024).to_s(36) }.join
+	BCrypt::Engine.generate_salt		# Bcrypt-ruby gem
+	SecureRandom.hex(15)
+	SecureRandom.base64
+	SecureRandom.urlsafe_base64
+
+
+=== 加密算法 ===
+用来生成password digest --- password的存储形式
+	Digest::''SHA256''.hexdigest(pass + salt)	# 字符串相加
+	BCrypt::Engine.hash_secret(password, salt)	# Bcrypt-ruby gem
+
+      //Digest::MD5.hexdigest(password)	# 已破解//
+//      Digest::SHA1.hexdigest			# 已破解//
+
+	String#crypt(salt)
+
+
+==== 验证方法 ====
+过程和加密相似。
+* 根据login找到一个用户
+* 用这个用户的salt和表单提交的密码，经加密算法得到加密过的密码
+* 用这个密码和数据库中的密码匹配f
+
+===== 自带的 bcrypt-ruby =====
+
+==== has_secure_password : password加密 ====
+
+* 建立password, password_confirmation 虚拟属性
+* 需要password_digest实体属性
+* 在保存password时，自动转换成password_digest保存到数据库。
+
+==== authenticate: 验证 ====
+* 首先用login找到一个User，然后验证表单中password生成的password_digest是否和数据库中password_digest匹配
+* 表单中的password -> password_digest转换
+
+user = User.find_by_email(params[:session][:email])
+user.**authenticate**(params[:session][:password])
+
+
+===== Session =====
+
+  def create_remember_token
+      self.remember_token = **SecureRandom.urlsafe_base64**
+    end
+
+  def sign_in(user)
+    cookies.permanent[:remember_token] = user.remember_token
+    self.current_user = user
+  end
+
+before_filter: signed_user_in
+
+

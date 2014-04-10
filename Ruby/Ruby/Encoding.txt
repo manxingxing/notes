@@ -1,0 +1,22 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-06-21T10:45:03+08:00
+
+====== Encoding ======
+Created 星期五 21 六月 2013
+
+default encoding
+
+
+file encoding
+表示文件内字符采用的文字编码。
+格式：
+
+1. 位于注释行内
+2. 字符串 coding
+3. 后跟冒号或等号
+4. 文字编码名内不包含空格。
+
+* 大小写均可以
+* coding前可以有前缀，例如encoding
+* 特征字符串前后都可以有其他字符，这样设计是为了保留最大的灵活性。例如写成  ''_*_  encoding: utf-8 _*_，这样就能够让Emacs判断出文件编码''

@@ -1,0 +1,67 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-06T15:35:09+08:00
+
+====== Date, DateTime ======
+Created 星期六 06 十月 2012
+
+===== 产生时间对象 =====
+
+* 时间以UNIX time epoch即从1970年1月1日00:00:00开始开始计算，以微妙为单位
+	
+	Time.now
+
+* #当地时区为依据
+	Time.local(year,month,day,hour,min,sec,msec)
+* 以GMT/UTC时区为依据,两者相同
+	Time.gm(year,month,day,hour,min,sec,msec)
+	Time.utc(year,month,day,hour,min,sec,msec)
+
+* Time.new(year, month, day, hour, min, sec, offset)
+
+
+==== 从字符串产生 ====
+
+=== 产生时间 ===
+
+Time.parse(str) 	=> 以本地市区为准的时间
+
+=== 产生日期 ===
+
+
+
+===== 时间-整数转换 =====
+
+* 时间 - epoch 整数
+	Time.now.to_i
+
+* epoch 整数 - 时间
+	x = Time.at(epoch_time)
+
+
+===== 其他方法 =====
+
+	x.day
+	x.wday
+	x.year
+	x.month;
+	加法和减法，以秒为单位
+
+#扩展Fixnum类
+
+class Fixnum
+  def seconds
+    self
+  end
+  def minutes
+    self * 60
+  end
+  def hour
+    self * 60 *60
+  end
+  def day
+    self *60 *60 *24
+  end
+end
+
+Time.now + 20.day

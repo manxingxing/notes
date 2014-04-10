@@ -1,0 +1,238 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-20T21:28:15+08:00
+
+====== 元编程和反射 ======
+Created 星期日 20 五月 2012
+
+==== 基本的反射方法 ====
+class
+superclass
+ancestors
+respond_to?
+instance_of?
+kind_of?, is_a?
+
+==== 单键方法和eigenclass ====
+
+* 通过enginclass添加的方法是单键方法。对类对象来说，就是类的类方法。
+* 类方法可以看作是类对象的单键方法，可被看作是类对象的实例方法
+
+Eigenclass 是一个对象的单键方法的存活之所
+
+就像javascript里，给所有函数都悄悄地添加了constructor属性一样，Ruby里，给所有**对象（包括类）**都悄悄地添加了一个eigenclass做其父类。这个eigenclass位于该对象和其**类**之间。
+
+obj <- eigenclass <- class
+
+''String.singleton_methods	=> 其eigenclass的实例方法''
+
+**添加单键方法的方式**
+1. 逐个定义单键方法
+	def obj.m
+	end
+
+	def String.m
+	end
+
+2. 通过enginclass，可一次定义多个方法
+
+	class << obj
+		def	m
+		end
+	end
+
+	class << String
+		def m
+		end
+	end
+
+3. instance_eval 
+
+String.instance_eval do
+	def hello
+		puts 'hello'
+	end
+end
+
+4. define_singleton_method
+
+String.class_eval do
+  self.define_singleton_method :hello2 do
+    'hello'
+  end
+end
+
+==== 动态执行 ====
+* 当使用class_eval定义方法时，定义的是实例方法
+* 当使用instance_eval 定义方法时，定义的单键方法。如果当前对象是一个类，那么定义的是该类的类方法。因为类对象的单键方法就是类方法。
+
+module.class_eval
+module.module_eval
+module.class_exec
+module.module_exec
+
+**下面是BasicObject的实例方法**
+
+obj.instance_eval	
+obj.instance_exec
+
+send	
+public_send  # 只调用公开方法
+
+
+==== 操作 类变量，常量，实例变量 ====
+
+=== 类变量 ===
+* 这些方法是特定Module/class 的 单键/类 方法
+
+Module.class_variables
+Module.class_variable_defined?
+Module.class_variable_get
+Module.class_variable_set
+Module.remove_class_variable
+
+=== 常量 ===
+* 这些方法是特定Module/class 的 单键/类 方法
+
+Module.constants
+Module.const_defined?
+Module.const_get
+Module.const_set
+Module.remove_const
+
+Module.const_missing	# 类似于 method_missing
+
+ActiveSupport 增加了 
+local_constants 	自有，非继承 常量 
+
+=== 实例变量 ===
+* 这些方法是继承自Object类的实例方法
+
+obj.instance_variables
+obj.instance_variable_defined?
+obj.instance_variable_get
+obj.instance_variable_set
+obj.remove_instance_variable
+
+===== 包含模块 =====
+included_modules
+include  包含一个模块
+include?	  # 是否包含/继承某个模块/类。包含(混入)其实是一种受限继承。
+
+Module.nesting 返回一个数组，表示模块嵌套情况。这是个类方法，不需要具体模块/类的信息。
+
+
+===== 方法 =====
+
+==== 列出 ====
+**从对象角度**
+obj.methods  # 仅public_methods
+obj.public_methods
+obj.protected_methods
+obj.private_methods
+obj.singleton_methods  # 单键方法
+
+**从module/class角度**
+instance_methods # 仅pubic_instance_methods
+public_instance_methods(true|false)	# 是否包含继承的方法
+private_instance_methods(true|false)
+protected_instance_methods
+
+若要查询类的**类方法**，使用
+module.singleton_methods
+
+==== 获取 ====
+obj.method :name
+obj.public_method :name
+
+从module角度，返回unBoundMethod
+module.instance_method
+module.public_instance_method
+
+* 没有便利方法获得private method, 可以使用send, class_eval, instance_eval
+
+==== 查询 ====
+module.method_defined?		仅public, protected 方法
+module.protected_method_defined?
+module.public_method_defined?
+module.private_method_defined?
+
+==== 改变方法的访问级别 ====
+private
+private_class_method
+public
+public_class_method
+protected
+
+==== 建立和删除方法 ====
+alias 
+alias_method
+define_method  用于定义实例方法
+define_singleton_method  用于定义单键方法和类方法
+undef	关键字
+undef_method		# 阻止任何对此方法的调用，包括继承链上的方法。
+remove_method	# 只删除自身的方法
+
+ActiveSupport增加了
+redefined_method(method, &block)		
+
+例子
+======================
+class Module
+	def add_method(m, &b)
+		self.class_eval do
+			**define_method**(m, b)
+		end
+	end
+
+	def add_class_method(m, &b)
+		self.**define_singleton_method**(m, b)
+	end
+end
+
+String.add_method(:hello) { puts 'hello, ' + self }
+String.add_class_method(:hello) { puts "This is the general hello" }
+String.hello
+"abcd".hello
+==========================
+
+remove_method  只取消类自身定义的方法，不影响超类的同名方法
+undef_method   使不能以该名称调用方法，不管来自什么地方。
+
+
+==== Callbacks & Hooks ====
+都以-ed结尾
+
+== 跟踪模块和类 ==
+**被继承**
+inherited(class)	# 当以该类为父类建立子类时调用
+**被混入**
+included(mod)        # 在模块被混入到其他模块/类时调用
+extended
+
+== 跟踪方法 ==
+method_added
+singleton_method_added
+
+method_removed
+method_undefined
+singleton_method_removed
+singleton_method_undefined
+
+method_defined?
+
+append_features
+
+module_function
+
+extend_object
+
+freeze
+autoload
+autoload?
+
+infect_an_assertion
+infect_with_assertions
+
+yaml_as
+psych_yaml_as

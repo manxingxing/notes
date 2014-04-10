@@ -1,0 +1,68 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-23T11:11:58+08:00
+
+====== packages ======
+Created Tuesday 23 October 2012
+
+
+===== 获取扩展包的帮助信息 =====
+函数集，包的说明，依赖关系等
+
+**帮助页面**
+help(package="vegan")
+
+**包的说明部分**
+packageDescription("vegan")
+
+**包的版本**
+packageVersion("vegan")
+
+**引用信息**
+citation("vegan")
+
+**获取package列表**
+
+	''.package(all.availabe=T)''
+
+**冲突的函数对象名**
+
+当加载的包多时，标识符可能会发生重名。
+
+	''conflicts(detail=TRUE)''
+
+
+===== 用package.skeleton创建简单的包 =====
+
+1. ''package.skeleton(names="mytestpackage",list=''**ls(),  code_files**'')''
+	* 当code_files指定时，仅使用这些文件中的函数定义。否则，使用R当前工作空间的函数定义和数据.
+	* 以"."开头的函数(如 ''.ls.objects() '') 要用 ''ls(all.names=T)''
+
+	# 函数定义可以加载到R中，也可以以文件形式
+
+下面的动作按照 read-and-delete-me 文件说明进行
+
+2. 编辑 description 文件
+3. 编辑 man 文件夹下的 说明文档
+4. 在CMD窗口中 
+	''R CMD check mytestpackage''
+5. 查看错误消息并解决之
+6. 产生的<pkgname>.Rcheck文件夹中的<pkgname>文件夹复制到R的library文件夹。
+
+
+
+===== 杂 =====
+
+.so		shared object
+.dll		dynamic linked library
+
+如果包里不包含c, C++ , Fortran 之类需要编译的代码，那么这个包的installed package是可以同时兼容linux/windows的。
+
+
+
+
+
+
+
+
+

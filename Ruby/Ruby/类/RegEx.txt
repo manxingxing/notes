@@ -1,0 +1,67 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-06T15:34:58+08:00
+
+====== RegEx ======
+Created 星期六 06 十月 2012
+
+===== 正则表达式规则 =====
+
+* 在分界符 / ... / 间的部分被当作是正则表达式
+* %r() 将字符串转化为正则表达式
+
+=== meta character ===
+	^	$	行锚点
+	\A	\Z	多行字符串锚点  FIXME: 多行模式？
+	.	任意字符
+	\w	\W
+	\s	\S
+	\d	\D
+	\b 	字符分界，以字符与非字符的分割为界
+	[abce]	[^abc]	字符集合
+
+
+=== quantifier ===
+		* ?			##贪婪模式
+	+  +?
+	?
+	{x}
+	{x,y}
+
+
+
+
+===== MatchData对象 =====
+* ''Regexp.last_match''指向最近一次匹配生成的MatchData对象
+* $~ 是''Regexp.last_match''的变量形式。这种形式是从perl种借鉴过来的
+
+#[]	类似数组操作。如果使用了命名捕获，则类似于Hash
+#pre_match
+#post_match
+#captures 分组捕获的结果，一个数组
+
+
+===== match 方法 =====
+* 返回MatchData对象，如果没有匹配，返回nil
+
+可接受一个block参数，参数是该MatchData对象，和可选的整数参数，指定搜索的起始位置。 
+
+
+===== =~ 操作符和全局变量 =====
+* 返回匹配位置，如果没有匹配，返回nil
+
+$~
+$& 
+$`  pre_match
+$'  post_match
+$1, $2, $n
+$+	最后一个括号内匹配的内容
+
+
+===== String类的搜索，替换 =====
+* slice或者 []操作符
+* index
+* split, partition
+* sub, gsub  可接受block参数
+"ruby123"[/d+/] => "123"
+

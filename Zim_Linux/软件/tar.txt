@@ -1,0 +1,116 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-06-10T14:32:53+08:00
+
+====== tar ======
+Created 星期一 10 六月 2013
+
+http://linux.vbird.org/linux_basic/0240tarcompress.php
+
+===== gzip 和 zcat =====
+.gz, .tgz
+
+gzip [-cdtv#] 檔名
+gunzip 档名
+zcat 檔名.gz
+選項與參數：
+-d  ：解壓縮的參數；
+
+-t  ：可以用來檢驗一個壓縮檔的一致性～看看檔案有無錯誤；
+-v  ：可以顯示出原檔案/壓縮檔案的壓縮比等資訊；
+-c  ：將壓縮的資料輸出到螢幕上，可透過資料流重導向來處理；
+-#  ：壓縮等級，-1 最快，但是壓縮比最差、-9 最慢，但是壓縮比最好！預設是 -6
+
+
+===== bzip2 和 bzcat =====
+.bz, .bz2, .tbz, tbz2
+bzip2 [-cdkzv#] 檔名
+bzcat 檔名.bz2
+選項與參數：
+-z  ：壓縮的參數
+-d  ：解壓縮的參數
+
+-k  ：保留原始檔案，而不會刪除原始的檔案喔！
+
+-v  ：可以顯示出原檔案/壓縮檔案的壓縮比等資訊；
+-c  ：將壓縮的過程產生的資料輸出到螢幕上！
+-#  ：與 gzip 同樣的，都是在計算壓縮比的參數， -9 最佳， -1 最快！
+
+===== tar =====
+tar [-j|-z] [**c**v] [-f 建立的檔名] filename... <==打包與壓縮
+tar [-j|-z] [**t**v] [-f 建立的檔名]             <==察看檔名
+tar [-j|-z] [**x**v] [-f 建立的檔名] [-C 目錄]   <==解壓縮
+選項與參數：
+-f filename：-f 後面要立刻接要被處理的檔名！建議 -f 單獨寫一個選項囉！
+
+-c  ：建立打包檔案，可搭配 -v 來察看過程中被打包的檔名(filename)
+-t  ：察看打包檔案的內容含有哪些檔名，重點在察看『檔名』就是了；
+-x  ：解打包或解壓縮的功能，可以搭配 -C (大寫) 在特定目錄解開
+      特別留意的是， -c, -t, -x 不可同時出現在一串指令列中。
+
+-j  ：透過 bzip2 的支援進行壓縮/解壓縮：此時檔名最好為 *.tar.bz2
+-z  ：透過 gzip  的支援進行壓縮/解壓縮：此時檔名最好為 *.tar.gz
+
+-v  ：在壓縮/解壓縮的過程中，將正在處理的檔名顯示出來！
+
+-C 目錄    ：這個選項用在解壓縮，若要在特定目錄解壓縮，可以使用這個選項。
+
+其他後續練習會使用到的選項介紹：
+-p(小寫) ：保留備份資料的原本權限與屬性，常用於備份(-c)重要的設定檔
+-P(大寫) ：保留絕對路徑，亦即允許備份資料中含有根目錄存在之意；
+--exclude=FILE：在壓縮的過程中，不要將 FILE 打包！ 
+
+==== 解压到指定目录 ====
+-C 参数
+''tar -jxv -f /root/etc.tar.bz2 -C /tmp''
+
+==== 提取压缩包内的指定文件 ====
+tar -jxv -f 打包檔.tar.bz2 **待解開檔名**
+
+==== 打包时排除特定文件 ====
+使用 --exclude=FILE参数
+* 可以使用多个--exclude参数
+
+tar -jcv -f /root/system.tar.bz2 --exclude=/root/etc* --exclude=/root/system.tar.bz2 /etc /root
+
+==== 选择较新的文件打包 ====
+--newer-mtime=DATE
+--newer=DATE OR FILE
+
+tar -jcv -f /root/etc.newer.then.passwd.tar.bz2  --newer-mtime="2008/09/29" /etc/*
+
+==== 其他模式 ====
+除c, x 外，还有：
+
+=== 附加到已有的tarfile中 ===
+-r  或 --append
+
+=== 从tafile中删除 ===
+--delete 
+
+=== 更新tarfile ===
+-u 或 --update
+
+==== Overwrite control: ====
+
+-k, --keep-old-files
+
+don't replace existing files when extracting, treat them as errors
+--skip-old-files
+don't replace existing files when extracting, silently skip over them
+--keep-newer-files
+don't replace existing files that are newer than their archive copies
+--no-overwrite-dir
+preserve metadata of existing directories
+--overwrite
+overwrite existing files when extracting
+--overwrite-dir
+overwrite metadata of existing directories when extracting (default)
+--recursive-unlink
+empty hierarchies prior to extracting directory
+--remove-files
+remove files after adding them to the archive
+-U, --unlink-first
+remove each file prior to extracting over it
+-W, --verify
+attempt to verify the archive after writing it

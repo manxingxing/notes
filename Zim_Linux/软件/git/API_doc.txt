@@ -1,0 +1,25 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-16T23:13:47+08:00
+
+====== API doc ======
+Created Tuesday 16 April 2013
+
+==== git help command ====
+
+显示命令的帮助文档
+* Windows下会打开HTML帮助页面
+* linux 下是终端下的纯文本页面
+
+==== git rm ====
+
+删除文件，并stage 
+* 使用rm或从图形界面中删除文件，都不能用git add 的方法stage修改
+
+=== git commit -a ===
+
+提交所有unstaged/staged 修改，既包括新增文件，也包括删除的文件
+
+=== git add -A ===
+
+stage 所有修改，既包括新增文件，也包括删除的文件

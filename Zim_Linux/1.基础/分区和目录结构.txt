@@ -1,0 +1,49 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-04-28T00:13:06+08:00
+
+====== 分区和目录结构 ======
+Created 星期六 28 四月 2012
+
+===== 目录结构：FHS(File Hierarchy System) =====
+
+类UNIX系统规定了统一的一级目录名称，二级目录则可有些许变化。
+
+	/home:  用户文档
+	/var : 一些经常读取的数据，例如www , ftp
+	/usr: 相当于 program files
+	/proc: 内存中正在运行的进程信息？
+	/opt：用户安装的大型软件
+	/media：挂载的存储设备
+	/etc :  设定档
+	/bin :  可执行程序
+	/dev :  装置和设备
+	/lib   :  函数库
+	/sbin : 管理用工具 
+
+
+===== 分区 =====
+
+一开始核心加载时，只会挂载一个分区，那就是 根目录 /。开机时会用的很多指令和函数库需要和 / 处于同一分区，包括一些命令、装置、设定档等。这就是/bin , /sbin, /etc, /dev, /lib，它们必须处在  / 同一个分区。
+
+
+一种比较合适的分区方案是：
+	
+	/   ： 根目录，包含etc, bin, dev, lib, sbin 不能独立成分区  以及其他如/tmp等，留1G左右。
+	/usr: 存放程序文件. /usr/bin , /usr/sbin, /usr/local/bin。 10G 吧
+	/var: mail, www, log
+	/home
+	/boot: 存储核心(vmlinuz)和grub启动器. 独立出来以避免大容量硬盘启动的问题。一般50M就足够了。
+
+/home , /var 读取的很频繁，是很容易'挂点'的，所以最好独立出来，以免累及其他分区。
+
+/etc 存放这很多软件的设定档，如果这个目录出现问题，系统很可能就需要重新配置了，目前接触到的有：
+	/etc/yum.d/, /etc/sysconfig, /etc/vsftpd
+所以最好定期备份，反正这个目录的大小一般不会大于50M
+
+**想想看，用户自己的文件和/etc/里那些配置文件、可执行档案混在一起放在一个分区里，这是多么不优雅的事情。**
+
+可执行程序和函数库路径：
+	bin			lib
+	/usr/bin		/usr/lib
+	/usr/local/bin	[[/usr/local/lib]]

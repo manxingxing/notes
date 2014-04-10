@@ -1,0 +1,70 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-25T13:31:36+08:00
+
+====== File,Dir ======
+Created 星期五 25 五月 2012
+
+===== File类 =====
+
+File.exists?('filename')
+File.mtime	修改时间
+File.identical?	比较两个文件是否相同
+
+File.rename(from,to)
+
+
+delete
+unlink
+
+chmod
+chown
+
+utime
+
+exists?
+file?
+directory?
+symlink?
+
+File.stats(path)
+
+File.readable?
+File.writable?
+File.executable?
+
+File.size
+
+File.atime
+File.mtime
+
+
+==== 文件名操作 ====
+File.basename
+File.extname
+File.dirname
+File.split	=> dirname, basename
+
+==== 路径 ====
+需要处理windows和 UNIX系不同路径表示方法的。R中file.path估计也是为了处理这种情况吧
+
+File.join(path, to , file)		相当于R中的file.path，把几个部分用路径分隔符连结起来。
+File.join(File:SEPARATOR, path, to ,file) 	在路径前面加上路径分隔符，用于构建UNIX 下 /usr/bin 这样以 / 开头的的路径。
+
+File::SEPARATOR常量 代表当前操作系统的路径分隔符
+
+File.expand_path		# 转换成绝对路径 
+
+===== Dir类 =====
+Dir.pwd
+Dir.chdir
+
+
+==== 文件遍历 ====
+Dir.entires	列出路径下的文件
+Dir[路径]	
+Dir.foreach(路径) do ..... end   逐个处理文件名
+
+Dir.[pattern]
+Dir.glob(pattern)
+Dir.glob(pattern, File::FNM_DOTMATCH)

@@ -1,0 +1,291 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-21T12:13:43+08:00
+
+====== routing ======
+Created 星期四 21 六月 2012
+
+
+===== 路由的作用是： =====
+1. 建立**Request + URL**与**controller/action的对应关系。**
+2. 顺便产生一些URL/Path helper，可以用在任何需要URL的地方，例如link_to, redirect_to
+
+
+===== resourceful =====
+使用resource来便捷建立routes。可满足大部分需求
+
+==== resources和resource ====
+
+
+=== resources ===
+复数形式的resources建立七个 request+URL <=> action 组合，4种path/url。在URL中包含:id。 
+
+request	URL		Path/URL_helper			action
+GET 	/photos 		photos_path			index 	
+POST 	/photos 		photos_path			create 
+	
+GET 	/photos/new 	new_photo_path		new
+
+GET 	/photos/:id/edit 	edit_photo_path(:id)	edit 
+
+GET 	/photos/:id 		photo_path(:id)		show
+PUT 	/photos/:id 		photo_path(:id)		update 	
+DELETE 	/photos/:id 		photo_path(:id)		destroy
+
+=== resource ===
+当不允许各个id之间的对象互相访问时，这时需要建立没有:id 的URL。
+单数形式的resource建立6个 request+ URL <=> action组合，3种 path/url。URL中不包含:id。
+
+HTTP Verb 	Path 		path/url_helper			action 
+GET 	/geocoder/new 	new_geocoder_path		new 	
+GET 	/geocoder/edit 	edit _geocoder_path		edit	
+
+POST 	/geocoder 		geocoder_path			create 	
+GET 	/geocoder 		geocoder_path			show 	
+PUT 	/geocoder 		geocoder_path			update 	
+DELETE 	/geocoder 		geocoder_path			destroy 	
+
+
+==== 选项 ====
+
+=== 使用only, except 生成部分resources ===
+
+resources会产生7个path，可以只选取其中的若干个。使用：only, 或 :except 参数
+
+	''resources :logs, :only=>[:new,:destroy, :create]''
+
+
+=== 自定义resource元素 ===
+可以改变controller, helper, path 各个部分。
+
+:controller 	实际的controller名称
+:as			自定义controller对应的helper名称。
+:path_names	change the **paths of the seven default actions**. Paths not specified are not changed. 
+	''resources :photos, :path_names => { :new => 'make', :edit => 'change' }''
+
+:module		controller所属module，即namespace。
+:path 		prefix path with ...
+
+== scope ==
+scope为resources添加一些约束。把几个条件集合在一起。
+
+  scope :module => "admin", :path=>"/admin", :as=>"admin" do
+    resources :posts
+  end
+
+FIXME: 将会实现和namespace相同的效果。
+
+==== namespace ====
+
+namespace用来将多个controller组织在一个命名空间内。例如：
+	'''
+	
+	namespace :admin do
+	  resources :posts, :comments
+	end
+	'''
+
+**在目录结构上，posts, comments 的controller都存放在admin文件夹中。**
+
+HTTP Verb 	Path 					action 	named helper
+GET 		/admin/posts 			index 	admin_posts_path
+OST 		/admin/posts 			create 	admin_posts_path	
+
+GET 		/admin/posts/new 		new 	new_admin_post_path
+GET 		/admin/posts/:id/edit 	edit 	edit_admin_post_path(:id)
+
+GET 		/admin/posts/:id 		show 	admin_post_path(:id)
+PUT 		/admin/posts/:id 		update 	admin_post_path(:id)
+DELETE 		/admin/posts/:id 		destroy 	admin_post_path(:id) 
+
+
+
+===== 关联表 =====
+
+在 url 上表达 关联的方式
+
+==== 嵌套的resource ====
+
+resources :magazines do
+  resources :ads
+end
+
+对MagazineController来说，route和以前一样，对AdsController来说，有：
+
+HTTP Verb 	Path 								action 	helper		
+GET 		///magazines/:magazine_id///ads 			index 	magazine_ad**s**_path(@magzzine)
+POST 		///magazines/:magazine_id///ads 			create 	magazine_ad**s**_path(@magzzine)
+
+GET 		///magazines/:magazine_id///ads/new 	new 	new_magazine_ads_path(@magazine)
+GET 		///magazines/:magazine_id///ads/:id/edit 	edit 	edit_magazine_ad_path(@magazine, @ad)
+
+GET 		///magazines/:magazine_id///ads/:id 		show 	magazine_ad_path(@magzzine, @ad)
+PUT 		///magazines/:magazine_id///ads/:id 		update 	magazine_ad_path(@magzzine, @ad)
+DELETE 		///magazines/:magazine_id///ads/:id 		destroy 	magazine_ad_path(@magzzine, @ad)
+
+* 注意parms中两个不同的:id 参数： :magazine_id, :id。
+* These helpers take an instance of Magazine as the first parameter 
+* 嵌套不要超过一级。否则会造成麻烦。
+
+=== url_for ===
+
+== controller+action+id ==
+ url_for :controller => 'tasks', :action => 'testing'
+
+== url string ==
+url_for("http://www.example.com")
+
+== object ==
+
+根据对象的类名寻找相应的route path helper，并生成相应的URL。__这样可以在任何需要URL的地方，传递url_for(obj) 或者 直接传递 obj。__
+* 前提是routes.rb中能找到。
+
+例如对routes:
+	resources :magazines do
+	  resources :ads
+	end
+
+''url_for([@magazine, @ad]''
+表示：magazine_ad_path(@magazine, @ad)，亦即： /magazine/3/ad/2
+
+在link_to中，可使用的形式有：
+
+'''
+link_to "Ad details", url_for([@magazine, @ad])
+link_to "Ad details", [@magazine, @ad]
+link_to "Magazine details", @magazine
+'''
+
+
+===== Adding More RESTful Actions =====
+
+==== member ====
+member用来给诸如 posts/:id 这样**类的member(带id的具体对象)**添加一些route。
+例如：
+  ''	resources :users do''
+''    member do''
+	      **get**'' :following, :followers	#可以是其他http verb''
+''    end''
+''  end''
+
+会产生
+	request	path				action		helper
+	GET		user/1/following		following	following_user_path(1)
+	GET		user/2/followers		followers	followers_user_path(1)
+
+例如：
+	'''
+	resources :photos do
+	  member do
+	    get 'preview'
+	  end
+	end
+	'''
+
+
+会产生：
+	request	path				action		helper
+	GET		photo/1/preview		preview		preview_photo_path(1)
+
+
+==== collection ====
+collection用来给 诸如 /users/ 这样的url添加一些route。
+例如：
+'''
+resources :photos do
+  collection do
+    get 'search'
+  end
+end
+'''
+
+将产生：
+	request	path			action		helper
+	GET		/photos/search	search		search_photos_path
+	
+	
+
+===== root =====
+
+
+
+===== non-resource =====
+ 零散或特殊的需求，是用match, get 等实现
+
+==== match ====
+将URL和指定模式匹配。
+
+两个特殊symbol:
+	'''
+	:controller
+	:action
+	'''
+
+其余的segments分成两种：static segment 和 dynamic segment。
+前者是简单的字符串，后者是一个symbol，会作为 params 的一部分。
+若有：
+	''match ':controller/:action/:id/with_user/:user_id'	''
+下面这个url
+	''/photos/show/1/with_user/2''
+会匹配成：
+	:controller=> photos
+	:action=> show
+	:id => 1
+	:user_id=>2
+
+
+=== match参数 ===
+
+== 设置default controller/action ==
+很多时候，不想要controller 或 action出现在url中。
+
+	''match 'photos/:id' => 'photos#show'''
+对:
+	photos/2
+会匹配成：
+	:controller=>photos
+	:action=>show
+	:id=>2
+
+
+== :as — 给match 规则取个 route 名称 ==
+	match 'exit' => 'sessions#destroy', :as => :logout
+这样 
+	''/exit'' 
+会匹配成:
+	:controller=>sessions
+	:action=>destroy
+同时，会产生一个url_path/url helper：
+	logout_path
+
+
+== :via — 限制可进行的请求 ==
+	''match 'photos' => 'photos#index', :via => :get''
+
+
+== :constraints — 限定dynamic segment的格式 ==
+* 格式为正则表达式
+* 正则表达式不需要^ $等锚点。
+''match 'photos/:id' => 'photos#show', :constraints => { :id => ''**/[A-Z]\d{5}/**'' }''
+
+==== url 中的query string ====
+问号?后面的所有字符串将按**&**符号分解成hash。
+若有：
+	''match ':controller/:action/:id'''
+
+ /photos/show/1?user_id=2
+将会匹配成：
+
+'''
+:controller => photos
+:action=> action
+:id => 1
+:user_id=2
+'''
+
+
+==== http verbs ====
+
+  get "static_pages/home"
+  get "static_pages/help"
+

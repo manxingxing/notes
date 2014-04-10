@@ -1,0 +1,212 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-17T22:34:15+08:00
+
+====== 表单 ======
+Created 星期二 17 七月 2012
+
+
+===== non-model controll =====
+
+* 以tag结尾
+* 都有name属性，对应于parms的键名。
+* 很多都有value属性。有些表示默认值，有些表示对应表示的值，例如radio_button_tag, checkbox_tag
+* 同name的几个controll，例如radio_button_tag, checkbox_tag，将**传递一个对应的值或数组**。
+* 有些controll有disabled属性。
+* 每个具体的controll对应于params的一个元素，键名为其name属性，值为其value值。
+* **可以用来制作基于 model object 的表达，设name 为 object[attribute]  的形式即可。**
+
+''form_tag(url_for_options = {}, options = {}, *parameters_for_url, &block)''
+
+ 
+	**url_for_options**		#任意url_for识别的形式。表单信息传递到此。
+	**options**				#html参数
+		**method**				#采用的http verb
+		**class**
+		**id**
+		**....**
+
+'''
+check_box_tag(name, value = "1", checked = false, options = {}) 
+radio_button_tag(name, value, checked = false, options = {}) 
+'''
+
+		:disabled
+'''
+label_tag(name = nil, content_or_options = nil, options = nil, &block) 
+text_field_tag(name, value = nil, options = {})
+'''
+ 
+		:disabled
+		:size
+		:maxlength
+		:placeholder
+''text_area_tag(name, content = nil, options = {})''
+		size
+		rows, cols
+		:disabled 
+		:escape - By default, the contents of the text input are HTML escaped. If you need unescaped contents, set this to false. 
+''password_field_tag(name = "password", value = nil, options = {})'' 
+		**disabled**
+
+search_field_tag
+		text_field的特化。参数相同。
+
+''submit_tag''
+		**confirm			#confirm提示框内容。**
+		**disabled**
+		**disable_with**	#当disabled时，表单传递的值。
+
+
+===== model object helpers =====
+
+* controll helper没有 _tag 后缀。
+* 生成一整个params 元素，类型为hash。通过 [ ] 符号获取controll 值。
+* 第一个参数是object名称，第二个参数是object的属性名称。
+* 过程： 建立相应html标签，设置合适的name 和 value 属性。将controll的值绑定到对象的某个属性。将controll的值绑定到对象的某个属性.
+
+'''
+text_field(object_name, method, options = {}) 
+radio_button(object_name, method, tag_value, options = {}) 
+text_area(object_name, method, options = {}) 
+check_box(object_name, method, options = {}, checked_value = "1", unchecked_value = "0")
+'''
+ 
+
+
+===== 结合model object helper，制作基于object的表单 =====
+
+==== form_for(record_or_name_or_array, *args, &proc) ====
+
+* 三个主要参数：要绑定的对象，url hash, html options hash。后两者属于参数 *args，是参数表的最后一个(proc在参数表外)，因此可以不加 {} 符号。
+* url参数 可以是任何 url_for 接受的参数形式。
+* html参数接受class , id 等参数。
+* 过程： 建立相应html标签，设置合适的name和value属性，设置合适的url, html 参数, 生成一个 model object， 即通常使用的 **f **。
+
+* 当对象已经存在时，method="post", action="/create"
+
+==== Objects in form_for ====
+
+* 从object所属的model，及route规则，来判断合适的 url 和 html 参数。
+
+=== namespace ===
+form_for [:admin, @article]
+
+=== association ===
+这里说的是为关联的部分制作表单，不是为整个对象制作表单。
+	''form_for [@post, @post.comments.''**build**'']''
+相当于： :url=>new_post_comments_path(@post)
+
+* 表单是comment模型的表单，不带有post部分。params 列表中会有:   :post_id, :comment，后者带有表单中的内容。
+
+
+
+===== 关联表 表单 =====
+
+==== 在form_for中使用fields_for ====
+使用fields_for 关联 对象的一个关联属性。
+'''
+<%= form_for @person, :url => { :action => "create" } do |person_form| %>
+  <%= person_form.text_field :name %>
+  <%= 
+'''
+**fields_for**'' @person.contact_detail do |contact_details_form| %>''
+	''    <%= contact_details_form.text_field :phone_number %>''
+''    <% end %>''
+''<% end %>''
+
+==== accept_nested_attributes ====
+'''
+<%= form_for @person, :url => { :action => "create" } do |person_form| %>
+   <%= person_form.text_field :name %>
+   <%= 
+'''
+**f.fields_for**'' :contact_detail do |contact_details_form| %>''
+	''    <%= contact_details_form.text_field :phone_number %>''
+	''  <% end %>''
+    ''<% end %>''
+需要在model中设置accept_nested_attributes
+
+
+
+
+===== Select box =====
+
+==== select_tag(name, option_tags = nil, options = {}) ====
+
+options_tags可以是raw html 的字符串，也可以用下面的两个函数生成。
+
+options
+	:multiple - If set to true the selection will allow multiple choices.
+	:disabled - If set to true, the user will not be able to use this input. 
+
+
+==== 从数组，hash等产生options标签 ====
+''options_for_select(container, ''**selected**'' = nil)'' 
+	产生options标签。option标签需要两个参数： id 对应的 value。
+
+	**container**	#hash, array, enumerable, your type
+				the elements of container respond to first and last (such as a two-element array),  **the “firsts” as option text and the “lasts” serve as option values. ** **Hashes are turned into this form automatically,   the keys become “firsts” and values become lasts.** 
+	**selected**
+				 the matching “last” or element will get the selected option-tag. selected may also be an array of values to be selected when using a multiple select. 
+				
+	例如：
+	'''
+	options_for_select({ "Basic" => "$20", "Plus" => "$40" }, "$40")
+	options_for_select([["Dollar", "$"], ["Kroner", "DKK"]])
+	'''
+
+==== 从对象产生options标签 ====
+
+''options_from_collection_for_select(collection, value_method, text_method, selected = nil)'' 
+
+例如：
+	''select_tag "people", options_from_collection_for_select(@people, "id", "name")''
+	在option标签中，id 作为 value, name作为显示的内容。
+
+
+==== 关联到model object ====
+	''select(object, method, choices, options = {}, html_options = {})'' 
+		将choices 中选中的内容 关联到 object的method属性。
+	
+	options:
+		multiple
+		disabled
+	
+	例如：
+	 ''f.select :city_id, options_from_collection_for_select(City.all,  "id", "name")'' 
+
+
+===== 日期 =====
+
+==== Barebones Helpers ====
+
+	''select_date(date = Date.current, options = {}, html_options = {})'' 
+		date		#默认显示时间
+		
+	select_datetime
+	select_year
+	select_day
+	select_month
+	select_hour
+	select_minute
+	select_second
+	
+==== Model Object Helpers ====
+	''date_select(object_name, method, options = {}, html_options = {})'' 
+
+
+===== 文件上传 =====
+
+file_field_tag
+file_field
+
+上传之后会有很多事情需要做，例如图片产生缩略图，文件重命名等。这些工作可以利用：CarrierWave and Paperclip  等gem完成。 
+
+
+{{./pasted_image.bmp}}
+
+
+
+
+{{./pasted_image001.bmp}}

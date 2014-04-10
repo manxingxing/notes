@@ -1,0 +1,21 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-22T19:54:03+08:00
+
+====== 例子 ======
+Created Thursday 22 November 2012
+
+GoTop
+1. 事件：$(window).scroll
+2. 判断：$(window).scrollTop() > $(window).height。如果成立，则让GoTop可见。
+3. GoTop的点击事件的handler为 $("html, body").animate({ scrollTop: 0 })
+
+
+
+anchor smooth 跳转
+* 有插件的
+
+Live search 插件：
+* live search
+* livesearch
+* searchbox

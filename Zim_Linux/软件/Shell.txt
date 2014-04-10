@@ -1,0 +1,75 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-11T22:09:57+08:00
+
+====== Shell ======
+Created Sunday 11 November 2012
+
+
+===== Using bash for shell =====
+可用的shell
+cat /etc/shells
+
+当前的shell
+echo $SHELL
+
+更改登陆shell
+chsh path_to_bash
+
+
+===== path expansion =====
+
+
+==== wildcard/globbing ====
+
+?	# 一个任意字符
+* # 任意长度(包括零长度)字符串
+[set]	
+[!set]
+
+例如：
+[a-zA-Z0-9]
+[!0-9]
+[0-0!]	#0-9，和 ! 符号
+[.,;]		# 逗号，句号，分号
+
+==== brace expansion ====
+{a,b,c}
+{c,h,o}	
+{c,{a,b,d},d} => cad, cbd, cdd
+
+
+===== input & output =====
+
+==== standard IO ====
+
+
+==== redirection ====
+<
+>
+1>
+2>
+
+
+source 和  . (dot)
+* . (dot) 相当与source
+
+重新加载配置文件
+
+==== 长文本 ====
+
+welcome_text_interactive_mode=**$(**cat <<**EOF**
+
+This script will help you to setup a server for ${install_app_name} deployment.
+It is designed to run on a fresh intall of the ${server_os_version} server
+edition. You can run the installation process in unattended or interactive
+mode. For both modi you need to provide some information to the script. The
+interactive mode is standard an will ask you while the script is running for
+required informations.
+
+
+**EOF**
+**)**
+
+
+

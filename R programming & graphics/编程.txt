@@ -1,0 +1,18 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-01T13:47:11+08:00
+
+====== 编程 ======
+Created Monday 01 April 2013
+
+==== garbage collection ====
+
+gc(verbose,reset)
+
+A call of gc causes a garbage collection to take place. This will also take place automatically without user intervention
+
+the primary purpose of calling gc is for the report on memory usage. However, it can be useful to call gc after a large object has been removed, as this may prompt R to return memory to the operating system
+
+reset
+
+logical; if TRUE the values for maximum space used are reset to the current values

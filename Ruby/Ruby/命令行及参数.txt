@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-11-08T10:50:33+08:00
+
+====== 命令行及参数 ======
+Created 星期五 08 十一月 2013
+
+在脚本中使用ARGV数组来访问命令行参数

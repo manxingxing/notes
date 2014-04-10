@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-13T10:43:21+08:00
+
+====== XML ======
+Created Tuesday 13 November 2012
+
+* 没有定义任何标签和属性
+* XML是一组标签和属性如何被创建和使用的规则
+* 现在已经有许多已经创建完毕的XML语言。
+* XML用于存储和传输数据
+

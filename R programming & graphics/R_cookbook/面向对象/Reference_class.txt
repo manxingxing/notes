@@ -1,0 +1,147 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-03T01:46:11+08:00
+
+====== Reference class ======
+Created 星期日 03 六月 2012
+
+@封装   @message_passing
+
+'''
+setRefClass: define a reference class
+getRefClass: query the reference class of an object
+'''
+
+
+===== setRefClass =====
+* 返回一个**refObjectGenerator**类对象(最好赋值给与与类名相同的变量)
+
+==== field: ====
+		* vector of field names. By default, fields  have class "ANY"
+		* list of names of classes.  当fields 是个列表时，列表元素为类名，这时则限定了每个field的类型。
+		* FIXME:  accessor function
+
+=== reserved field ===
+	* 在方法中使用 ''.self来指代变量整体，用.refClassDef来指代类定义''
+	The entire object can be referred to in a method by the reserved
+	     name ‘**.self**’, The special object ‘**.refClassDef**’ contains the definition of the
+	     class of the object. These fields are read-only.The ‘.self’
+	     field can be modified in the ‘$initialize’ method, because the
+	     object is still being created at this stage.
+
+
+==== methods: function definitions ====
+	named list of methods definitions
+	两个特殊的方法： 
+		* initialize 创建新实例时调用
+		* finalize  当对象被从内存中清除时调用
+ 
+* **non-local assignment operator:** <<-
+	应该使用 超级赋值符。
+	 a heuristic check is made for local assignments to field names and a warning issued if any  are detected.
+
+
+==== contains ====
+superclasses
+TODO: method、field冲突
+
+===== Class methods: 使用setRefClass返回的refObjectGenerator对象 =====
+
+* **类列表结构**
+* 所有field都是其中的一个元素
+* 所有方法都是其中的一个元素
+
+==== $new:  实例化 ====
+	* named argument assign initial values to corresponding fields
+	* unnamed argument must be object from this class. 类似与C++中的从另外一个对象复制。
+	* fields are simpliy assigned。仅仅是相当于一般的赋值操作。如果某一个field是一个reference class对象，那么这个对象将是copy(shallow=T)的形式，也就是说两者共享一份数据，修改一个也会修改另一个。
+	* 对应于initialize()方法。initialize methods need some care in design. your method should contain "..." argument. all other arguments should have default or missingness checking.
+
+==== $help(method_name) ====
+	使用python的风格。一个method的body内第一个(或者多行)语句若是字符串，则这个字符串被当做是函数说明，在调用$help方法时会显示出来。
+	 If the first element of the body of the method is a literal character string (possibly multi-line), that string is interpreted as documentation.
+
+
+
+==== $fields ====
+	get fields list
+
+
+==== $methods: list or install methods ====
+	* when called without arguments, list existing methods.
+	* when called with named argument which is itself a function definition, this methods will be installed.
+	* to remove a method, assign NULL to it.
+	当method很多或者长度很长时，用这种方法，而不是在setRefClass 中使用methods参数，能使代码更加整洁。
+
+
+==== $lock ====
+	lock a field. locked field may be set only once
+	when called without argument, get list of locked fields
+	* TODO:  code to lock fields should be part of class definition
+
+==== $accessors(field names) ====
+类似于ruby里的accessor声明，自动为field name创建 getXXX， setXXX方法
+
+
+===== Object methods =====
+
+==== $copy(shallow=F) ====
+	* simple assignment(指等号赋值) just generate a reference。两个变量会同时改变
+	* $copy(shallow=F) will generate a independent copy。如果这个对象含有其他引用类的field，这些field也会复制。
+
+==== $field ====
+	**get and set field**
+	
+	* field method replaces the direct use of field name when the name must be calculated or for looping over several fields
+
+==== $show ====
+	在对对象调用print时会转而调用这个方法。
+
+
+==== accessor function ====
+
+accessor function which will be called to get or set the field.
+     Accessor functions are likely when reference classes are part of
+     an inter-system interface. The interface will usually supply the
+     accessor functions automatically based on the definition of the
+     corresponding class in the other language.
+
+myclass = setRefClass('myclass',fields=c('name','age'),contains = 'envRefClass',methods=list(
+  initialize = function(name,age)
+  {
+    name<<-name;
+    age<<-age;
+  },
+  get = function()
+  {
+    cat(gettextf('\tname : %s\n\tage: %d\n',name,age))
+  },
+  edit = function(newname,newage)
+  {
+    name<<-newname
+    age<<-newage
+    get()
+  },
+  finalize = function()
+  {
+    cat('object erased!\n')
+  }
+))
+
+===== 高级 =====
+
+==== 多种实例化方式 ====
+$new(obj)    # 如果initialize方法未专门定义，new方法的参数是一个unnamed argument时，可接受一个该类或该类父类的对象，以这个对象为原型创建新对象
+
+或者使用 $copy() 方  # 参照 Object methods里 $copy 一节
+
+==== 添加或删除method ====
+参考 上面 Class methods 中的methods方法
+
+==== callback ====
+参考setRefClass 中的 methods一节
+
+==== 继承 ====
+
+=== 覆盖父类已有的方法 ===
+可以调用**callSuper(...)** 方法来调用父类中被覆盖的同名方法

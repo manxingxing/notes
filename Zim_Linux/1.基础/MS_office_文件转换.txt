@@ -1,0 +1,22 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-04-28T00:54:32+08:00
+
+====== MS office 文件转换 ======
+Created 星期六 28 四月 2012
+
+===== word =====
+
+wv***系列工具
+	
+	wvPDF
+	wvRTF
+	wvCleanLatex
+	wvLatex
+	wvHtml
+	
+===== xls =====
+
+xls2csv软件包中提供的:
+	
+	''convertxls2csv''

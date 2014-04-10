@@ -1,0 +1,246 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-14T14:56:32+08:00
+
+====== 理解 package ======
+
+
+===== 目录结构 =====
+
+==== DESCRIPTION文件 ====
+
+* 格式采用debian control file(DCF)的格式
+	* Field名称以大写字母开始
+	* Field和值用冒号分开
+	* 值只有一个段落，如果有多行，从第二行开始需要以空格或TAB开头缩进
+
+Package: package名称，用来做library的参数
+Version: 
+Title: 单句，首字母大写，不用句号结尾。 显示在包列表中
+Description: 一些普通的句子组成的普通段落。注意除第一行外，其他行需要有点缩进
+License: 协议及其版本。可以指定多个协议。例如 GPL-2 | MIT 、 GPL(>=2)。可使用的协议信息存储在R/share/licenses下(那个db文件就是个简单的文本文件)。
+Version: 至少两个数字及点号( . ) 连接符( - ) 组成的版本信息
+Date:  YYYY-mm-dd
+
+Author: 作者们。随便写
+Maintainer: 姓名 < email@email.com >
+Authors@R: 可以替代Author, Maintainer域
+
+Depends:  package1, package2 (>= version number), R (> 2.14.0)。 
+			 包里使用了它们的函数，加载包时，这些包会自动加载到搜索路径
+Imports: 和depends格式相同。 包里使用了它们的函数，但加载包时，不会自动加载这些包到搜索路径
+Suggests: 和depends格式相同。一些例子(example), test, vignette里的代码需要这些包里的代码
+
+URL: 随便写
+
+
+=== 使用Authors@R来表达作者信息 ===
+* 这样的好处是： 给citation函数提供更多的信息
+
+这个field(域)的值是一个用R 数据结构表达的作者信息。用函数person来表达一个人的信息，然后用 c() 把多个人连接成向量
+
+'''
+person(given = NULL, family = NULL, middle = NULL,
+       email = NULL, role = NULL, comment = NULL,
+       first = NULL, last = NULL)
+'''
+
+
+== role 的种类 ==
+完整的role名单需参考 ?person
+
+一个人可以有多个角色，例如cre, aut
+
+	cre： creator，也就是maintainer
+	aut :  author
+	ctb:  contributor  不出现在citation里面
+	
+	ths: Thesis advisor. If the package is part of a thesis, use for the thesis advisor.
+
+
+
+==== 几个离散文件 ====
+* 这些文件放在顶层目录下，R会安全地忽略它们。
+
+=== NEWS ===
+https://github.com/hadley/devtools/wiki/Documenting-packages#news
+
+
+=== README ===
+https://github.com/hadley/devtools/wiki/Documenting-packages#readme
+
+=== inst/CITATION ===
+
+
+
+ChangeLog
+FAQ
+
+==== 数据 ====
+数据文件放在 data/ 目录下，可以包含三种形式的数据：
+1. 从R中保存出来的 .RData 或 .rda  数据。多用 .rda后缀
+2. 文本格式的数据，例如.txt, .csv, .tab，或它们的压缩版本，例如.gz, .bz2, .xz
+3. .R 文件定义的数据
+
+=== 数据文档 ===
+* 数据的说明文档也放在 man/目录下
+* 使用函数 ''promptData()'' 来生成 Rd 文档
+
+\name
+\alias
+\docType{data}
+\title
+\usage{ 
+	data(iris) 	%% 对没有启用LazyLoading的数据
+	iris		%% 对启用lazyLoading的数据
+}
+\format{		%% 这个是非常必要的
+	%% text description
+	%% 如果是数据框，列表，最好描述元素的意义
+	\describe {
+		\item{\code{}}{description}
+	}
+}
+\details{}
+\source{数据源}
+\note{}	
+\references
+\examples
+\keyword{datasets}		%% 使用datasets 关键字
+\url
+
+==== 代码 ====
+* 放在 R/ 目录下
+* 一个 .R 文件可以有多个函数。可以自由组织。
+
+=== 代码文档 ===
+* 一个代码文档可以描述多个函数，需要把这些函数的\alias, \usage, \arguments 集中起来
+* 可以使用''prompt()'' 函数生成文档
+
+\name{}
+\alias{}
+\title
+\description
+\usage{
+	%% R code 一般是参数表
+	%% 对S3类来说：
+	\method{method}{class} (args ...)
+	\method{print}{linmod} (x, ... )
+}
+\arguments{
+	\item{param}{description}
+}
+\details{}
+\value{ 
+	%% description 
+	如果是数据框，列表之类，可以描述元素的意义
+	\itme{col}{ description }
+}
+\note{}
+\references{}
+\author 		%% 当函数作者和包作者不同时，可在此标注
+\keyword	# fixed set of keywords in R_HOME/doc/KEYWORDS
+\examples{
+	%% codes
+	\dontrun{
+	}
+	\dontshow {
+		%% 测试用代码，所以不需要显示到帮助文件中
+	}
+}
+\seealso{}
+
+== 可用的行内标记 ==
+**Ordered (numbered) lists:**
+
+\enumerate{
+  \item First item
+  \item Second item
+}
+**Unordered (bulleted) lists**
+
+\itemize{
+  \item First item
+  \item Second item
+}
+**Definition (named) lists**
+
+\describe{
+  \item{One}{First item}
+  \item{Two}{Second item}
+}
+
+**公式**
+\eqn	# inline
+\deqn	# display
+
+**Character formatting**
+
+\emph{text}: emphasised text, usually displayed as italics
+
+\strong{text}: strong text, usually displayed in bold
+
+\code{text}, \pkg{package_name}, \file{file_name}
+
+External links: \email{email_address}, \url{url}, \href{url}{text}
+\code{\link{另一个函数}}
+\link[pkg]{func}
+
+\link[package]{function} - the first argument can be omitted if the link is in the current package, or the base package. Will usually be wrapped inside \code: \code{\link{fun}}
+
+==== 包文档 ====
+* 放在 man/ 目录下
+* 用函数''promptPackage()''函数生成包描述文档
+
+\name{pkg-name}
+\alias
+\docType{pacakge}
+\title
+\description
+\details{
+	\tabular{ll} {	%% ll 指两列左对齐
+	Package:  \tab pkg \cr
+	Type: \tab package \cr
+	Version: \tab 1.0 \cr
+	Date: \tab 2013-04-18 \cr
+	}
+	text description
+}
+\author {
+Maintainer: who to complaint
+}
+
+\references
+\keyword{package}
+\seealso
+\examples
+
+
+==== NAMESPACE ====
+export.pattern(regex)
+export(func)
+S3method(method, class)
+
+import(package)
+importFrom(pkg, method)
+
+==== inst/CITATION ====
+参考 bibentry函数
+或者 citentry, citHeader, citFooter 函数
+
+* 在里面使用 meta变量来指代 DESCRIPTION 文件中的field
+
+===== 包管理命令 =====
+R CMD build			# build source package
+R CMD install --build tar_ball  # 编译并安装到.libPath，然后把安装过后的二进制包打包，生成二进制包
+R CMD install 		# 编译 并 安装 
+
+## 发布到CRAN之前，需要全面检查包
+* 这一步需要Latex
+R CMD check
+
+=== 提交到CRAN ===
+
+1. 上传到 ftp://cran.r-project.org/incoming
+2. 发邮件给 cran@r-projec.org
+3. 等结果

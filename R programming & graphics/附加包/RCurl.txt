@@ -1,0 +1,133 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-01-07T13:43:59+08:00
+
+====== RCurl ======
+Created Monday 07 January 2013
+
+@RCurl @R
+
+===== callbacks =====
+
+==== callback的作用 ====
+
+==== 几种callback ====
+
+writefunction
+headerfunction
+debugfunction
+progressfunction = function(down, up)  # 下载，上传。 都是有两个元素的向量 (总大小, 目前已完成大小)
+
+===== handle =====
+
+=== handle是什么 ===
+
+* handle对应C语言版本中的opaque data structure
+* handle代表着一系列的设置
+* 当请求处理完毕时，关于对话的信息会存储在handle中(例如cookie)，使用getCurlInfo()来获取
+
+=== handle怎么使用 ===
+
+创建一个handle
+'''
+h = getCurlHandle()
+h = getCurlHandle(name=value)
+'''
+
+修改一个handle的设置
+    ''curlSetOpts(handle, name=value)''
+复制(复用)一个已有handle
+    ''dupCurlHandle(handle, name=value, .opts)''
+
+===== Options =====
+
+==== option名录 ====
+
+'''
+listCurlOptions()
+getCurlOptionsConstants()
+getCurlOptionsTypes()
+'''
+
+
+==== ... 和 .opts 参数 ====
+在getURL等高等函数或者handle中以下列形式设置选项(有百余个选项)
+1. ... 参数。若干个name=value
+2. .opts = list(name=value)
+     使用函数''curlOptions(name=value)''来创建设置列表
+
+==== 全局option ====
+对所有request都生效
+	''options(RCurlOptions = list())''   
+
+
+===== FAQ =====
+
+==== 下载binary内容，并保存到文件 ====
+
+FIXME: writeBin
+http://stackoverflow.com/questions/14426359/downloading-large-files-with-r-rcurl-efficiently
+
+==== post表单 ====
+
+==== post表单：上传文件 ====
+	postForm函数 + fileUpload函数
+
+
+==== header ====
+
+1. **自定义request header**
+httpheader = list(name=value)
+
+2. **查看response header**
+使用headerfunction参数
+'''
+
+d = basicHeaderGatherer()	# 一个简单的header信息收集函数
+temp<- getURL("http://cos.name/", headerfunction=d$update)
+d$value() # 即可查看消息
+'''
+
+
+3. **想firebug/chrome一样查看request, response所有信息(包括request, response header, response body等)**
+使用''debugfunction''参数
+
+'''
+d =debugGatherer()	# 一个简单的debug 信息收集函数
+temp<- getURL("http://cos.name/", 
+'''
+**debugfunction=d$update, verbose = T**'')''
+''d$value() 即可查看消息''
+
+==== status code ====
+1. 建立一个handle，应用到getURL等函数中，待request处理完毕后，使用getCurlInfo(handle)$response.code
+
+2. 依照 header 一节中 第2条 的步骤，获取header中的status code
+
+==== cookie ====
+libcurl有管理cookie的功能，只是默认没有开启。
+* cookie管理功能依赖于**handle**
+
+**查看网站传送来的cookie**
+	getCurlInfo(handle)["cookielist"]
+
+
+==== 激活cookie engine ====
+只要设置了cookiefile或者cookiejar，cookie管理功能就会开启。例如：
+	cookiefile=""	# 空字符串仅激活cookie engine，但并不没有提供cookie内容。
+
+
+==== cookiefile: 使用已有的cookie ====
+	以特定格式存储的cookie文件，用于request中， 文件是只读的。这个cookie文件可以从其他浏览器中导出，或从handle中cookielist中导出
+
+
+=== cookie参数： 为request提供少量的cookie ===
+	cookie="name:value;name:value;"
+
+
+==== cookiejar参数 ====
+	when the easy handle is closed save all known cookies to the given cookiejar file. Write-only. 
+TODO: cookiejar
+
+
+

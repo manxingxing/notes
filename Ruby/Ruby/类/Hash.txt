@@ -1,0 +1,76 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-06T15:37:01+08:00
+
+====== Hash ======
+Created 星期六 06 十月 2012
+
+==== 创建 ====
+
+	h = {}
+	h = {:key1=>value1, :key2=>value2}
+	h = {key1: value1, key2: value2}
+	h = {"key1"=>value1, "key2"=>value2}
+	H = Hash.new()	#只能这么用？不能从已有对象复制
+
+* 用**{}**来创建散列表，key value对间用=>符号关联。
+* 没有顺序，不能下标索引。从ruby 1.9开始，会记录键值的顺序，但并不
+* 只能有键值索引
+* 值可以是任意类型的对象，甚至是map类型
+* 键虽然可以是字符串，但却经常使用symbol，这种用法~~效率~~更高。
+
+	dict = { 'cat' => 'feline animal', 'dog' => 'canine animal'}
+	
+	people = {
+	    'fred' => {'name'=>'fred elliott',   'age'=>63,  'gender'=>'male'},
+            'janet'=> {'name'=>'jannet porter',  'age'=>55,  'gender'=>'female'}
+	}
+	
+
+===== 对象方法 =====
+
+==== 索引和赋值 ====
+[], []=
+values_at
+store(key,value)
+
+==== 查询 ====
+size,length
+empty?
+
+keys
+values
+
+include?(key) 或 key?(key) 或 has_key(key) membber?(ley)
+value?(value) 或  has_value?(value)
+
+key(value)	#由值查找键
+
+
+==== 迭代 ====
+each/each_pair
+each_value
+each_key
+
+select
+reject
+
+==== 编辑 ====
+	shift
+	dict.delete('cat')	#删除cat 键，返回被删除的键值对
+	dict.delete_if {**|key,value|** value>10}
+	reject!
+	select!
+	merge(other_hash)	#同名key-value以other_hash为准
+	merge!(other_hash)/update	
+	replace
+	invert	#颠倒key-value关系
+
+	Rails 扩展了Hash的功能，还有：
+	extract(*keys)
+	except(*keys)
+
+==== 默认值 ====
+Hash.new(obj)->new_hash
+obj.default, obj.default=
+obj.default_proc

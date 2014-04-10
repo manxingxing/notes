@@ -1,0 +1,59 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-11T12:10:12+08:00
+
+====== 浏览器 ======
+Created 星期日 11 十一月 2012
+
+
+===== 尺寸 =====
+
+document.documentElement.clientWidth
+document.documentElement.clientHeight	#一般用高度
+
+在web标准声明下用document.documentElement; 如果是未声明用document.body。
+以下情况只对浏览器。
+
+
+===== Cookie =====
+* 浏览器根据过期日期自动清楚cookie
+* 不同浏览器实现cookie的方式不一样，但都可以通过document.cookie访问和增加cookie。(firefox用 sqlite数据库存储cookie)
+* 用 navigator.cookieEnabled来检查浏览器的cookie功能是否禁用了。
+
+	document.cookie
+格式：
+	__name=value; expires= ; name2 =  value1; expires = ;__
+	
+
+'''
+function getCookie(c_name)
+{
+'''
+	'''
+	if (document.cookie.length>0)
+	  {
+	  c_start=document.cookie.indexOf(c_name + "=")
+	  if (c_start!=-1)
+	    { 
+	    c_start=c_start + c_name.length+1 
+	    c_end=document.cookie.indexOf(";",c_start)
+	    if (c_end==-1) c_end=document.cookie.length
+	    return unescape(document.cookie.substring(c_start,c_end))
+	    } 
+	  }
+	return ""
+	}
+	
+	function setCookie(c_name,value,expiredays)
+	{
+	var exdate=new Date()
+	exdate.setDate(exdate.getDate()+expiredays)
+	document.cookie=c_name+ "=" +escape(value)+
+	((expiredays==null) ? "" : ";expires="+exdate.toGMTString())
+	}
+	
+	function eraseCookie(name){
+	  // Erase the specified cookie by setting expire to -1
+	  setCookie(name, "", -1);
+	}
+	'''

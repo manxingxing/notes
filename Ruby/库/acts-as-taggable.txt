@@ -1,0 +1,177 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-11T23:17:42+08:00
+
+====== acts-as-taggable ======
+Created Sunday 11 November 2012
+
+===== 安装 =====
+'''
+gem "acts-as-taggable-on"
+bundle install
+'''
+
+
+===== 设置 =====
+
+==== migration ====
+	''rake g acts_as_taggable_on:migration''
+* 自动的数据库结构: tags, taggings 表，以及设置列。
+
+==== model ====
+* 自动建立虚拟attribute，以及getter/setter
+* 自动的类关联
+* named scope: tagged_with
+
+	class User < ActiveRecord::Base
+	   acts_as_taggable		# Alias for <tt>acts_as_taggable_on :tags</tt>:
+	   acts_as_taggable_on :skills, :interests
+	
+	   #ordered version: 保持tag创建的时间顺序
+	'''
+	acts_as_ordered_taggable
+	acts_as_ordered_taggable_on
+	'''
+	
+	end
+	
+	class User < ActiveRecord::Base
+	  acts_as_tagger	# owner
+	end
+
+
+===== 配置 =====
+
+If you would like to remove unused tag objects after removing taggings, add
+
+	''ActsAsTaggableOn.remove_unused_tags = true''
+
+If you want force tags to be saved downcased:
+
+	''ActsAsTaggableOn.force_lowercase = true''
+
+If you want tags to be saved parametrized (you can redefine to_param as well):
+
+	''ActsAsTaggableOn.force_parameterize = true''
+
+If you would like tags to be case-sensitive and not use LIKE queries for creation:
+
+	''ActsAsTaggableOn.strict_case_match = true''
+
+
+===== API =====
+ActsAsTaggableOn 是 一个 module，定义了
+
+ActsAsTaggableOn::MigrationGenerator
+	''ActsAsTaggableOn::Tag''		#对应于tags数据表， 继承Base类
+	''ActsAsTaggableOn::Tagging''	#对应于taggings数据表，继承Base类
+      ActsAsTaggableOn::TagList			#继承Array类
+	ActsAsTaggableOn::Taggable			#一个module
+	ActsAsTaggableOn::Tagger			# 一个module
+	ActsAsTaggableOn::TagsHelper		#一个module 包含 tag_cloud方法
+	
+
+
+
+
+===== COOKBOOK =====
+
+==== 查询一个实例的标签 ====
+
+=== 返回字符串数组 ===
+
+	<context>_list	如tag_list, skill_list
+	tag_list_on(:context)
+	
+
+=== 返回Tag对象数组 ===
+
+	<contexts>		如tags, skills
+	tags_on(:context)
+	
+
+==== 设置一个实例的标签 ====
+
+<context>_list="tag1,tag2"
+set_tag_list_on(:context, "tag1,tag2")
+
+==== 标签计数 ====
+
+单个实例对象标签计数
+	@user.<context>_counts
+	@user.tag_counts_on(:context)
+所有对象标签计数: 同名的类方法
+	User.<context>_counts
+	User.tag_counts_on(:context)
+
+
+==== 寻找具有共同标签的User ====
+find_related_<contexts>
+
+* 只要用共同标签即可，不必完全相同
+* 标签相似度最高的排列在最前面
+* 更复杂的查询可以使用类方法 tagged_with
+
+==== User中具有特定标签的子集 ====
+
+* 是一个 named **scope**。因此可以和where, select或其他scope联用。
+* User.tagged_with([]) or '' will return [], but not all records.
+
+=== 参数 ===
+	:tags		要匹配的标签，多个标签用数组组合起来。
+	:any			匹配任意标签即可
+	:match_all	匹配指定的所有标签
+	:on			context, 例如tags, skills
+	:exclue		取反，不带有任何指定标签
+	:owned_by	限制tagger
+	:wild		在sql LIKE 中使用%通配符，例如 %pattern%。
+
+
+=== 例子 ===
+class User < ActiveRecord::Base
+    acts_as_taggable_on :tags, :skills
+    scope **:by_date**, order("created_at DESC")	#另一个scope
+  end
+
+  User.tagged_with("awesome").**by_date**
+  User.tagged_with("awesome").**by_date**.paginate(:page => params[:page], :per_page => 20)
+
+  # Find a user with matching all tags, not just one
+  User.tagged_with(["awesome", "cool"], **:match_all** => true)
+
+  # Find a user with any of the tags:
+  User.tagged_with(["awesome", "cool"], **:any** => true)
+
+  # Find a user that not tags with awesome or cool:
+  User.tagged_with(["awesome", "cool"], **:exclude** => true)
+
+  # Find a user with any of tags based on context:
+  User.tagged_with(['awesome, cool'], **:on** => :tags, :any => true).tagged_with(['smart', 'shy'], :on => :skills, :any => true)
+
+You can also use **:wild** => true option along with :any or :exclude option. It will looking for %awesome% and %cool% in sql.
+
+
+==== tagger ====
+@user.tag(@photo, :with=>"tag1,tag2", :on=>:skills)
+@user.owned_tags
+@user.owned_taggins
+
+@photo.<contexts>_from(@user) 
+等同于：
+@photo.owner_tags_on(@user, <contexts>)
+
+===== 虚拟属性 =====
+
+=== tag_list是User的虚拟属性 ===
+
+User.create(:name=>"manxignxing", :**skill_list**=>"tag1,tag2,tag3")
+@user.update_attributes(params[:user].merge({:**tag_list**=>"tag1,tag2,tag3"})
+
+
+===== View Helper =====
+
+==== tag_cloud ====
+
+<% tag_cloud(@tags, %w(css1 css2 css3 css4)) do |tag, css_class| %>
+  <%= link_to tag.name, { :action => :tag, :id => tag.name }, :class => css_class %>
+<% end %>

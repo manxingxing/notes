@@ -1,0 +1,78 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-07-23T22:41:11+08:00
+
+====== 性能 ======
+Created 星期二 23 七月 2013
+
+===== 查询次数过多 =====
+
+==== N+1 ====
+@users.each do |u|
+	u.car.name
+end
+
+**解决方案**： 使用includes
+
+===== 取出了并不需要的内容 =====
+
+==== 不需要的栏位 ====
+ActiveRecord預設的SQL會把所有欄位的資料都讀取出來，如果其中有text或binary欄位資料量很大，就會每次都佔用很多不必要的記憶體拖慢效能。
+
+**解决方案**： select, pluck
+
+==== eager loading的内容只用来查询，但在结果中并不需要 ====
+Group.includes(:group_memberships).where( ["group_memberships.created_at > ?", Time.now - 30.days ] )
+
+**解决方案： **用joins替代includes
+Group.joins(:group_memberships).where( ["group_memberships.created_at > ?", Time.now - 30.days ] )
+
+
+===== 不要instantiate太多的记录到内存中 =====
+
+==== 嵌套的includes ====
+
+
+==== Batch finding ====
+用了all.each方法取出了所有记录
+
+**解决方案**： 用find_each替代 all.each
+
+===== 需要经常查询的内容 =====
+
+==== counter cache ====
+适合记录是逐渐增加的情况。例如发贴。不适合数据是大量导入的情况。
+
+
+===== 自动应用的transation =====
+save, create, destroy等被自动包含在transation内，如果是相关的这类动作，可以包含在一个transation内。省去过多的transaction打开/关闭操作。
+
+my_collection.each do |q|
+  Quote.create({:phrase => q})
+end
+
+# Add transaction
+Quote.transaction do
+  my_collection.each do |q|
+    Quote.create({:phrase => q})
+ end
+end
+
+=== Use Constant for domain data 不变的内容，可以放在常量里 ===
+	class Rating < ActiveRecord::Base
+		  G  = Rating.find_by_name('G')
+		  PG = Rating.find_by_name('PG')
+		  R  = Rating.find_by_name('R')
+		  #....  
+	end
+
+
+3. 由Web伺服器提供靜態檔案
+4. 由 CDN 提供靜態檔案
+5. Caching Data in Instance or Class Variables
+6. Interpolated string faster than + operator
+7. Instance variable faster than accessor
+8. Using return
+9. Chained Calls of map
+10. Including Modules versus Opening Classes
+

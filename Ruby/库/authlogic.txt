@@ -1,0 +1,87 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-08-02T16:20:54+08:00
+
+====== auth5logic ======
+Created 星期四 02 八月 2012
+
+===== 如何使用 =====
+1. 建立普通的user model 和 user controller
+2. 在user model的migration 文件中建立列，必选persistence_token，建议选 email, login, password_salt, crypted_password。这些列来自于authologic可以自动识别的列。见下面的列表.
+3. 在user model中加入： acts_as_authentic
+4. 建立特殊的 Authlogic::Session::Base类 session 模型，这个模型内几乎是空的。
+	rails g authlogic:session user_session 
+5. 建立普通的user_sessoins controller
+6. 在applicationController中建立一些helper method，典型的如：
+        ''def current_user_session  ''
+	''    @current_user_session ''**||=**'' UserSession.find  ''
+	''end  ''
+	''def current_user  ''
+	''    @current_user ||= current_user_session ''**&&**'' current_user_session.''**user**''  #应该是session 模型关联的“user"模型名称。''
+	''end'' 
+        ''def store_location''
+	''    session[:return_to] = ''request.request_uri	#参见 Rails:controller 
+	''end''
+	
+	''def redirect_back_or_default (default = root_url)''
+	''  unless request.env['HTTP_REFERER'].blank?''
+	''    session[:return_to] = request.env['HTTP_REFERER']''
+	''    redirect_to :back''
+	''  else''
+	''    redirect_to default''
+	''  end''
+	''end''
+7. 如果在view中也能访问这些方法，使用helper_method进行声明。
+
+===== acts_as_authentic识别的列 =====
+* 自动validation
+* 自动处理password, password_salt, crypted_password
+* 自动处理email, login, username
+	
+	email
+	LoggedInStatus
+	Login
+	magicColumns
+		login_count, fails_login_count, last_request_at, current_login_at, last_login_at, current_login_ip, last_login_ip
+	password
+		crypted_password
+		password_salt
+	PersistenceToken
+
+
+===== Authlogic::Session:Base类 =====
+* 登录时自动验证。
+
+==== user_sessions controller ====
+create:
+User_session.create(params[:user])
+destroy:
+User_session.find.destory
+
+===== Other Notes =====
+
+==== edit_user_path(:current) ====
+* 通常情况下，传递到edit_user_path, user_path 的参数会被.to_i 转换成数字，这个数字应该对应于一个ID。
+* 这个 参数内容还会作为URL的一部分。
+
+See http://api.rubyonrails.org/classes/ActionController/Routing.html and scroll down to Named Routes.
+
+ The **:current**  is just a arbitrary symbol. Instead of passing an id the string "current" is used in the url. This does not make a difference since params[:user_id] is not used in the controller. Still it makes for a nice urls, since you can tell that you are editing the current user.
+在这个例子中，:current只是用来显示在URL中，可以换成任何的symbol。因为在edit 方法中，并没有使用这个参数，而是使用current_user来获取当前user。
+
+In this same example, if you replace
+	edit_user_path(:current)
+with
+	edit_user_path(current_user.username)
+Then the URL will be something like
+	''http://localhost:3000/users/''**ryanb**''/edit''
+
+
+==== 密码和cookie 的加密算法 ====
+在db/seed_fixtures/users.yml里看到的。  
+  password_salt: <%= salt = Authlogic::Random.hex_token %>
+  crypted_password: <%= Authlogic::CryptoProviders::Sha512.encrypt("test" + salt) %>
+  persistence_token: <%= Authlogic::Random.hex_token %>"
+  single_access_token: <%= Authlogic::Random.friendly_token %>
+  perishable_token: <%= Authlogic::Random.friendly_token %>
+

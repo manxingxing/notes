@@ -1,0 +1,43 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-17T22:39:46+08:00
+
+====== authentication ======
+Created 星期二 17 七月 2012
+
+==== 验证 ====
+
+=== 简单验证 ===
+
+http_basic_authenticate_with :name=> ? ,
+							:password=> ? ,
+							:except=> [action list],
+							:only=>[action list]
+
+放在controller中。控制当执行特定action时的验证方式。
+
+==== 用户验证 ====
+TODO: authentication
+
+
+password, password_confirmation, password_digest
+**has_secure_password**
+
+user = User.find_by_email(params[:session][:email])
+user.**authenticate**(params[:session][:password])
+
+
+==== 登录 ====
+
+  def create_remember_token
+      self.remember_token = **SecureRandom.urlsafe_base64**
+    end
+
+  def sign_in(user)
+    cookies.permanent[:remember_token] = user.remember_token
+    self.current_user = user
+  end
+
+before_filter: signed_user_in
+
+结合User model

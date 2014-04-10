@@ -1,0 +1,70 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-23T01:01:02+08:00
+
+====== 基本语法 ======
+Created Friday 23 November 2012
+
+===== 流程控制 =====
+
+=== 判断 ===
+
+逻辑操作符：
+  >, <, ==, !=, >=, <=
+  Identical():完全相等,相同则TRUE，不相同则FALSE
+  All.equal():近似相等，若差别不大，则返回差异的信息
+  Is.na(), is.系列
+
+=== 连接多个逻辑判断 ===
+  All()
+  Any()
+  xor(x,y)
+  &		# 向量化
+  &&	# 具备短路求值特征
+  |		# 向量化
+  ||		# 具备短路求值特征
+
+=== 使用分支语句 ===
+if(cond) {
+	statements
+}
+else if {
+	statements
+}
+else {
+	statements
+}
+
+  Switch()
+  Ifelse()
+
+=== 使用循环 ===
+for( iterator in collection {
+	statements
+}
+while(cond) {
+	statements
+}
+repeat{
+	statements
+}
+
+=== 从循环语句中退出 ===
+break
+next
+
+==== 循环模式 ====
+
+=== 迭代器模式 ===
+for(i in seq_along(x))
+lapply(seq_along, function(i) {}  )
+
+for(s in names(x) )
+lapply(names(x), function(s) {} )
+
+=== 访问者 ===
+
+for(i in x)
+
+lapply(x, function(x) {} )
+

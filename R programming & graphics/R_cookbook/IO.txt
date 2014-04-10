@@ -1,0 +1,35 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-23T01:08:42+08:00
+
+====== IO ======
+Created Friday 23 November 2012
+
+===== Console =====
+
+scan, readline, readLines 都默认从 console读取资料
+
+任意读取函数，设置文件／链接为 stdin() ，都可以从console读取
+
+任意写出函数，设置文件／链接为 stdout() ，都可以写出到console
+
+===== 剪贴板 =====
+
+任意读取／写出函数，设置文件／链接为 "clipboard"，都可以从剪贴板读取／写出
+
+* FIXME: linux 不支持写出
+
+===== 文本文件 =====
+
+===== 二进制文件 =====
+foreign 包
+SPSS
+strat
+SAS
+Excel
+
+===== 数据库 =====
+目前的解决方案有两种:
+1. 数据库专用的R 包，例如ROracle
+2. 数据库接口，例如[[::附加包::RODBC|RODBC]], [[::附加包::DBI|DBI]]，具体的数据需要安装相应驱动或R package
+

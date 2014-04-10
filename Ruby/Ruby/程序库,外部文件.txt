@@ -1,0 +1,75 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-23T10:46:23+08:00
+
+====== 程序库,外部文件 ======
+Created 星期三 23 五月 2012
+
+===== 外部文件 =====
+
+* 外部文件一般只包含模块，类或者方法，不包括代码执行逻辑。
+
+==== *命令 ====
+'''
+require	# 绝对路径或者$LOAD_PATH
+require_relative  #相对路径
+load # 绝对路径或者$LOAD_PATH
+'''
+
+
+* require/load 都能包含一个文件内的代码，**文件名后缀可略**。
+* require第一次加载文件时，会缓存文件。当再次加载时，不再进行任何操作。如果加载成功则返回true，如果已加载，返回false，如果文件未找到，则产生异常LoadError。
+* load则每次调用都加载文件。
+* Rails的development模式使用load，在每次request时都重新加载文件。而production模式则使用require
+
+=== LOAD_PATH ===
+
+	''$LOAD_PATH ''
+	''或 $:''
+
+这是一个数组。可以通过push,  <<  ， 或者 unshift想这个全局变量中增加自定义路径。
+
+==== Tricks ====
+
+=== 用条件语句切换要包含的文件 ===
+	require(条件**?** 文件1 **:** 文件2)
+
+
+=== 包含多个文件 ===
+	%w{file1 file2 file3 file4}.each {|file| require file}
+
+
+=== 嵌套包含 ===
+	被包含的文件还可以包含其他文件，形成相互依赖的文件包含关系。
+
+
+===== 标准库 =====
+
+* 同样使用require，就像使用本地文件一样。
+* Ruby自带100个以上的标准库,从网络工具、Web服务，数据加密、测试例程。
+
+例如：
+	net/http
+	net/pop
+	net/smtp
+	URL
+	ostruct: 提供OpenStruct类
+
+
+=== OpenStruct类 ===
+
+	* 和Sturct类不同，OpenStruct.new创建一个对象，而Struct创建一个类。
+	* OpenStruct类创建的对象，可以任意添加/访问数据和方法。
+
+	require 'ostruct'
+	person  = OpenStruct.new
+	person.name = 'Fred Bloggs'
+	person.age = 22
+
+
+===== gem =====
+
+	同样使用require加载gem。在加载gem前，先要加载rubygems，即：
+			require 'rubygems'
+			require 'abstract'
+	  **在载入rubygems时，rubygems程序库覆写了原来的require方法，使其可以像载入标准库一样载入gem。**

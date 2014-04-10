@@ -1,0 +1,159 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-23T17:54:56+08:00
+
+====== 异常、调试和测试 ======
+Created 星期三 23 五月 2012
+
+http://calmness.iteye.com/blog/196396
+
+===== 异常 =====
+
+==== 异常类 ====
+异常被打包在Exception 及其 子类中。预定义的有30多种异常类。用户也通过继承创建自己的异常类。
+TODO: 目前我见到的异常类列表：
+	ZeroDivisionError
+	ArgumentError
+	NoMemoryError
+	RuntimeError
+	SecurityError
+	NoMethodError
+	
+
+
+==== 抛出和处理异常 ====
+
+* 异常处理逻辑包括：抛出异常、捕获异常、获得异常信息、处理异常、处理后的清理工作。也就是**try-catch-finally**过程。
+* 抛出异常：raise
+* 捕获：BEGIN-END
+* 处理：rescue+else
+* 清理：ensure
+
+	 ruby中异常的抛出是使用的raise方法，记住哦，这是个方法，由ruby Kernel提供的，而不是关键字，同时ruby也为这个方法提供了一个别名fail，可以用fail代替raise，抛出异常的例子如下： 
+
+
+'''
+raise                                                       #抛出一个默认的RuntimeError  
+raise "Some error message"                   #抛出一个消息为"Some error message"的RuntimeError  
+raise ArgumentError                                #抛出一个无消息的ArgumentError  
+raise ArgumentError, "Bad data"           #抛出一个消息为"Bad data"的ArgumentError  
+raise ArgumentError.new("Bad data")    #同上  
+raise ArgumentError ArgumentError, "Bad data", caller[0]  #抛出一个包含消息的格式为filename:line 或者 filename:line:in 'method' 的异常
+'''
+   
+
+        以上代码中的raise可以使用别名fail代替，在没有明确的给出异常类型时，ruby默认抛出RuntimeError，其中最后一个例子抛出的信息包含了当前错误所在的文件，行数已经所在的方法的信息，这些信息都存储在caller这个数组中，里面包含了方法调用者的相关信息，第一个元素包含了方法的调用者的信息，第二个信息包含了方法调用者的调用者的信息，以此类推。这个数组在我们想知道异常是在哪个地方的哪个调用被抛出的时候非常有用的。 
+
+		def func1  
+			puts caller            #打印调用者信息  
+		end  
+		  
+		def func2  
+			func1                    #第六行  
+		end  
+		  
+		def func3  
+			func2                    #第十行  
+		end  
+		  
+		func3                    #最终调用者，十三行  
+  
+		#运行结果  
+		#test.rb:6:in `func2'  
+		#test.rb:10:in `func3'  
+		#test.rb:13  
+
+        从上面的代码可以看出，caller记录了每个调用者所在的文件名，行数以及方法。 
+
+        上面讲解了关于ruby异常抛出的方式以及caller数组的作用，接下来我们来了解一下ruby中是如何进行异常的捕捉的，在java中，异常的捕捉是在try ... catch当中进行，而ruby则是在begin ... end代码块中进行异常的捕捉，在该代码块中使用rescue关键字进行捕捉异常类型，注意哦，这个是关键字，而不是方法。 
+
+'''
+
+begin  
+    ......                               #可能出现异常的代码  
+rescue  errorType1            #要捕捉的异常类型  
+    ......                               #处理异常的代码  
+rescue  errorType2            #要捕捉的异常类型  
+    ......                               #处理异常的代码  
+end
+'''
+  
+
+在试图rescue具有嵌套关系的多个异常类时，应该把最general的异常类放在最后面rescue。没有被捕获的异常都则照常被抛出。
+
+'''
+begin  
+    ......                               #可能出现异常的代码  
+rescue  errorType1            #要捕捉的异常类型  
+    ......                               #处理异常的代码  
+rescue  errorType2            #要捕捉的异常类型  
+    ......                               #处理异常的代码  
+else  
+    ......                    #如果没有异常被抛出，则运行该段代码  
+end
+'''
+  
+
+        这时又有一个问题，如果我想获取异常信息又该如何做呢？请看下面的代码： 
+
+'''
+begin  
+   raise ArgumentError, "Bad data"  
+rescue => err  
+  puts err  
+end
+'''
+  
+
+       通过rescue => variable的方式，就可以将异常保存为一个variable了。又解决了一个问题，还有什么问题呢？啊，对了，在java的使用当中，比如使用 Connection进行数据库连接后，最后一定要进行资源的清理，都是在finally块当中进行的，可是在ruby中又如何进行这些资源的清理呢？看看下面的代码： 
+
+'''
+begin  
+   raise ArgumentError, "Bad data"  
+rescue => err  
+  puts err  
+ensure  
+  ...                       #执行清理工作  
+end
+'''
+  
+
+        从上面代码我们看到，ruby提供了一个关键字ensure，它的作用和java中的finally一样，无论任何异常，该关键字下的代码都必然会在退出代码块前执行。同时，ruby还提供恢复功能，如果在抛出异常并进行异常处理后我们需要进行恢复工作，那就是使用retry就会重新执行代码块了。 
+
+        上面提到，异常的捕捉处理必须在begin-end代码块中进行，那是不是无论什么时候都要书写begin-end这两个关键字呢？其实也不是，在 ruby中，方法实际上就是一个隐式的begin-end代码块，所以在方法中进行异常的捕捉和处理，可以省略begin。 
+
+        本文参考——《The Ruby Way》
+
+
+
+==== throw+catch 符号 ====
+
+不是用来抛出异常和处理异常的。之所以取这个名字，是因为throw信号的扩散上浮过程和raise抛出的异常很相似。
+
+throw和catch类似于javascript, java中带有标记的break，用来从任意层级的代码块中退出。
+**当catch 接受到其代码块参数中throw语句抛出的对应label的信号之后，就中止执行，继而执行之后的语句。**
+
+throw和catch都接受一个symbol或字符串参数，用做标记。throw抛出的推出信号只能具有相同标记的catch捕获。如果在扩散上浮的过程中，没有找到匹配的catch，则会抛出一个NameError异常。
+
+很少有情况需要用到这两个方法。如果你正在使用，就意味着你需要重构代码，用其他的结构替代。
+
+===== 调试器 =====
+
+
+在ruby命令行中增加参数：
+	ruby -r debug 文件名
+	
+
+==== 调试器下命令列表 ====
+
+	list [begin - end]
+	step
+	watch 条件
+	break 行数
+	cont
+	quit
+
+
+===== 测试 =====
+
+TDD

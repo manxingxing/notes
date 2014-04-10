@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-02T18:15:53+08:00
+
+====== alternatives ======
+Created 星期六 02 六月 2012
+
+用法：
+	alternatives --install <链接> <名称> <路径> <优先度>
+	alternatives --config <名称>
+	alternatives --remove <名称> <路径>
+
+       alternatives --display <名称>
+       alternatives --set <名称> <路径>
+
+* 链接：
+* 名称：供alternatives管理的名称

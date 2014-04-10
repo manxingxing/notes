@@ -1,0 +1,277 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-18T08:59:36+08:00
+
+====== Validation ======
+Created 星期三 18 七月 2012
+
+===== Validation =====
+
+==== 几种级别的验证 ====
+database level	#full-featured
+model level		# Recommanded way
+controller level	#invoilation of MVC
+client-leve  via: javascript?
+
+==== 什么情况下会触发validation ====
+
+在需要写入数据库的时候，但是有些操作会跳过validation环节。需要注意并合理利用。
+
+=== 触发validation ===
+    
+    valid? invalid?
+    create
+    create!
+    save
+    save!
+    update
+    update_attributes
+    update_attributes!
+
+=== 不触发validation ===
+
+    decrement!
+    decrement_counter
+    increment!
+    increment_counter
+    toggle!
+    touch
+    update_all
+    update_attribute
+    update_column
+    update_counters
+
+===== errors =====
+**errors**'' 实例方法会返回与该变量有关的错误。如果验证为无效，则其值非空。''
+''像hash一样，属性名做键名，值为属于该对象的错误''**数组**''。''
+
+''errors.full_messages''
+''errors[:base]	#没明确规于特定属性的错误''
+''errors[:attr]''
+
+=== 表单中显示错误消息 ===
+在Gemfile中加入：
+	''gem 'dynamic_form'''
+
+	Now you will have access to the two helper methods **error_messages** and **error_messages_for** in your view templates.
+
+
+在表单中使用 ''f.error_messages''或者''errror_messages_for(f)''
+
+Options:
+	:header_message
+	:message
+	:header_tag	#采用的html标签，一般是某级标题。
+
+自动对应与下列CSS 标签: 
+
+    ''.field_with_errors	'' 		– Style for the form fields and labels with errors.
+    ''#error_explanation'' 			– Style for the div element with the error messages.
+    ''#error_explanation h2'' 		– Style for the header of the div element.
+    ''#error_explanation p'' 		– Style for the paragraph holding the message that appears right below the header of the div element.
+    ''#error_explanation ul li	''– Style for the list items with individual error messages.
+
+
+==== 编辑errors ====
+
+'''
+errors.add(:attr, "message")
+errors[:attr]="message"
+errors[:base] << "message"
+errors.clear
+'''
+
+
+===== Helpers =====
+
+==== 共有参数 ====
+
+=== generic message ===
+	
+	:message
+
+
+=== 进行验证的条件 ===
+
+	**:on** 		- Specifies when this validation is active (default is :save, other options :create, :update).
+	
+	 **:if** 		- Specifies a method, proc or string to call to determine if the validation should occur (e.g. :if => :allow_validation, or :if => Proc.new { |user user.signup_step > 2 }). The method, proc or string should return or evaluate to a true or false value.
+	
+	 **:unless** 		- Specifies a method, proc or string to call to determine if the validation should not occur (e.g. :unless => :skip_validation, or :unless => Proc.new { |user| user.signup_step <= 2 }). The method, proc or string should return or evaluate to a true or false value.
+
+	**:allow_nil** 			- Attribute may be nil; skip validation.
+	**:allow_blank** 		- Attribute may be blank; skip validation.
+
+
+==== 具体验证Helper ====
+
+=== presence ===
+	''validates_presenct_of :title''
+
+
+=== length ===
+	''validates_length_of :first_name, options''
+	
+	Options:
+	    :minimum
+	    :maximum
+	    :is - The exact size of the attribute.
+	
+	    :within - A range specifying the minimum and maximum size of the attribute.
+	    :in - A synonym(or alias) for :within.
+
+对应的错误信息：
+    :too_long - The error message if the attribute goes over the maximum (default is: “is too long (maximum is %{count} characters)”).
+    :too_short - The error message if the attribute goes under the minimum (default is: “is too short (min is %{count} characters)”).
+    :wrong_length - The error message if using the :is method and the attribute is the wrong size (default is: “is the wrong length (should be %{count} characters)”).
+
+    ~~:tokenizer - Specifies how to split up the attribute string. (e.g. :tokenizer => lambda {|str| str.scan(/w+/)} to count words as in above example.) Defaults to lambda{ |value| value.split(//) } which counts individual characters.~~
+
+=== format ===
+	''validates_format_of(attr_names)''
+
+	Options:
+		**:with	** 	- **Regular expression** that if the attribute matches will result in a successful validation.
+		**:without** 	- **Regular expression** that if the attribute does not match will result in a successful validation. 
+
+
+=== uniqeness ===
+
+	''validates_uniqueness_of(*attr_names)'' 
+
+Options:
+	**:scope** 			- One or more columns by which to limit the scope of the uniqueness constraint.联合在一起验证
+	**:case_sensitive** 	- Looks for an exact match. Ignored by non-text columns (true by default). 
+
+
+=== inclusion & exclusion ===
+'''
+validates_inclusion_of(*attr_names) 
+validates_exclusion_of(*attr_names)
+'''
+ 
+
+	Options:
+		**:in** 			- An **enumerable object** of available items. 可以是数组，range 等
+
+
+=== confirmation ===
+
+当需要验证两个属性是否匹配时，并不需要在数据库里建立一个 name_confirmation的列(省数据库嘛)。
+	
+	''validates_confirmation_of(*attr_names)'' 
+
+会建立一个虚拟属性,名称为 attrname_comfirmation.
+
+这个属性可直接用于表单，就好像这个属性真的存在一样。
+
+This check is performed only if attr_confirmation is not nil. 所以需要使用**allow_nil=false**选项，或者另外验证presence。
+
+=== numericality ===
+	''validates_numericality_of(*attr_names)'' 
+	
+	:only_integer 			- Specifies whether the value has to be an integer, e.g. an integral value (default is false). 
+	:odd 					- Specifies the value must be an odd number.
+	:even 					- Specifies the value must be an even number. 
+	
+	:greater_than			 - Specifies the value must be greater than the supplied value.
+	:greater_than_or_equal_to - Specifies the value must be greater than or equal the supplied value.
+	:equal_to 				- Specifies the value must be equal to the supplied value.
+	:less_than				 - Specifies the value must be less than the supplied value.
+	:less_than_or_equal_to	 - Specifies the value must be less than or equal the supplied value.
+	
+
+==== 灵活的使用validate ====
+
+=== validates ===
+	**shortcut** to all default validators and any custom validator classes ending in ‘Validator’
+	The power of the validates method comes when using custom validators and default validators in one call for a given attribute
+	
+	对一个属性，同时应用多个验证。简写代码。
+	
+
+=== custom validator + validate_with/validates ===
+
+有两种validator: **ActiveModel::Validator **和 **ActiveModel::EachValidator**
+前者对整个对象验证，适用于需要同时验证多个属性的情况，后者可用于对若干个属性分别进行相同的验证。
+
+**ActiveModel::Validator **和** validate_with **结合。
+**ActiveModel::EachValidator **和** validates **结合
+
+== ActiveModel::Validator ==
+
+其中定义一个名为 **validate** 的方法。这个方法只有一个名为**record**的参数，代表要验证的**整个类实例变量**。在这个方法内对实例变量的属性进行判断，并适当在**errors**中添加错误信息。
+
+'''
+class GoodnessValidator < 
+'''
+**ActiveModel::Validator**
+''  def ''**validate**''(''**record**'')''
+''    if record.first_name == "Evil"''
+''      record.''**errors**''[:base] << "This person is evil"''
+''    end''
+''  end''
+''end''
+
+在调用这个validator的模型中使用 validate_with：
+
+	''validate_with  ''**GoodnessValidator**
+
+
+== ActiveModel::EachValidator ==
+其中定义一个名为 **validate_each **的方法。这个方法接受三个参数： record, attr, value，分别表示整个对象，属性名，对应属性的值。对record.attr的值进行判断，并适当在''record.errors[:atrr]''中添加错误信息。
+
+class EmailValidator < **ActiveModel::EachValidator**
+	  def **validate_each(record, attribute, value)**
+		    unless value =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
+		      **record.errors[attribute]** << (options[:message] || "is not an email")
+		    end
+	  end
+end
+
+FIXME: 调用时，使用类名去除Validator后部分的小写形式
+
+	validates :address , :presence => true, **:email => true**
+	
+FIXME: 可以在validate_each 中添加其他参数，并在validates 调用时传递这个参数，就像format, length这些helper一样。
+
+=== custom methods + validate ===
+
+在类中定义一些方法。并用 valiate 函数 注册并应用这些方法。这可能是最简单的方式了。
+
+class Invoice < ActiveRecord::Base
+  **validate** :expiration_date_cannot_be_in_the_past,
+    :discount_cannot_be_greater_than_total_value
+ 
+	  ''def expiration_date_cannot_be_in_the_past''
+	''    if !expiration_date.blank? and expiration_date < Date.today''
+	''      errors.add(:expiration_date, "can't be in the past")''
+	''    end''
+	''  end''
+ 
+	'''
+	  def discount_cannot_be_greater_than_total_value
+	    if discount > total_value
+	      errors.add(:discount, "can't be greater than total value")
+	    end
+	  end
+	'''
+end
+
+
+
+=== grouped validation ===
+
+1. 具有相同共有**options **的多个验证集合在一起验证。
+	class User < ActiveRecord::Base
+		**with_options** **:if => :is_admin?** do |**admin**|
+		    **admin**.validates :password, :length => { :minimum => 10 }
+		    **admin**.validates :email, :presence => true
+		 end
+	end
+2. 对验证内容相同的几个属性，集合在一起验证。接受三个参数： record, attr, value，分别表示整个对象，属性名，对应属性的值。会轮流验证各个属性的值。
+	class Person < ActiveRecord::Base
+	  **validates_each** :name, :surname do |**record, attr, value**|
+	    record.errors.**add(attr**, 'must start with upper case') if **value** =~ /\A[a-z]/
+	  end
+	end

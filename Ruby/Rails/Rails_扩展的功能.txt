@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-10-17T14:58:44+08:00
+
+====== Rails 扩展的功能 ======
+Created 星期四 17 十月 2013
+
+http://guides.rubyonrails.org/active_support_core_extensions.html
+

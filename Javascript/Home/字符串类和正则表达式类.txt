@@ -1,0 +1,93 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-10T00:27:31+08:00
+
+====== 字符串类和正则表达式类 ======
+Created Saturday 10 November 2012
+
+==== 字符串类 ====
+
+* 和很多语言一样，可以在**单行字符串**内**换行书写**
+	'''
+	"one\
+	long\
+	line"
+	'''
+
+转义
+	\n	不再是n，而是换行符。
+	\\	是\，而不是转移符号
+
+
+=== 用代码点表示字符 ===
+有时，键盘无法输入所有的字符种类，可以用对应的ASCII码或unicode codepoint表示
+
+**ASCII**
+\x + 16进制数字
+
+**Unicode字符**
+\u + 4位16进制字符
+
+
+=== 合并 ===
+msg = "Hello, " + "world"; 
+msg.length
+
+=== 部分 ===
+* **可以像数组一样取一个字符。**
+
+"safaf".charAt(0)	<=>  "safaf"[0]
+"asdfas"[2]
+"sadfaf".slice(1,4)	<=>  "sadfaf".substring(1,4)
+	#不包括后面的字符
+substr(start,length)
+
+
+=== 查询 ===
+"safafds".indexOf("af")	#返回匹配部分起始位置
+"safaasf".lastIndexOf("af") 	#从后面开始匹配。
+使用正则表达式
+search(regex)	#返回匹配起始
+match(regex)	#返回匹配子字符串
+
+=== 替换 ===
+"safadsf".replace("h","H")
+
+=== 按字符拆分 ===
+"asddfsf;safa".split(";")
+
+=== 大小写转换 ===
+toUpperCase()
+toLowerCase()
+* 字符串是 immutable value。不能改变字符串本身的值，因此  a.toUpperCase()这样的操作会返回修改过后的值，而不是修改变量 a 本身。
+
+==== boolean,undefined, null ====
+逻辑值：true,false
+其他： null, undefined
+
+**undefined**
+	以下场合产生undefined:
+	* 查询一个不存在的元素
+	* 函数没有返回值
+	* 。。。
+You might consider undefined to represent a system-level, unexpected, or error-like absence of value and null to represent program-level, normal, or expected absence of value. If you need to assign one of these values to a variable or property or pass one of these values to a function, null is almost always the right choice。
+
+==== 正则表达式类 ====
+
+* / ... / 之间的内容是正则表达式字面量
+* 修饰符：**g**, i, m
+
+**字面量**
+	''/reg/gim''
+**constructor**
+	''new Regex();''
+
+
+=== 方法 ===
+
+''regex.''**test**''(text)	true, false''
+regex.exec(string)		# 返回匹配的文本，如果没有找到匹配，返回null
+
+
+''text.''**search**''(regex)	匹配的起始位置''
+''text.''**match**''(regex)	返回所有匹配内容。类似与ruby中的scan，R中的extract_all.''

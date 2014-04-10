@@ -1,0 +1,30 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-13T11:44:08+08:00
+
+====== Window ======
+Created Tuesday 13 November 2012
+
+alert
+confirm
+prompt
+
+resizeBy, resizeTo
+scrollBy, scrollTo
+moveBy, moveTo
+
+open
+
+console.log
+
+===== 定时任务 =====
+
+'''
+setTimeout(handler,time_in_milliseconds)
+var a = setInterval(handler,time_in_milliseconds)
+clearInterval(a)
+'''
+
+setTimeout, clearTimeout
+setInterval, clearInterval
+

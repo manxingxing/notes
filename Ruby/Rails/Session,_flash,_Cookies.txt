@@ -1,0 +1,99 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-19T19:49:54+08:00
+
+====== Session, flash, Cookies ======
+Created 星期四 19 七月 2012
+
+===== Session =====
+
+==== 几种实现session的方案 ====
+
+**默认的方式	**ActionDispatch::Session::**CookieStore** – Stores everything on the client. 
+机密信息		ActiveRecord::SessionStore – Stores the data in a **database** using Active Record.
+			 ActionDispatch::Session::CacheStore – Stores the data in the Rails **cache.**
+
+在文件： config/initializers/session_store.rb 着修改采用的方式：
+	''YourApp::Application.config.session_store ''**:cookie_store**'', ''**:key => '_your_app_session'**
+
+key 表示 cookie的键名。firefox查看cookie时作为cookie项的名称。
+
+注：无论那种方式都需要cookie
+
+==== cookie store 的过程 ====
+所有的session被保存在一个 cookie中，key的名称由 initializers/session_store.rb 设定。由于浏览器大多对单条cookie的大小有限制，这使得在基于cookie的session中，不能保存太多内容。
+
+cookie 会被设置为 httponly(只能通过http访问)，这让客户端js 脚本不能读出这条cookie的值。关于httponly的含义，可参考wikipedia上cookie的页面。
+
+**session 信息存储，加密，解密**
+
+session是一个类似hash的结构，它通过下列方式，转换并存储到cookie中
+Base64.encode64(Marshal.dump(session_object))
+
+当session存储在cookie中时，cookie中的内容可以用下列方式**解析**
+Rack::Session::Cookie::Base64::Marshal.new.decode(cookie_content)
+或
+Marshal.load  Base64.decode64(session_cookie)
+
+
+==== session变量是个hash ====
+
+可以像hash一样查看并赋值。
+'''
+session[:current_user_id]
+session[:current_user_id] = user.id
+session[:current_user_id] = nil
+'''
+
+
+===== Flash 存储在session里面 =====
+
+* **flash**在在下次request时显示，随后清空
+* **flash.now**会立刻显示，不会延续到下次request。
+* 在预料显示flash的页面对应的action中使用 flash.keep 保留 flash 到 下一次 request。
+* **:alert 和 :notice** 是分别是 flash[:notice] , flash[:alert] 的 Convenience accessor 
+
+上述特征使得 flash 适于 存储 错误，通知等信息。
+
+既然flash是session的一部分。那么就可以像session一样进行操作。
+	''flash[:notice] = "You have successfully logged out"''
+	''flash.delete(:error)''
+	
+flash可以作为redirect_to的参数，提供了很多方便。
+	''redirect_to post_url(@post), :status=> :found, ''**:notice**'' => "Pay attention to the road"''
+	''redirect_to { :action=>'atom' }, ''**:alert**'' => "Something serious happened"''
+
+
+===== Cookies =====
+
+详细需参考： ActionDispatch::Cookies 的API
+
+* cookie 方法 非常类似于session。采用hash的操作方法。
+
+选项： 
+	path, domain, secure, expires, secure, httponly
+
+'''
+cookies[:login] = { :value => "XJ-122", :expires => 1.hour.from_now }
+cookies[:user_name] = "david"
+cookies[:lat_lon] = [47.68, -122.37]
+'''
+
+* 删除一个cookie
+	''cookies.delete(:commenter_name)''
+
+
+=== 阻止客户端脚本修改cookie值 ===
+# Sets a signed cookie, which prevents a user from tampering with its value.
+# The cookie is signed by your app's  **config.secret_token** value. (位于secret_token.rb中)
+# 只有当知道secret_token的时候，才能知道真实的cookie
+# 客户端脚本尝试修改cookie值，在服务器端会因secret_token验证失败，而无法达到目的。
+	''cookies.signed[:login] = 'value'''
+
+
+=== permanent cookie ===
+
+# Sets a "permanent" cookie (which expires in 20 years from now).
+	''cookies.permanent[:login] = "XJ-122"''
+	''cookies.permanent.signed[:login] = "XJ-122"''
+	

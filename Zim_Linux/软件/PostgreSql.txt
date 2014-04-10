@@ -1,0 +1,147 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-05T14:28:26+08:00
+
+====== PostgreSql ======
+Created 星期二 05 六月 2012
+
+===== 初始配置 =====
+
+==== postgres用户 ====
+FIXME： 安装后就自动生成postgres用户？
+
+postgres用户密码设置
+>  FIXME: 也可以通过linux password命令修改?
+
+'''
+$ sudo -u postgres psql
+postgres=# 
+'''
+__\password__'' postgres''
+
+
+或者 在psql 中运行命令
+ALTER ROLE postgres with password 'postgres';
+
+==== 数据库 ====
+
+**初始化数据库**
+FIXME: 为了设置数据库存储位置和目录结构?
+
+initdb -D directory 	# 没有参数时，使用默认路径
+
+**创建数据库**
+createdb dbname
+**删除数据库文件**
+dropdb dbname
+
+===== 用户和权限 =====
+
+**添加用户**
+切换到具有权限的用户
+	''su postgres''
+	''createuser username	# 相当与 create role命令''
+按提示设置权限。。。
+
+* 用户名需要是实体用户？
+不需要。两者之间没有必然的关联。但有些程序会假设role名称和系统用户名相同，因此把role名称设置成实体用户名，会提供一些方便。
+
+或者在psql中运行命令
+CREATE ROLE manxingxing PASSWORD 'mypass' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;
+
+**删除用户**
+切换到具有权限的用户
+'''
+su postgres
+dropuser username
+'''
+
+
+===== PSQL =====
+
+==== command ====
+
+-d  数据库名称    # -d 可以省略
+-U 用户名
+-W 			# 询问密码
+
+-p port
+-h Host
+
+-f FILE 		# 执行sql脚本文件
+-o FILE 		# 结果重定向到文件
+-l 或 --list	# 列出所有数据库
+
+==== console ====
+**options:** 
+'''
+S  show system objects
++  additional detail
+'''
+
+**列出所有数据库**
+	''\l		''
+
+**列出数据库中的表**
+	''\dt''
+
+**查询数据库中的序列**
+	''\ds''
+
+**查询数据库中的表和序列**
+	''\d''
+
+**查询数据表信息**
+\d  tablename
+
+
+\s <FILE> 列出历史，或保存历史到文件
+
+\i  FILE 执行sql脚本文件
+\0 FILE  结果重定向到文件
+
+===== 备份和恢复 =====
+
+===== 方案一:  pg_dump + psql =====
+
+pg_dump -U postgres dbname > output.sql
+psql -U postgres dbname < output.sql
+或者
+sudo -u postgres psql dbname < output.sql
+一些参数有：
+	输出文件格式
+	-f, --file=FILENAME
+	-F, --format=c|d|t|p	# t: tar,  p: plain text(sql)	d: directory。
+		FIXME:  貌似tar,custom 可以使用pg_restore，其他不知
+	输出内容控制：
+	-o	--oids
+	-a	--data-only
+	-s, --schema-only
+	
+	-t, --table=TABLE
+	-T, --exclude-table=TABLE
+	
+	-n, --schema=SCHEMA
+	-N, --exclude-schema=SCHEMA
+
+* 注意
+
+===== 方案二 =====
+
+	''pg_dump -F c -U postgres dbname''
+	''pg_restore -U postgres -d dbname  backup.tar''
+
+
+	''pg_dump -W -f befchina_storetmp.pg -Fc befchina''
+
+	-W forcing password prompt
+	-F c output format: custom
+	-F p output format: plain text
+
+Restore a database:
+	''pg_restore -c -d restore_befchina  -W befchina_storetmp.pg''
+
+
+== 热备份 ==
+上面的pg_dump属于冷备份。备份时一些数据写入命令必须等待备份结束才能进行。
+TODO: 热备份

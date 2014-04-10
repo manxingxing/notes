@@ -1,0 +1,52 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-30T11:05:31+08:00
+
+====== Rails ======
+Created 星期三 30 五月 2012
+
+Rails is written in Ruby, but Rails isn't Ruby. if your principal programming interest is writing web applications, I recommend learning Rails first, then learning Ruby, then looping back to Rails.
+
+MVC: model - view - controller
+
+===== flowchart: =====
+		用户
+		|
+		视图	#负责web/rss等界面显示。
+		|
+		控制器	#接受来自视图的操作，操作相应的数据，并返回结果到视图。
+		|		包括一系列的action,例如查看，隐藏，...
+		模型	#负责与数据库之间的操作。
+		|
+		数据
+
+
+===== 一些库/gem =====
+rails		核心库
+actionpack	一套action，包括视图和控制器生成HTML和动态页面元素，以及操作和管理数据对象。
+activerecord	关系-对象映射工具。将数据库表和类对应起来。实时访问和修改数据库表。
+activesupport 一些支持工具。例如时间，数组，散列表操作的工具。
+
+===== 基本框架 =====
+		''rails new proj_name''
+	将产生基本的文件夹结构。
+	
+
+===== 命名 Convention =====
+Controller: 复数
+Model: 单数
+数据库表： 复数
+
+a model represents a single user, whereas a database table consists of many users.
+
+(Note that, in contrast to the plural convention for controller names, model names are singular: a Users controller, but a User model.)
+
+
+
+===== 未整理 =====
+ String#blank?
+
+Rails will deliver any static file in the public directory in preference to any dynamic content we generate from the controllers
+
+
+

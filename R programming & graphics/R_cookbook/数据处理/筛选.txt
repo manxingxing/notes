@@ -1,0 +1,14 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-01T13:39:07+08:00
+
+====== 筛选 ======
+Created Monday 01 April 2013
+
+ 
+which 给定一个逻辑对象(可以是 array)，返回 TRUE 的索引。当是 array 时，可返 回矩阵形式的索引，及使用原有的 name 属性
+ 
+arrayInd 应该是 which 的 array 版。
+
+
+which.max(which.min) 返回第一个最大(小)值

@@ -1,0 +1,92 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-26T14:13:33+08:00
+
+====== 异常处理 ======
+Created 星期五 26 四月 2013
+
+**参考资料**
+[[http://www.stats.uwo.ca/faculty/murdoch/software/debuggingR/|debugging in R]]
+[[./R-debug-tools.pdf]] 
+
+==== 异常处理 ====
+
+=== 生成error, warning, message类对象 ===
+simpleError(message, call)
+simpleWarning(message, call)
+simpleMessage(message, call)
+
+> There is one class of conditions that can't be directly: //interrupts//, which occur when the user presses Ctrl + Break, Escape, or Ctrl + C (depending on the platform) to terminate execution.
+
+=== 抛出error, warning, message ===
+stop, warning, message
+Stopifnot()
+
+=== 简单的try()函数 ===
+res = try(expr)	# 如果没有错误，值就是表达式的值，否则就是一个try-error类的对象
+if(inherits(res, 'try-error') { }
+
+=== 在函数内处理error, warning, message ===
+* condition也会propagate，向上层扩散，直到被catch，否则则会抛出异常
+* 第一个匹配的handler会执行，其他的不会执行
+* tryCatch的值，是最后一个表达式的值，如果handler被激发，则handler函数的返回值成为tryCatch的值
+tryCatch(expr, handlers, finnally)
+
+==== debug ====
+
+=== 查看错误调用堆栈 ===
+
+traceback()
+
+=== 当出现错误时，inspect 调用堆栈 ===
+* 全局设定
+oldOpts = options(error=recover)
+
+* per-function/expression
+withCallingHandlers(expr,  error = function(e) recover() )
+
+=== 逐行debug函数代码 ===
+debug(function)
+undebug(function)
+
+=== 在函数体内插入断点 ===
+browser()
+
+=== 不修改函数，在函数内插入断点 ===
+* **trace 会 生成函数的副本，直接输入函数名查看出入trace模式下的两个副本**
+* tracer 一般是 browser, recover 类函数
+trace(function, tracer = function or unevaluated expression,  at = 插入位置)
+untrace(function)
+Note: 
+	使用as.list(body(function()) 来查看可插入的位置
+
+
+=== 不修改函数，根据条件 在函数内插入断点 conditional breakpoint ===
+
+trace(function, tracer = quote(if(condition) browser() 或者 recover() ),  at = 插入位置)
+untrace(function)
+
+=== 当函数被调用时，显示消息 ===
+trace(function) 	# 不带参数
+untrace(function)
+
+===== options(error, warn) =====
+options('error")级别有：
+1. NULL (默认值) 打印错误消息，并退出
+2. recover 发生错误时，允许查看调用堆栈
+3. dump.frames ：  an equivalent to recover for non-interactive code. 保存调用堆栈到last.dump对象。之后用debugger函数重新查看调用堆栈。
+
+'''
+options(error = quote({dump.frames(to.file = TRUE); q()}))
+# Saves debugging info to file last.dump.rda
+# Then in an interactive R session: 
+print(load("last.dump.rda")) 
+debugger("last.dump")
+'''
+
+
+options(warn)级别有：
+1. 0 :  打印警告消息
+2. 2： 以error的方式对待warning
+
+

@@ -1,0 +1,15 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-04-28T00:57:25+08:00
+
+====== 系统服务管理 ======
+Created 星期六 28 四月 2012
+
+systemctl stop crond.service
+systemctl disable crond.service
+systemctl is-active
+		is-enabled
+		status
+		list-units --type=service
+
+ systemctl daemon-reload

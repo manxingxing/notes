@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-13T11:44:15+08:00
+
+====== Navigator ======
+Created Tuesday 13 November 2012
+
+plugins
+cookieEnabled
+javaEnabled()
+
+appName
+appVersion
+userAgent
+platform
+appCodeName
+appMinorVersion

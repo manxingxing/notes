@@ -1,0 +1,14 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-07-03T16:37:11+08:00
+
+====== 备份策略 ======
+Created 星期三 03 七月 2013
+
+
+
+用户信息
+* 保留文件的权限等信息
+/etc/passwd
+/etc/shadow
+

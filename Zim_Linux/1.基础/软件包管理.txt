@@ -1,0 +1,37 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-04-28T00:47:10+08:00
+
+====== 软件包管理 ======
+Created 星期六 28 四月 2012
+
+===== yum =====
+
+==== search ====
+
+==== install ====
+
+==== remove ====
+
+==== history ====
+'''
+yum history
+yum history info N
+yum history undo N
+yum history redo N
+'''
+
+
+==== query ====
+	''yum info package''
+
+
+
+===== rpm =====
+
+==== install ====
+ rpm -Uih ***.rpm
+
+==== erase ====
+rpm -e
+rpm -e --nodeps

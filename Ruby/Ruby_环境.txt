@@ -1,0 +1,126 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-11-27T16:01:57+08:00
+
+====== Ruby 环境 ======
+Created 星期三 27 十一月 2013
+
+
+===== 解释器 =====
+
+==== 选项 ====
+* 有的flag和参数值之间的空白可以省略
+
+-w
+-W[0-2]	level
+
+-e 'cmd'
+-c	检查语法错误
+
+
+-r**library**      在执行代码文件之前，require指定的library
+-rubygems	-rrubygems的缩写
+-I directory    把directory加到LOAD_PATH数组的前面
+
+
+-Cdirectory     cd to directory, before executing your script
+
+-s            enable some switch parsing for switches after script name
+		  处理程序名后面的flag，如果是 -x 形式，则会成为全局变量 $x = true， 如果是 -x=y形式，则会成为全局变量 $x = y
+
+
+=== 文本相关 ===
+**-0  xxx		输入分隔符，默认换行符**
+指定$/变量的值。 xxx 是3位8进制数字。
+-00  段落模式，即两个空行为输入分隔符。
+
+-F fieldsep	split函数的默认分隔符
+指定$; 变量的值
+
+
+
+===== 全局变量 =====
+方法获取所有全局变量
+	''global_variables''
+
+让 以标点符号表示的全局变量有个易理解的英文名字
+	''require 'English'''
+	
+
+
+=== 设置相关 ===
+''$/, $INPUT_RECORD_SEPARATOR''		输入分隔符
+''$\, $OUTPUT_RECORD_SEPARATOR''		输出分割符
+
+''$, $OUTPUT_FIELD_SEPARATOR''		输出字段分隔符。print 各个参数的默认分隔符，也是Array.join的默认分隔符	
+''$; $FIELD_SEPARATOR			输入字符分隔符。split方法的默认分割符''
+
+$", $LOADED_FEATURES	加载的文件
+$: , $LOAD_PATH
+
+
+**命令行参数对应的常量**
+* 都符合 $-参数字符  的模式
+
+$-v			对应 -v 命令行参数： verbose
+$-d, $DEBUG	对应 -d 命令行参数： debug模式
+
+
+=== IO ===
+
+$*	ARGV, $ARGV
+$<	ARGF, $DEFAULT_INPUT	如果没有文件，则默认是STDIN
+$>	STDOUT, $stdout
+$stderr	STDERR
+$stdin	STDIN	和$<有些不同。
+
+$FILENAME	ARGF.filename
+
+$_	$LAST_READ_LINE	读入的最后一行
+''$. , ARGF.lineno, $INPUT_LINE_NUMBER 行号''
+
+
+=== 异常 ===
+$!	$ERROR_INFO
+$@	$ERROR_POSITION, $~.backtrace	调用堆栈
+
+
+=== 进程相关 ===
+$$	$PID, $PROCESS_ID
+
+
+===== 常量 =====
+Module.constants	=> 所有的类，模块，及其他常量
+
+=== ruby自身信息 ===
+RUBY_PLATFORM
+RUBY_VERSION
+RUBY_PATCHLEVEL
+
+=== IO ===
+STDIN, STDOUT, STDERR
+ARGF, ARGV, DATA
+
+=== 环境变量 ===
+ENV	类hash
+
+
+===== 调用外部程序 =====
+
+system	
+`		反引号(backtick)： Esc下面的键
+%x{}		{}可以是任何分隔符
+exec	移交控制权到外部程序，并退出Ruby！
+
+=== system ===
+成功 => true
+报错 => false
+未能执行  => nil
+
+system returns true if the command gives zero exit status, false for non zero exit status. Returns nil if command execution fails. An error status is available in $?.
+
+
+=== ` (backtick) 或 $x{} ===
+返回外部命令的标准输出。
+Returns the standard output of running cmd in a subshell.
+

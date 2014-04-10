@@ -1,0 +1,78 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-12-29T22:05:28+08:00
+
+====== HTTP cache ======
+Created 星期日 29 十二月 2013
+
+http://hyj1254.iteye.com/blog/1165387
+http://www.cnblogs.com/cuixiping/archive/2008/05/04/1181056.html
+
+**几个概念**：
+
+浏览器缓存
+代理服务器缓存
+
+验证本地copy/缓存 的请求
+获取response的请求
+
+**客户端几个级别**：
+1. 每次请求都从服务器获得HTML
+2. 请求服务器验证本地copy，如果可用，则返回304，否则，才返回HTML
+3. 在本地copy过期前，甚至不会向服务器发出验证请求
+
+**服务器端几个级别**
+
+
+**不同浏览器操作**
+点击链接
+地址栏输入
+后退按钮
+刷新
+
+**涉及到的头信息**
+cache-control
+Etag
+last-modified-at
+
+
+==== 过程 ====
+客户端从服务器请求数据经历如下基本步骤: 
+  1、如果请求命中本地缓存则从本地缓存中获取一个对应资源的"copy"； 
+  2、检查这个"copy"是否fresh,是则直接返回，否则继续向服务器转发请求。 
+  3、服务器接收到请求，然后判断资源是否变更，是则返回新内容，否则返回304，未变更。 
+  4、客户端更新本地缓存。 
+
+===== cache-control =====
+
+==== no-cache ====
+不进行缓存
+
+==== private 和 public ====
+* 可以缓存，但不同agent的权限不同
+
+private: 只有浏览器可以缓存，代理服务器不能缓存
+public: 所有agent都可以缓存
+
+==== max-age ====
+* 单位为秒
+在此时间内，不比向服务器发出**验证请求**
+
+==== must-revalidate ====
+必须向服务器发送验证请求，询问本地copy是否过期
+
+===== 验证方式 =====
+
+==== last-modified 和  If-Modified-Since ====
+客户端发送 If-Modified-Since
+服务器端返回 last-modifed，客户端获取这个值后，以后会作为 If-Modified-Since 发送
+
+
+==== Etag 和 If-None-Match ====
+客户端发送 if-none-match
+服务器端返回Etag，客户端获取这个值后，以后作为 if-none-match发送
+
+服务器端检查 接受的 if-none-match和etag是否相同，如果相同，则返回304
+
+
+==== Expires ====

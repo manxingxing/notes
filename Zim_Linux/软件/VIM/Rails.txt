@@ -1,0 +1,15 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-07-22T11:43:02+08:00
+
+====== Rails ======
+Created 星期一 22 七月 2013
+
+文件切换
+Rmodel
+Rcontroller
+RView
+R..
+Rfind
+
+ctrl + [  切换到定义

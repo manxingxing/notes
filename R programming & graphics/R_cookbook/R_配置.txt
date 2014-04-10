@@ -1,0 +1,26 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-23T10:18:56+08:00
+
+====== R 配置 ======
+Created Tuesday 23 October 2012
+
+=== 修改R console 设置: 字体， 语言，尺寸 ===
+* Rconsole(windows) 配置语言和Rgui
+    设置提示和错误语言为英文：
+            ''language = en'' 
+''      MDI = no''
+
+或者 在 Renviron文件中设置
+	language = en
+	
+=== 修改repository ===
+* repositories   
+	      为R添加额外的附加包库
+
+
+=== 修改package存放目录 ===
+
+* Renviron
+		''R_LIBS_USER = ~/.R''
+

@@ -1,0 +1,59 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-07-18T16:24:19+08:00
+
+====== asset pipeline ======
+Created 星期三 18 七月 2012
+
+* js/css 文件会根据manifest文件的设置合并成单一资源文件
+* 位于assets目录下的其他格式的文件，都会被拷贝到public/assets目录，甚至可以新建文件夹，在里面放入任意格式的文件。
+
+==== assets pipeline ====
+管理CSS, javascript, images
+优点：
+	multiple nicely formatted files for programmer convenience,
+	single optimized files in production.
+
+
+=== asset directories ===
+
+In versions of **Rails before 3.0** (including 3.0 itself), static assets lived in the public/ directory, as follows:
+
+    public/stylesheets
+    public/javascripts
+    public/images
+
+Files in these directories are (even post-3.0) automatically served up via requests to http://example.com/stylesheets, etc.
+
+Starting in **Rails 3.1,** there are three canonical directories for static assets, each with its own purpose:
+
+    **app/assets**: assets specific to the present application
+    **lib/assets**: assets for libraries written by your dev team
+    **vendor/assets**: assets from third-party vendors
+each of these directories has a subdirectory for each asset class: //stylesheets, javascripts, images//
+
+**位于这三个文件夹下的资源文件，在manifest文件中都可以直接引用，好像他们和manifest文件处于同一目录一样。**
+**但是没被require等方法包括进来的资源文件(js/css)不会被包括在最终生成的资源文件中。**
+**require_tree 只包含 manifest文件所属的目录下的文件夹。**
+
+=== manifest files ===
+
+	app/asstes/javascripts/application.js
+	app/assets/stylesheets/application.css
+	
+关键部分是：
+	${ Comment_char}= require 
+						require_self
+						require_tree .
+
+
+=== preprocessor engines ===
+
+We tell Rails which processor to use using filename extensions; the three most common cases are:
+	* __.scss__ for Sass
+	* __.coffee__ for CoffeeScript
+	* __.erb__ for embedded Ruby (ERb).
+后缀可以连在一起，预处理顺序从 右到左，例如
+	html.erb：先用ruby处理后生成html
+	js.coffee.erb	： ruby->CoffeeScript
+

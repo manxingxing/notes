@@ -1,0 +1,143 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-18T11:04:47+08:00
+
+====== 创建package - roxygen2 ======
+Created 星期四 18 四月 2013
+
+**这里使用RStudio + ROXYGEN2 + devtools 来生成附加包**
+
+===== 建立基本目录结构 =====
+
+'''
+library(devtools)
+create(path="pkgName", description=list(Author="", title=""))
+'''
+	# 生成基本的结构: R/ , DESCRIPTION, NAMESPACE, man/
+
+2. 把 .R代码拷贝到 R/目录下
+3. 把数据用save()逐个保存到 .rda文件中，拷贝到  data/ 目录下
+
+
+==== 填写DESCRIPTION 文件 ====
+→  [[理解 package]] DESCRIPTION 一节
+
+
+==== 文档化 ====
+* 以两个字母 __#'__  开头
+
+=== 不记录一个.R 源文件 ===
+
+=== package 文档 ===
+* 放哪里啊？
+
+'''
+@docType package
+'''
+
+
+=== dataset 文档 ===
+* 放哪里啊？
+
+'''
+@docType data
+'''
+
+
+**lazyloading**
+* 在DESCRIPTION文件中增加域
+The ‘data’ subdirectory is for data files, either to be made available via lazy-loading or for loading using ''data()''.
+ (The choice is made by the ‘LazyData’ field in the ‘DESCRIPTION’ file: the default is not to do so.)
+
+''lazyData: true		# 像iris一样，不需要data()函数来加载数据''
+
+==== function 文档 ====
+title		第一段
+description	第二段
+details		第三段, 第三段,  ... 直到遇到下一个标签
+
+
+@param
+@rdname
+@return
+
+==== NAMESPACE ====
+
+==== 导入 ====
+@import pkgname		# 导入一个包
+@importFrom pkgname functiona functionb functionc	# 仅导入一个包中的若个个对象
+@importClassesFrom pkgname classa classb			# S4 类
+@importMethodsFrom pkgname methoda methodb	# S4 类
+
+
+==== 导出 ====
+@export	# 函数
+@export f g ... # 禁用自动检测，产生多个export指令
+@exportClass	# S4类
+@exportMethod	# S4类
+@S3method	generic method		# S3类方法
+
+S3 methods: There are two ways to export a method for an S3 method depending on whether it's documented or not:
+
+If it's documented, you'll already be using the @method tag to state that it's an S3 method and you only need the @export to generate the correct export flag in the NAMESPACE
+If it's not documented, use the S3method tag: @S3method function class  ( 这个标记仅export所标记的方法，不生成文档)
+
+
+==== S3 类文档 ====
+方法
+@method print class_name
+
+
+=== Collate ===
+@include filename.R
+
+
+==== S4 类 文档 ====
+
+
+===== Build & Check =====
+
+
+
+
+===== 高级任务 =====
+
+==== Load hooks ====
+Various R functions in a package can be used to initialize and clean up. See Section 1.6.3 [Load hooks], page 36
+
+=== Startup and close down functions ===
+
+
+==== demo ====
+* 放在 demo/ 目录下
+
+两种文件组成：
+1. 普通 R代码文件。
+2. 00Index 文件，用来描述每个文件，格式为：
+
+R文件名1		描述文本
+R文件名2		描述文本
+
+
+==== 附件:  inst/ 目录 ====
+把不需要安装编译系统处理的文件放在 ''inst/'' 目录下，安装时，里面文件会直接复制到顶层目录
+* 这些文件的名称不能和包里的已有文件重名啊～～
+
+==== 其他语言的脚本 ====
+
+src/
+
+==== test ====
+
+==== internal 对象 ====
+
+=== 复杂的安装模式 ===
+
+
+
+
+
+
+
+
+

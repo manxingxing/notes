@@ -1,0 +1,268 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-08-06T09:31:22+08:00
+
+====== Paperclip ======
+Created 星期一 06 八月 2012
+
+__每个__**模型**__的__**实例**__都可以有多个__**attachment**__，每个attachment都可以经过多个__**post process**__ 过程，而post processor可以有 几套不同的__**参数(styles)**__。__
+
+
+The attribute returns a Paperclip::Attachment object which handles the management of that file.
+
+The thumbnails will be created when the new file is assigned,
+
+**they will  be saved only when  'save' is called on the record. Likewise, if the attribute is set to nil is called on it, the attachment will not be deleted until save is called.**
+
+===== 安装 =====
+
+==== Requirements ====
+	imagemagic
+	ghostscript(gs)
+
+
+==== config ====
+	gem 'paperclip', '~> 3.0'
+	gem 'paperclip', :git=>"git@...."
+之后
+	''bundle install''
+
+
+==== 设置全局参数 ====
+在某一个environment.rb中设置：
+	 config.paperclip_defaults = { has_attached_file 参数表 }
+
+
+===== 在model中声明 has_attached_file =====
+参数有：
+
+==== style 和 post-processer ====
+* '':styles''
+* '':default_style''
+* '':processors''
+
+* processors 是用处理attachment文件的 method. 
+* styles 是几套命名过的不同参数组合。
+* default_style 是应用于default_url 的 style。见下面 path/url
+
+例如：
+	'':styles=> ["320x320#", ''**"png"**'']''
+
+
+=== thumbnail 和 convert ===
+当processor 是 Paperclip::Thumbnail 时，styles 是传递给 convert -resize 的参数。例如：
+	scale% 	Height and width both scaled by specified percentage.
+	scale-x%xscale-y% 	Height and width individually scaled by specified percentages. (Only one % symbol needed.)
+	width 	Width given, height automagically selected to preserve aspect ratio.
+	xheight 	Height given, width automagically selected to preserve aspect ratio.
+	widthxheight 	Maximum values of height and width given, aspect ratio preserved.
+	widthxheight^ 	Minimum values of width and height given, aspect ratio preserved.
+	widthxheight! 	Width and height emphatically given, original aspect ratio ignored.
+	widthxheight> 	Shrinks images with dimension(s) larger than the corresponding width and/or height dimension(s).
+	widthxheight< 	Enlarges images with dimension(s) smaller than the corresponding width and/or height dimension(s).
+	area@ 	
+rails增加了 # 指示符，用在末尾，表示会resize the image to fit maximally inside the dimensions and then crop the rest off (weighted at the center)
+
+
+=== processors ===
+
+NOTE: Because processors operate by turning the original attachment into the styles, no processors will be run if there are no styles defined.
+
+* Paperclip supports an extensible selection of post-processors.
+
+
+Paperclip::Thumbnail
+Paperclip::Ocr
+
+== 自定义processor ==
+* By defining a subclass of Paperclip::Processor, you can perform any processing you want on the files that are attached. 
+
+== callbacks ==
+和平常model中的callback一样，paperclip提供了两个方法：
+	before_post_process
+	after_post_process
+这两个方法针对所有的attachment。任何一个attachment在经post processor处理之前/后 就会调用这两个方法。
+
+另外还给每个attachment 提供了dynamic method:
+	before_<attachment>_post_process
+	after_<attachment>_post_process
+
+
+==== path/url ====
+* '':url''
+* '':default_url''
+* '':path''
+
+* default_url 是 当 model  对象没有 attached_file时默认选用的 attached_file。例如默认头像。
+* path 对应于attched_file 在 filesystem, s3等存储空间上的路径。
+* url, path, default_url 都使用symbol，用symbol的值替换symbol，得到最终的url/path
+
+url:
+	The default value is "/system/:class/:attachment/:id_partition/:style/:filename"
+default_url:
+	The default value is "/:attachment/:style/missing.png"
+
+
+=== interpolation ===
+https://github.com/thoughtbot/paperclip/wiki/Interpolations
+已有
+'''
+:basename	# 不带后缀
+:class
+:extension	# 后缀
+:filename	# basename.extension
+:fingerprint
+:hash
+:id
+:id_partition
+:rails_env
+:rails_root
+:attachment	#
+:style
+:timestamp
+:updated_at
+:url
+'''
+
+
+**自定义**
+ dynamically define your interpolation string for :url, :default_url, and :path in your model by passing a method name as a symbol as a argument for your has_attached_file definition
+
+# attachment 是Paperclip::Attachment对象
+# attachment.instance 是该文件的属主对象。
+
+Paperclip.interpolates :access_token  do **|attachment, style|**
+  attachment**.instance.**access_token
+end
+
+Paperclip.interpolates :category_name do |attachment, style|
+  attachment.instance.category.name
+end
+
+==== dynamic style 和 processor ====
+styles 和 processors 都可接受一个Proc 或者 lamda 语句块，当是lamda时会把自身作为参数传递进去。 
+例如：
+'''
+class User < ActiveRecord::Base
+  has_attached_file :avatar, :styles => lambda { |attachment| { :thumb => (attachment.instance.boss? ? "300x300>" : "100x100>") }
+end
+'''
+
+'''
+class User < ActiveRecord::Base
+  has_attached_file :avatar, :processors => lambda { |instance| instance.processors }
+  attr_accessor :watermark
+end
+'''
+
+
+==== :keep_old_file ====
+
+
+
+
+==== storage ====
+
+'':storage''
+	:filesystem
+	:s3
+	:fog
+
+
+==== :whiny ====
+	出错时报错。
+	
+
+
+===== validation =====
+可验证其
+	Presence
+	ContentType
+	Size
+属性。
+
+验证的四种方式：
+
+'''
+validates :avarta, :attachment_presence=>true
+validates :avarta, :attachment_size=>{:in=>0..1.kilobytes}	#像validate数字一样。maximum, minimum.
+'''
+-----------------------------------
+'''
+validates_attachment :avarta, :presence=>true, :size=>{:in=>0..1.kilobytes}
+validates_attachment :avatar, :content_type => /image/, :if => :avatar_file_name_changed?
+'''
+
+---------------------------
+'''
+validates_attachment_presence :avarta
+validates_attachment_content_type  :avatar, :content_type => /image/, :if => :avatar_file_name_changed?
+validates_attachment_size
+'''
+
+'''
+validates_with AttachmentPresenceValidator, :attributes => :avatar
+validates_with AttachmentContentTypeValidator, :attributes => :avatar
+validates_with AttachmentSizeValidator, :attributes => :avatar
+'''
+
+
+
+
+
+===== Migration =====
+两种方式：
+
+==== table object ====
+	''t.attachment :avatar''
+
+
+==== schema definition ====
+'''
+add_attachment :table, :avatar
+remove_attachment  :table, :avatar
+'''
+
+
+向已有model中添加attachment列的快捷方法：
+	''rails gernerate paperclip model attribute''
+
+注： attachment是**magic column**，实际上可包括四列：
+	* avata_file_name
+	* avata_file_size
+	* avata_content_type
+	* avata_updated_at
+因此，可以手动通过 t.column, 或者 add_column, remove_column 编辑migration 文件, 只选择其中的几列。
+
+===== Controller 和 view =====
+几个属性：
+
+	'''
+	url(:style)
+	'''
+
+	    ''<attachment>_file_name''
+	''<attachment>_file_size''
+	''<attachment>_content_type''
+	''<attachment>_updated_at''
+可以在controller, view中使用。
+
+==== controller ====
+
+==== view ====
+
+=== form ===
+	'''
+	:html=>{:multipart=>true}	#需要设置 form 元素的属性： enctype="multipart/form_data"
+	file_field			
+	'''
+
+
+=== url/path ===
+	'''
+	user.avatar.url
+	user.avatar.url(:style)
+	'''
+
+
+

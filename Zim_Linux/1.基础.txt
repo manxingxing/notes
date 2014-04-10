@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-04-18T21:28:30+08:00
+
+====== 基础 ======
+Created 星期三 18 四月 2012
+
+* 磁盘
+* 档案系统

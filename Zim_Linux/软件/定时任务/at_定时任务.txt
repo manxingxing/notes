@@ -1,0 +1,57 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-11-08T17:58:56+08:00
+
+====== at 定时任务 ======
+Created 星期五 08 十一月 2013
+
+最好使用**绝对路径**来下达你的指令
+
+==== 使用方式 ====
+
+at TIME
+batch TIME	# 和at相同，但只有CPU负载率在0.8以下时才会执行。只有系统有空时才执行这些任务
+
+**命令下达之后，提示符变成 > ，可输入要执行的命令，输入完成后按 ctrl + D 结束**
+
+=== 时间格式 ===
+
+
+  HH:MM				ex> **04:00**
+	在今日的 HH:MM 時刻進行，若該時刻已超過，則明天的 HH:MM 進行此工作。
+  
+HH:MM YYYY-MM-DD		ex> **04:00 2009-03-17**
+	強制規定在某年某月的某一天的特殊時刻進行該工作！
+
+HH:MM[am|pm] [Month] [Date]	ex> **04pm March 17**
+	也是一樣，強制在某年某月某日的某時刻進行！
+
+HH:MM[am|pm] + number [minutes|hours|days|weeks]
+	ex> **now + 5 minutes**	ex> **04pm + 3 days**
+	就是說，在某個時間點『再加幾個時間後』才進行。
+
+
+==== 权限 ====
+
+/etc/at.deny
+/etc/at.allow	# 默认不存在。优先于 at.deny
+
+==== 管理 ====
+
+=== 查看at任务列表 ===
+atq
+或 at -l
+
+=== 查看一个任务内容 ===
+at -c [NUM]
+
+* 任务号
+
+=== 删除任务 ===
+* 每个任务都有一个数字id，通过atq查看
+
+atrm  [NUM] 任务号
+或
+at -d
+at -r
+

@@ -1,0 +1,130 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-05-09T22:05:00+08:00
+
+====== 基于语言的编程 ======
+Created 星期四 09 五月 2013
+
+x = model.frame(formula, data)
+str(x)
+model.response(x) 	# model frame中的response
+model.matrix
+
+* avoid using character. 例如 library(), subset, 
+* default label,  例如 plot
+
+
+expression object
+
+expression
+
+promise
+* argument expression
+* environment to eval that expression
+
+
+deparse:  expression -> string
+
+quote
+substitute
+enquote
+
+eval
+eval.parent
+evalq
+
+list2env(list, parent)
+attach
+
+===== Call tree =====
+
+==== 组成部分 ====
+一系列的调用由三个部分组成：
+
+=== constants ===
+
+**quote单个常数会返回常数本身**
+quote("sdf")
+quote(2)
+quote 一个常数向量则返回一个call类对象 ， 因为生成向量通常需要使用函数
+
+=== names ===
+quote(a)
+as.name("a")
+
+=== call ===
+quote(x+b)
+还可以使用as.call 和 call
+**call("function_name", args)**
+The first argument to call() is a string giving a function name, and the other arguments should be expressions that are used as the arguments to the call.
+	''call("mean", 1:10, na.rm = TRUE)''
+
+**as.call(lst)**
+as.call() is a minor variation takes a list where the first argument is the name of a function (not a string), and the subsequent values are the arguments.
+	
+	''as.call(list(quote(f), 10))''
+
+
+==== 类列表 ====
+call tree以类似列表的形式操作
+
+a call has __length__,  __[[__ and __[__ methods.
+
+第一个元素是函数名称(name类，不是character) 
+
+==== match.call ====
+match.fun(fun_definition, call)  根据函数定义，返回参数匹配过的函数调用(call)
+
+=== sys.call ===
+用在函数内，返回函数调用时的形式
+
+
+===== parsing & deparsing =====
+It's not possible for parse() and deparse() be completely symmetric. 
+
+=== parse:  character -> expression ===
+生成expression向量
+
+=== deparse: expression -> character ===
+如果生成的字符串很长，会自动分割成几个部分，见cutoff.width参数
+
+===== 递归访问call tree =====
+* codetools提供了一些工具
+node 和 leaf
+
+* The nodes of a tree are always calls (except in the rare case of function arguments, which are pairlists),
+* 多需要使用递归函数
+is.recursive() 函数，leaf -> false,  node -> true
+
+
+===== 未归纳 =====
+
+==== Capture expression ====
+quote
+eval
+* eval和quote相互抵消
+
+=== eval(expr, env, enclose) ===
+enclose:  当env是一个列表时，指定列表环境的父环境，即：当在列表中未能找到symbol对应的值时，会从enclose指定的环境开始找。
+
+==== substitute ====
+''substitute(expr, env)''
+
+**env**
+1. 当在.GlobalEnv中使用substitute时，其行为和quote一模一样，不进行任何替换
+2. 在函数内部使用时，会在函数内寻找
+3. 一个list，其实环境就是一些name - value的列表
+
+**expr**
+1. 若找到的是promise对象， 用expression slot内容替代
+2. 若找到的是一般变量, 用值替代
+3. ... ， 用其内容替代
+4. 其他情况，不做任何替换(例如函数)
+
+
+
+==== bquote ====
+
+
+==== alist ====
+一个helper

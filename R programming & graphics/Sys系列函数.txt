@@ -1,0 +1,18 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-23T11:23:41+08:00
+
+====== Sys系列函数 ======
+Created Tuesday 23 October 2012
+
+Sys.which 查找系统命令的安装路径
+Sys.Date  
+Sys.time  
+Sys.timezone  
+Sys.getenv和Sys.setenv 查询或设置系统的环境变量设置及R的路径设置。
+  包括PATH,TEMP, R_HOME, R_LIBS_USER, 用户文件夹，用户设置文件夹，程序安装文件夹等。
+Sys.getlocale和  
+Sys.setlocale
+Sys.info  系统版本和用户名
+Sys.chmod 改变文件或文件夹的权限
+Sys.sleep 

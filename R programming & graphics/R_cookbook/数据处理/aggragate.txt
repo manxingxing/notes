@@ -1,0 +1,12 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-01T13:42:46+08:00
+
+====== aggragate ======
+Created Monday 01 April 2013
+
+aggregate 对向量，数据框根据一个或多个因子进行分类汇总，并以合适的方式 返回结果。生成的数据框中，前几列只是分组变量取值，如果 by 中因子是 named(如 by=list(group=..., cate=...))，则 name 将作为相应列的列名，否则将以 Group.1,Group.2 依序取名。
+ 
+
+ tapply 根据一个或多个因子(用 list 连接)，对每种组合下另一个向量运用一个函数。 当该函数返回一个数值时，联合成数组，数组的维数相当于因子个数，每个维 度下类别的数目相当于因子的水平数。当函数返回不时单一 atom 值时，返回 一个列表。
+  若在某一个或几个水平下，没有值，则返回 NULL。

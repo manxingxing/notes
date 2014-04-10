@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-11T11:00:38+08:00
+
+====== 全局对象 ======
+Created 星期日 11 十一月 2012
+
+===== Property =====
+NaN
+undefined
+Infinity
+
+===== method =====
+parseFloat
+parseInt
+
+isNaN()

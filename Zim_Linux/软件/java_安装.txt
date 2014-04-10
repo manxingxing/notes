@@ -1,0 +1,8 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-08-25T11:25:14+08:00
+
+====== java 安装 ======
+Created 星期六 25 八月 2012
+
+http://blog.csdn.net/yang_hui1986527/article/details/6677450

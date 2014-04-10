@@ -1,0 +1,48 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-10-14T01:27:21+08:00
+
+====== 一个成功的流程 ======
+Created 星期日 14 十月 2012
+
+
+[[../A successful Git branching model » nvie.com.html]]
+[[./A successful Git branching model » nvie001.com.html]] 
+
+我建议，一个中心版本库(我们叫它origin)至少包括两个分支，即“主分支(master)”和“开发分支(develop)”
+
+							 {{../git-master-develop.png}}
+							
+
+在一个团队开发协作中，我建议，要有“辅助分支”的概念。辅助分支，大体包括如下几类：“管理功能开发”的分支、“帮助构建可发布代码”的分支、“可以便捷的修复发布版本关键BUG”的分支，等等
+{{../bigpicture-git-branch-all.png}}
+
+
+“Feature branches”起源于“develop”分支，实现方法是：
+
+	''git checkout -b myfeature develop''
+	
+	-b 的意思是 调用git branch。
+		''git branch branchname startpoint''
+
+
+“Feature branches”最终也归于“develop”分支，实现方式是：
+
+'''
+git checkout devleop
+git merge --no-ff myfeature
+'''
+
+
+（--no-ff，即not fast forward，其作用是：要求git merge即使在fast forward条件下也要产生一个新的merge commit）
+
+（此处，要求采用--no-ff的方式进行分支合并，其目的在于，希望保持原有“Feature branches”整个提交链的完整性）
+
+'''
+git branch -d myfeature
+
+git push origin develop
+'''
+
+
+{{../merge-without-ff.png}}

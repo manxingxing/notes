@@ -1,0 +1,101 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-05-02T10:07:26+08:00
+
+====== 函数 ======
+Created Thursday 02 May 2013
+
+===== 组成 =====
+* primitive 函数没有这些部分
+
+formals
+body
+environment
+
+
+===== 参数 =====
+
+==== 参数匹配 ====
+* 经常使用的参数最要使用按位置的匹配，免去输入参数名的麻烦
+* 不经常使用且应小心使用的参数，放到 ... 参数后面，这样只有输入参数全名时，才可以匹配
+
+按下列顺序寻找匹配，直到出现错误位置。
+ 
+1. Exact matching on tags。如果一个形参可以匹配多个实参，则返回错误(formal argument "arg1" matched by multiple actual arguments)
+2. Partial matching on tags.去除前一阶段已经匹配的参数， Each remaining named supplied argument is compared to the remaining formal arguments using partial matching(prefix-match). 如果能为实参找到多个可能的匹配，则返回错误(argument 2 matches multiple formal arguments) 。… 形参后面的参数不参与模糊匹配
+3. Positional matching. 去除前面已经匹配的参数，Any unmatched formal arguments are bound to unnamed supplied arguments, in order. If there is a ‘...’ argument, it will take up the remaining arguments,tagged or not. "…" 就是一个黑洞，他后面的参数不能参与模糊匹配，也不能参数位置匹配，
+
+
+* The above rules apply to closures but not to primitive functions. The latter typically ignore tags and do positional matching. 内部函数.Primitive 只支持位置匹配。参数的name或tag将被忽略。
+ 
+函数match.arg, match.call and match.fun对R本身的参数匹配机制提供补充。
+ 
+
+==== 实参的值 ====
+
+The supplied arguments to a function are evaluated in the evaluation frame of the calling function. The default arguments to a function are evaluated in the evaluation frame of the function.
+When a function is called, each formal argument is assigned a promise in the local environment of the call with the expression slot containing the actual argument (if it exists) and the environment slot containing the environment of the caller. If no actual argument for a formal argument is given in the call and there is a default expression, it is similarly assigned to the expression slot of the formal argument, but with the environment set to the local environment.
+ 
+ 
+ 参数设置有三种形式：需要给定的，有默认值的，和"…"。需用户指定的形式参数和设有默认值的形式参数有不同的求值框架。前者在函数被调用的环境中求值，而后者在函数内部的求值框架内求值。
+ 
+在函数调用后，每个形式参数都被赋予一个promise类型对象，包含一个expression槽和一个environment槽。对于设有默认值的形式参数， expression槽存储 默认的表达式，environment槽设为函数内部的局部环境。而对于需要用户指定的形式变量，expression存储也指定的表达式，但environment槽设为函数外围，即函数调用的环境。
+  
+ 
+可以把表达式的值赋给形式参数，但是由于R采用lazy evaluation的机制（形式参数链接到一个promise，表达式存储在promise的expression槽中，只有当该参数需要时，才会对表达式求值），表达式不一定会被求值。
+ 
+While in C it is common to use the form foo(x <- y) to invoke foo with the value of y and simultaneously to assign the value of y to x. this same style should not be used in R. There is no guarantee that the argument will ever be evaluated and hence the assignment may not take place.It is also worth noting that the effect of foo(x <- y) if the argument is evaluated is to change the value of x in the calling environment and not in the evaluation environment of foo.
+ 
+在C中，经常在参数赋值中夹杂着其他的赋值操作，如foo(x<-y)把y值赋给形式参数的同时也把值赋给了x，但在R中，由于lazy evaluation的存在，表达式并不保证会被求值，因此额外的赋值操作并不一定会执行。另外要注意的是，在R中，额外的赋值操作是在函数外围环境中执行的，会改变函数调用环境中的全局变量。
+ 
+The process of filling the value slot of a promise by evaluating the contents of the expression slot in the promises environment is called forcing the promise.A promise is forced when its value is needed.
+ 
+对promise对象中的expression槽求值，并将值存储到value槽的过程称为 **forcing** the promise。promise在用到该参数的地方才会被求值，且只能求值一次，后面的调用将直接访问value槽。
+ 
+The semantics of invoking a function in R argument are call-by-value. In general, supplied arguments behave as if they are local variables initialized with the value supplied and the name of the corresponding formal argument.
+ 
+函数调用在语义上是 值传递。将值赋给形式参数后，形式参数将作为一个局部变量在函数中参与运算，不会影响函数外部同名的变量。
+ 
+ 
+Access to the unevaluated expression is also available using substitute.
+substitute函数可以取得未求值的expresssion槽中的内容。
+
+* 在函数内部使用函数 force(arg) ，强迫对参数求值
+
+
+=== lazy evaluation ===
+只要当需要参数的值时，才会对参数求值
+
+=== 值传递 ===
+* 复制一份，因此会影响R的性能
+* 值传递并不必然影响性能，clojure语言就避免了这点
+
+避免值传递
+	- 引用类
+	- 使用环境类直接操作对象
+
+
+==== 默认参数 ====
+1. 简单值
+2. 从另一个参数计算而来
+3. 函数体内的对象
+
+===== special function =====
+
+==== infix function ====
+
+''"%op%" <- function(x, y) {}''
+
+==== replacement function ====
+
+"functionname<-" <- function(x, value)			# 一般只有这两个参数
+"functionname<-" <- function(x, args, value)	# 其他参数要放在中间
+
+1. 函数应该返回修改过的 x 
+2. 因为函数返回修改过的对象，因此赋值操作符可以串联使用
+	''x <- y <- 2''
+3. R把返回的值在赋值回到 外围的x， 这是隐式进行的
+
+
+
+

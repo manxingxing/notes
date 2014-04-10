@@ -1,0 +1,16 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-10-16T00:48:14+08:00
+
+====== Memorize ======
+Created 星期三 16 十月 2013
+
+http://rails-bestpractices.com/posts/59-use-memoization
+
+==== 适用情况 ====
+在一个请求过程中，一个方法或计算过程经历了重复计算，而没有被任何机制缓存过。
+
+
+* 简单的情况下，用实例变量缓存
+
+* 如果需要更多的功能，需要查找这方面的gem，如memorization

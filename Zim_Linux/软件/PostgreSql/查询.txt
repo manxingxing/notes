@@ -1,0 +1,173 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-04-09T15:51:28+08:00
+
+====== 查询 ======
+Created 星期二 09 四月 2013
+
+==== 执行顺序 ====
+from > where > select  > order by
+order by 在 select 后面吗？ 但是排序列可以不出现在select中啊
+
+===== SELECT 子句 =====
+
+==== 列别名: AS ====
+
+==== 聚集函数 ====
+* 一个聚集表达式只能在SELECT命令的结果列表或者HAVING子句里出现。禁止在其它子句里出现(比如WHERE 子句)， 因为这些子句逻辑上在生成聚集结果之前计算。
+
+aggregate_name (expression [ , ... ] [ order_by_clause ] )
+aggregate_name (ALL expression [ , ... ] [ order_by_clause ] )
+aggregate_name (DISTINCT expression [ , ... ] [ order_by_clause ] )
+aggregate_name ( * )
+
+* 一般情况下，输入行会以非特定顺序放入到聚集函数中，在许多情况下，这样做是没有影响的；如，无论以什么顺序输入，min输出相同的结果。 然而，一些聚集函数（如具有累计功能的函数, rank, array_agg和string_agg）并非如此。 当使用这种聚集函数时，可以用order_by_clause选项指定输入的顺序。
+* 在处理多参数聚集函数时需要注意，ORDER BY子句得再所有的聚集函数之后
+
+=== 函数 ===
+max, min, sum, avg
+
++, -, *, /
+GREATEST, 
+
+
+
+==== WHERE 子句 ====
+* where子句用来比较记录，是否满足条件，仅返回满足条件的记录
+
+=== 相等比较 ===
+> ,  < ,  >= , <= ,  = , <> 
+
+**时间比较**
+* 时间比较很少使用 相等 比较，因为时间很少完全相等
+Oracle 用 单引号 包围 日期值 	'date'
+Access 用 # 包围 日期值:  	#data#
+
+=== IS NULL ===
+* null 不可比
+
+**三值逻辑**
+true
+false
+NULL
+
+=== LIKE ===
+通配符
+一般数据库使用 % 表示 任意的字符数，但Access 用 * 号
+一般数据库使用  _  表示 单个字符，但Access 用 ？ 号
+
+Access 更接近正则表达式。还提供了 符号 # 表示数字。
+
+=== iLike ===
+case-insensitive
+
+=== BETWEEN ===
+	''BETWEEN a AND b''
+
+* 连续值区间
+* 注意：字符串的排序是根据ASCII码
+* 不同的数据库对 BETWEEN...AND 操作符的处理方式是有差异的。某些数据库会列出介于 "Adams" 和 "Carter" 之间的人，但不包括 "Adams" 和 "Carter" ；某些数据库会列出介于 "Adams" 和 "Carter" 之间并包括 "Adams" 和 "Carter" 的人；而另一些数据库会列出介于 "Adams" 和 "Carter" 之间的人，包括 "Adams" ，但不包括 "Carter" 。
+例子：获取N开头的所有人名
+
+'''
+select * from users 
+where name between N and O
+'''
+
+
+=== IN ===
+* 离散值范围
+	''IN (value1, valu2)''
+
+
+=== AND， OR， NOT ===
+
+**优先级**
+OR < AND < NOT
+
+**以易于阅读的形式安排AND, OR, NOT 的顺序**
+* 必要时使用括号，使语义更清楚
+
+1. OR 作为最高级连接词
+2. AND 作为次级连接词
+3. NOT 仅修饰单个比较表达式，不用在更高层次
+
+== NOT 用法 ==
+not (expression)
+not in ()
+not like
+not between a AND b
+is not null
+
+==== Order by 字句 ====
+'''
+order by + columnname1 desc, column2 asc
+
+'''
+* 可以使用整数代替列名，数字表示在select子句列名中的位置
+
+**NULL**
+* 排序时注意null的情况，不同数据库对null的排序位置设定不同。
+* 增加一个指示是否NULL的虚拟列，和这列同时排序，来控制NULL的排序位置，在不同数据库间得到一致的结果
+
+
+==== LIMIT , OFFSET 字句 ====
+* limit 限制返回行数
+* offset 指定开始位置
+	''limit 100''
+
+
+===== 连接 =====
+
+=== INNER JOIN ===
+	''from tableA [inner] join tableB on tableA.col = tableB.col''
+或者
+'''
+from tableA, tableB
+where tableA.col = tableB.col
+'''
+
+
+=== OUTER JOIN ===
+LEFT OUTER JOIN
+RIGHT OUTER JOIN
+
+=== 自连接 ===
+给一个表取两个别名
+select * From table as alias1, table as alias2
+where alias1.col1 = alias2.col2
+
+===== 子查询 =====
+
+===== 子查询的集合操作 =====
+intersect	# 交集
+except
+union
+union all
+
+
+===== 保存查询结果 =====
+
+==== 保存到新建的表中 ====
+'''
+create table tablename AS
+select 子句
+'''
+
+
+==== 保存到视图中 ====
+'''
+create view viewname AS
+select 子句
+'''
+
+
+==== 保存结果到已有的表中 ====
+'''
+insert into tablename (list of colnames)
+select 子句
+'''
+
+
+
+

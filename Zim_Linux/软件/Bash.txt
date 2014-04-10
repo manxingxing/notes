@@ -1,0 +1,9 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-03-02T09:50:59+08:00
+
+====== Bash ======
+Created 星期日 02 三月 2014
+
+修改locale
+http://wiki.ubuntu.org.cn/%E4%BF%AE%E6%94%B9locale

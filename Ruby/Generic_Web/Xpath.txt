@@ -1,0 +1,139 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-01-09T17:32:11+08:00
+
+====== Xpath ======
+Created 星期三 09 一月 2013
+
+===== 路径表达式 =====
+Xpath表达式即是路径表达式，类似与文件夹路径的表达方式。
+
+**形式为： **
+	''轴::节点判断[谓词]''
+
+
+==== 轴 ====
+* 轴定义要匹配的节点相对于当前节点的关系。
+* child轴是基本轴，最常用的轴，常忽略不写。
+
+namespace		选取当前节点的所有命名空间节点。
+
+attribute			选取当前节点的所有属性。
+
+ancestor			选取当前节点的所有先辈（父、祖父等）。
+ancestor-or-self	选取当前节点的所有先辈（父、祖父等）以及当前节点本身。
+parent			选取当前节点的父节点。
+
+child			选取当前节点的所有子元素。
+descendant		选取当前节点的所有后代元素（子、孙等）。
+descendant-or-self	选取当前节点的所有后代元素（子、孙等）以及当前节点本身。
+
+following			选取文档中当前节点的结束标签之后的所有节点。
+preceding		选取文档中当前节点的开始标签之前的所有节点。
+preceding-sibling	选取当前节点之前的所有同级节点。
+
+self				选取当前节点。
+
+==== 路径 ====
+* 和目录路径的概念相同
+
+	/	从根节点选取
+	//	从匹配选择的当前节点选择文档中的节点，无论多少步/层
+		
+		''bookstore//title''
+		''//attribute''
+		
+**绝对位置路径**：起始于正斜杠( / )
+	''/step/step/...''
+
+**相对位置路径**：
+	''step/step/...''
+	
+
+
+==== 节点 ====
+
+=== 节点类型 ===
+
+== 元素节点 ==
+	''nodename''
+
+
+== 属性节点 ==
+	''@attrname''
+* 属性节点是元素节点的子节点
+	''nodename/@attrname''
+
+
+== 文本节点 ==
+	''text()''
+* 文本节点是元素节点的子节点
+	''nodename/text()''
+
+
+== 文档节点 ==
+
+== 注释节点 ==
+
+== 命名空间 ==
+
+=== 特殊节点 ===
+.	当前节点
+..	父节点
+ *  任何元素节点
+@*      任何属性节点
+''node() 任何类型的节点''
+
+==== 谓词 ====
+* 谓词放在中括号中，表示限定条件
+* 修饰紧跟的节点元素
+* 内容是xpath表达式，或内置函数
+
+=== 指定位置 ===
+	nodename[3]
+	nodename[last()]
+	nodename[last()-1]
+	nodename[position() < 4]
+
+
+=== 包含属性 ===
+	nodename[@attr]
+	nodename[@attr=value]
+	nodename[@attr=~value]
+
+
+=== 包含子节点 ===
+	 nodename[nodename>value]
+ 
+
+===== 操作符和函数 =====
+
+==== 表达式 ====
+
+* 比较元素/属性时，比较的是它们的值。不是整个node
+
+
+=== 操作符 ===
+
+=, !=, >, >=, <, <=
+
+and, or
+
+=== 算术计算 ===
+
++ - * div mod
+
+==== 函数 ====
+
+=== node-set function ===
+last()
+position()
+count(node-set)
+id(object)
+
+=== string function ===
+
+=== boolean function ===
+
+=== number function ===
+

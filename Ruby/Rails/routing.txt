@@ -1,0 +1,329 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-06-21T12:13:43+08:00
+
+====== routing ======
+Created 星期四 21 六月 2012
+
+
+===== 路由的作用是： =====
+1. 建立**HTTP Verb+ URL**与**controller/action的对应关系。让特定的action相应特定的请求**
+2. 通过named routes动态产生URL (可以用在任何需要URL的地方，例如link_to, redirect_to)
+
+===== 查看当前路由 =====
+
+* 查看当前routes
+	''rake routes CONTROLLER=name''
+	
+* 查看一个route helper对应的path/URL
+	在console里：
+		''app.helper''
+	例如
+		''app.new_user_path''
+
+
+===== Match =====
+	 ''match url_pattern, options''
+或细分成：
+	''post, get , ...''
+相当于：
+	''match url_pattern , :via=>[:get]''
+
+
+==== URL pattern ====
+* static segment/string
+* segment key: 进入''params''数组
+* query string
+
+=== Segment key ===
+
+**optional segment key**
+可有可无的部分，可以匹配，也可以不匹配
+* 小括号包围起来
+
+**segment key数组**
+* 放在最后面
+* 以 / 分隔成数组
+* 在action中分析这个数组。
+
+=== query string ===
+问号?后面的所有字符串将按**&**符号分解成hash。
+
+==== Options ====
+''to''	 # 指向一个**Rack endpoint。指定用来响应的controller#action**
+''via''	 # 限制可接受的HTTP Verb。默认可接受所有类别。get, post, delete, put
+''as''	 # **prefix** name of route. 
+''path	 ''# path **prefix**。加在match的path参数前面。**具有累加效果**
+''constraints   #''给segment key添加正则表达式约束
+''on	 ''# 仅嵌套在resouce(s)中，取值为:collection, :member。是collection, member方法的快捷方式.
+''module	 # namespace''
+''controller, action''	# Rails 3 已经不用了？
+''module	 # controller所属的module名称''
+''defaults # default params''
+
+=== to 参数 ===
+
+**redirect路由**
+* 使用redirect方法(不是redirect_to)
+* 参数为一个URL或PATH
+* 参数也可以是一个lamda。参数为params参数。根据当前params环境，重定向到不同地址
+
+''match '/foo', :to=>redirect("http://google.com")''
+''get 'docs/:article', to: redirect('/wiki/%{article}')	# 插值''
+''match "api/v1/:api" :to=>redirect(:status=>302){|parm| "/api/v2/#{parms[:api].pluralize}" }''
+
+=== :constraints ===
+广义上，可以限定request中所有 key 的内容
+* 格式为正则表达式
+* 正则表达式不需要^ $等锚点。
+''match 'photos/:id' => 'photos#show', :constraints => { :id => ''**/[A-Z]\d{5}/**'' }''
+
+===== root路由 =====
+* 整个网站的根目录
+	
+	''root :to=>"controllers#action"''
+
+
+===== Resources & resource =====
+* **结合HTTP verb和有限的helper类型，构建完整的CRUD routes。**
+* 对基于数据库的网页应用来说，REST非常合适
+* standardization of action names
+* bundle named routes to a specific predefined set of actions
+
+==== http verbs ====
+* 默认是GET
+* form_tag, form_for时，默认使用POST
+* 其他情形下，需要指定:method参数。
+* RAILS 模拟了PUT, DELETE。在POST的基础上，添加了名为 _method的hidden field，值分别为put, delete
+
+
+==== resources ====
+* 复数形式的resources建立7个 HTTP_Verb + PATH  <=> action 组合，**4种path/url。在URL中包含:id。** 
+
+request	URL		Path/URL_helper			action
+GET 		/photos 		photos_path			index 	
+POST 	/photos 		photos_path			create 
+
+GET 		/photos/new 	new_photo_path		new
+
+GET 		/photos/:id/edit 	edit_photo_path(:id)	edit 
+
+GET 		/photos/:id 	photo_path(:id)		show
+PUT 	/photos/:id 	photo_path(:id)		update 	
+DELETE 	/photos/:id 	photo_path(:id)		destroy
+
+==== Resource ====
+
+* 当围绕着一个对象，可以创建resource单数类型。
+* 单数形式的resource建立6个 request+ URL <=> action组合，**3种 path/url。URL中不包含:id**。
+
+HTTP_Verb Path 		path/url_helper			action 
+GET		/geocoder/new 	new_geocoder_path		new 	
+GET		/geocoder/edit 	edit _geocoder_path		edit	
+
+POST 	/geocoder 		geocoder_path			create 	
+GET 	/geocoder 		geocoder_path			show 	
+PUT 	/geocoder 		geocoder_path			update 	
+DELETE 	/geocoder 		geocoder_path			destroy 	
+
+
+==== 使用only, except 生成部分resources ====
+
+resources会产生7个path，可以只选取其中的若干个。使用：only, 或 :except 参数
+
+	''resources :logs, :only=>[:new,:destroy, :create]''
+
+
+==== 自定义resource元素 ====
+可以改变controller, helper, path 各个部分。
+
+:controller 	实际的controller名称
+:as			自定义controller对应的helper名称前缀(不包括path,url,new,edit)。
+:path_names	change the **paths of the seven default actions**. Paths not specified are not changed. 
+:module		namespace。
+:path 		prefix path with ...(例如:path => :locale)
+
+==== Adding extra Actions to REST ====
+
+=== member ===
+member用来给诸如 posts/:id 这样**类的member(带id的具体对象)**添加一些route。
+例如：
+  ''	resources :users do''
+''    member do''
+      **get**'' :following, :followers	#可以是其他http verb''
+''    end''
+''  end''
+
+会产生
+	request	path				action		helper
+	GET		user/1/following	following	following_user_path(1)
+	GET		user/2/followers	followers	followers_user_path(1)
+
+例如：
+	'''
+	resources :photos do
+	  member do
+	    get 'preview'
+	  end
+	end
+	'''
+
+会产生：
+	request	path				action		helper
+	GET		photo/1/preview	preview		preview_photo_path(1)
+
+
+=== collection ===
+collection用来给 诸如 /users/ 这样的url添加一些route。
+例如：
+'''
+resources :photos do
+  collection do
+    get 'search'
+  end
+end
+'''
+
+将产生：
+	request	path			action		helper
+	GET		/photos/search	search		search_photos_path
+	
+
+=== Notes ===
+* 如果添加了特多的action，就需要考虑将这些action放到一个单独的无model的controller里，然后在routes里将其嵌套在原controller里。
+
+
+===== Scope =====
+
+* 将具有共同参数的route规则组合起来。scope下的route规则共享scope中列出的参数
+
+'''
+scope :module => "admin", :path=>"/admin", :as=>"admin" do
+   resources :posts
+end
+'''
+
+
+===== Namespace =====
+* 其实是 将 :path, :as, :module参数 设为与namespace 同名的值
+
+namespace用来将多个controller组织在一个命名空间内。例如：
+	'''
+	
+	namespace :admin do
+	  resources :posts, :comments
+	end
+	'''
+这段和上面的scope作用相同
+
+**在目录结构上，posts, comments 的controller都存放在admin文件夹中。**
+
+HTTP Verb 	Path 					action 	named helper
+GET 		/admin/posts 			index 	admin_posts_path
+OST 		/admin/posts 			create 	admin_posts_path	
+
+GET 		/admin/posts/new 		new 	new_admin_post_path
+GET 		/admin/posts/:id/edit 	edit 	edit_admin_post_path(:id)
+
+GET 		/admin/posts/:id 		show 	admin_post_path(:id)
+PUT 		/admin/posts/:id 		update 	admin_post_path(:id)
+DELETE 		/admin/posts/:id 		destroy 	admin_post_path(:id) 
+
+===== nested resource =====
+* 能在URL中体现除所属关系。
+* FIXME: 可以使用nested resource限制子对象只能在父对象的context下使用。不能直接获取查看。
+* 嵌套尽量不要超过一级。
+* nested resource并不是绝对必要的。只是提供了一种方式。
+
+'''
+resources :magazines do
+  resources :ads
+end
+'''
+对MagazineController来说，route和以前一样，对AdsController来说，有：
+
+HTTP Verb 	Path 								action 	helper		
+GET 		///magazines/:magazine_id///ads 			index 	magazine_ad**s**_path(@magzzine)
+POST 		///magazines/:magazine_id///ads 			create 	magazine_ad**s**_path(@magzzine)
+
+GET 		///magazines/:magazine_id///ads/new 	new 	new_magazine_ads_path(@magazine)
+GET 		///magazines/:magazine_id///ads/:id/edit 	edit 	edit_magazine_ad_path(@magazine, @ad)
+
+GET 		///magazines/:magazine_id///ads/:id 		show 	magazine_ad_path(@magzzine, @ad)
+PUT 		///magazines/:magazine_id///ads/:id 		update 	magazine_ad_path(@magzzine, @ad)
+DELETE 		///magazines/:magazine_id///ads/:id 		destroy 	magazine_ad_path(@magzzine, @ad)
+
+
+===== Helpers =====
+
+==== url_for ====
+
+=== controller+action+id ===
+ url_for :controller => 'tasks', :action => 'testing', :id=>"3"
+
+=== object ===
+根据对象的类名寻找相应的route path helper，并生成相应的URL。__这样可以在任何需要URL的地方，传递url_for(obj) 或者 直接传递 obj。__
+* 前提是routes.rb中能找到。
+
+例如对routes:
+	resources :magazines do
+	  resources :ads
+	end
+
+''url_for([@magazine, @ad])''
+表示：magazine_ad_path(@magazine, @ad)，亦即： /magazine/3/ad/2
+
+例如在link_to中，可使用的形式有：
+
+'''
+link_to "Ad details", url_for([@magazine, @ad])
+link_to "Ad details", [@magazine, @ad]
+link_to "Magazine details", @magazine
+'''
+
+===== MIME types & Representation =====
+* you don't actually receiver resource, you retrieve representation of resources
+* 体现在route规则中的  .format 部分
+* route负责url <=> action。而respond_to方法负责处理route中的.format部分，根据format的不同，返回不同的response。
+
+==== respond_to ====
+
+'''
+respond_to do |format|
+'''
+	'''
+	format.html { redirect_to(person_list_url) }
+	format.xml { render :xml=> @auctions }
+	format.js
+	end
+	'''
+* 如果一个format没有block，那么会寻找对应扩展名的view template
+* 如果有block，里面应该会有render, redirect_to。
+* render 有两个参数：:xml, :json，也有内置的方法to_xml, to_json
+
+**未注册格式**
+Respond to also allows you to specify a common block for different formats by using __any__:
+	'''
+	respond_to do |format|
+	    format.html
+	    format.
+	'''
+**any**''(:xml, :json) { render request.format.to_sym => @people }''
+''  end''
+
+==== named route+ format ====
+在link_to等方法中，使用named route并指定representation类别，需要使用:format参数：
+	
+	''auctions_path(:format=>:xml)''
+	''auction_path(@auction, :format=>:xml)''
+
+
+==== 注册新的MIME type ====
+在**文件：**
+	''config/initializers/mime_types.rb''
+中添加条目，语法：
+	# 跟着注释写就行了，例如
+	''Mime::Type.register "image/jpg", :jpg''
+约定的MIME可以查询:
+	http://en.wikipedia.org/wiki/MIME_type
+

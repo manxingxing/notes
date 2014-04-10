@@ -1,0 +1,138 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-05-12T15:08:59+08:00
+
+====== 类 ======
+Created 星期六 12 五月 2012
+
+
+===== 定义 =====
+
+	**class** **P**et 	__##类的名称须首字母大写__
+		# 任何语句
+	**end**
+	
+	* __类的名称须首字母大写__
+
+===== 特殊变量 =====
+
+==== self ====
+指代接受信息的对象：
+	* 在方法内使用的self指代调用方法的对象
+	* 在方法外使用的self指代类本身
+
+==== initializer方法 ====
+
+如果这个方法存在，则当通过
+	类名.new()
+创建类的实例时，就会访问这个方法。
+
+* **initialize 方法不是必须的。**
+* 这个方法内一般设置在创建新的实例时的进行的操作，例如类对象计数器。
+
+===== 类方法 =====
+
+=== attr_accessor ===
+	同时有getter和setter
+
+
+=== attr_reader ===
+	自动设立getter
+
+
+===== 实例方法 =====
+
+
+===== 继承 =====
+
+	'''
+	class Dog < Pet
+	'''
+
+
+	'''
+	end
+	'''
+
+
+* ruby不支持多重继承，既只能有一个父类！
+* 为了避免多重继承的问题，使用module来代替多重继承
+
+
+=== 检查继承关系 ===
+
+使用 > < 符号，例如：
+
+Dog < Pet  	# => true
+
+==== 修改父类中的方法 ====
+
+
+* 子类中可以完全重定义父类中已经存在的方法
+* 也可以在父类同名方法返回结果的基础上进行附加操作。**在子类方法内使用super调用父类同名方法**。
+	* 当super没有参数时，會自動將所有參數都代進去來呼叫父類別的方法。
+
+	class Pet
+	    attr_accessor( :name, :age)
+	    def say(word)
+	        puts "Say: #{word}"
+	    end
+	end
+	
+	class Cat < Pet
+	    def say(word)
+	        puts "Meow~"
+	        **super**
+	    end
+	end
+	
+	class Dog < Pet
+	    def say(word, person)
+	        puts "Bark at #{person}!"
+	        **super(word)         # 此处不能仅使用super, 会将word, person都传入Pet#say，发生wrong number of arguments错误**
+	    end
+	end
+
+
+===== 修改/删除已有类的方法 =====
+
+将一个类定义多次，这些定义中的方法将会**累加**，而同名方法将以最后定义的为准。
+* 重新打开类以**增加新方法**,**覆写或删除**已有的方法
+* 重新打开类，使用remove_method方法来删除当前类自身已存在的方法
+* 重新打开类，使用undef语句或undef_method方法阻止一切对该方法的调用。包括父类中的同名方法。
+
+
+* Ruby这种重新打开类并增加或重定义方法的能力，在各种面向对象语言种是相对独特的。
+* 这个特性可能提供一些有趣的技巧，但也可能导致统一代码执行结果的不一致。
+
+
+===== 访问标签 =====
+
+==== public ====
+ 默认的访问标签。表示该对象方法/变量可以在任何地方通过 __变量名.方法名__访问。
+
+==== protected ====
+ __对象名.方法名__ 这个形式可以在本类或子类中访问，不能在它们外面访问
+
+class Test
+	def method
+	end
+	def diff(another_obj)
+		self.method-**another_obj.method**
+	end
+end
+
+==== private ====
+“private to this instance”
+
+在任何地方都不能使用 __变量名.方法名__ 的方式访问。方法接收者只能是self，且self必须省略。
+
+	* private 还可以当作命令使用，向其传递一组符号参数，表示你想把这些符号表示的方法设置为私有。
+		private __:__a_private_method, __:__another_private_method
+
+
+==== private_class_method 和 public_class_method ====
+声明类方法的访问标签。不能像上面的访问标签一样，以macro的形式使用
+
+===== 多态 =====
+很多不同的类都定义有相同的方法
