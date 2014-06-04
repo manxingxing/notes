@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-12-10T10:52:36+08:00
+
+====== 例子 ======
+Created 星期一 10 十二月 2012
+
+==== 多列布局 ====
+* FIXME: count和width有一个就行？
+column-count
+column-gap
+column-width
+-moz-column-count
+-moz-column-gap
+-moz-column-width
+-webkit-column-count
+-webkit-column-gap
+-webkit-column-width
+
+
+==== 文本垂直居中 ====
+
+1. 利用table-cell
+
+display: table-cell;
+vertical-align: middle;
+

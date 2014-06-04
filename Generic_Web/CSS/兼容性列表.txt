@@ -1,0 +1,51 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-05-30T13:21:53+08:00
+
+====== 兼容性列表 ======
+Created 星期五 30 五月 2014
+
+===== IE的兼容行列表 =====
+
+http://msdn.microsoft.com/en-us/library/hh781508(v=vs.85).aspx
+
+
+==== 针对不同版本ie，施加不同的css规则 ====
+
+	   *background: #f00; /* IE 7 and below */
+	   **_**background: #0f0; /* IE 6 and below */
+	   **_**bac**\**kground: #f60; /* IE 6 only */
+
+解释：
+
+* Escaping any letter within the property name which isn't in the range a-f, A-F, 0-9 will hide that rule from IE 5.x. 
+
+
+===== 跨浏览器解决方案 =====
+
+
+===== inline-block =====
+This value causes an element to generate an inline-level block container. The inside of an inline-block is formatted as a block box, and the element itself is formatted as an atomic inline-level box.
+
+* 对ie<8，对inline元素设置inline-block会触发hasLayout，使其具有block的特征，和css标准效果相似
+   但当对block元素设置inline-block时，并不会使其具有inline元素的特征。
+* 使用inline-block要注意：和行内元素一样， inline-block的DOM元素间的空格也会显示出来。
+
+inline-block的历史：http://www.iyunlu.com/view/css-xhtml/64.html
+
+**方案**：
+触发hasLayout，并设其display:inline，使无论inline元素还是block元素，都兼具inline和block的特征
+
+display:inline-block; /* 现代浏览器 及  IE6、7 inline 元素 */
+*display:inline; /* IE6、7 block 元素 */
+*zoom:1;
+
+===== min-height =====
+* min-height在>=ie7可用
+
+方案：
+在ie6中，height和min-height有相似的效果，可用
+
+min-height:330px;
+_height: 330px; [[/*只有ie<=6会解析*/]]
+

@@ -1,0 +1,11 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2013-11-15T00:31:13+08:00
+
+====== 收藏 ======
+Created 星期五 15 十一月 2013
+
+橙色		#E7711B
+青-绿	#33B679
+蓝-青	#15A0CB
+紫		#9E69AF

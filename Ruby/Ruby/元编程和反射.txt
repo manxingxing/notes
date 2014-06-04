@@ -215,8 +215,9 @@ method_added
 singleton_method_added
 
 method_removed
-method_undefined
 singleton_method_removed
+
+method_undefined
 singleton_method_undefined
 
 method_defined?

@@ -1,0 +1,50 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-05-30T10:51:00+08:00
+
+====== 布局和位置 ======
+Created 星期五 30 五月 2014
+
+===== 固定在底部、顶部 =====
+
+==== 页面底部 ====
+
+=== fixed position ===
+
+position:fixed
+bottom
+top
+left
+right
+
+* ie6 不支持fixed定位
+
+=== absolute定位 ===
+父容器相对定位，没在
+
+
+容器底部
+
+等宽列表
+
+width 固定
+height 固定
+float: left
+
+=== 使用inline-block ===
+* inline-block仅在>=ie8具有和标准一样的行为
+ li {
+        width: 200px;
+        min-height: 250px;
+        _height: 250px; /*ie 令低版本ie有类似min-height的效果*/
+        border: 1px solid #000;
+        display: inline-block;
+        vertical-align: top; /* 默认是baseline，不合适*/
+        margin: 5px;
+        zoom: 1; 
+        *display: inline;
+    }
+
+
+
+

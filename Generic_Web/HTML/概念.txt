@@ -1,0 +1,11 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-05-16T08:39:05+08:00
+
+====== 概念 ======
+Created 星期五 16 五月 2014
+
+除a 元素外，inline元素里不允许有block元素
+a元素可以设置position为relative或absolute，内部元素可以在a里面使用绝对定位	(CSS 气泡框)
+
+

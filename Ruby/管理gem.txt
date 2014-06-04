@@ -26,8 +26,14 @@ Created 星期四 14 六月 2012
 	rvm use ruby_version@gemset --create	#如果不存在则创建
 	
 
-=== RVM is NOT a function ===
+==== 故障解决 ====
 
+=== RVM is NOT a function ===
+下面这句
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell sessio    n *as a function*
+能让rvm像function一样使用，但这句写在了 .bash_profile内，而没有写在 .bashrc下，这样 non-login shell，就不会读取这个文件
+
+解决方法是： 把这句放到.bashrc下
 
 
 ==== Details ====

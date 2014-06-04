@@ -1,0 +1,196 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-05-08T16:59:36+08:00
+
+====== jquery.validate ======
+Created 星期四 08 五月 2014
+
+http://jqueryvalidation.org/
+http://koalaxyq.iteye.com/blog/556633
+
+
+==== 两种验证方法 ====
+
+**html 标记 + 空的 validate()调用**
+
+**在validate()中指定规则**
+
+===== 支持的规则 =====
+required
+email
+number
+digits
+url
+date
+dateISO
+creditcard
+phoneUS
+
+min
+max
+range
+
+minlength
+maxlength
+rangelength
+
+equalTo	# 验证两个元素内容相同，用jQuery selector方式指定
+
+remote	# Ajax 验证，可以接受一个网址，或一个可传递给$.ajax的对象
+
+
+accept		# 用HTML5的文件API验证文件类型
+extension	# 只验证文件后缀
+
+===== 使用方法 =====
+
+'''
+$("form").validate({
+'''
+	'''
+	rules: {
+	'''
+		'''
+		field1: { 		# 用输入控件的name属性作为key
+		'''
+			'''
+			required: true,
+			email: true,
+			lengthrange: [1, 10]
+			'''
+		'''
+		},
+		field2: 'required'
+		'''
+	'''
+	}
+	messages: { 		# 和rules一样的结构
+	'''
+		'''
+		field1:{
+		'''
+			'''
+			required: '必填',
+			email: '不是email',
+			lengthrange: '长度不对'
+			'''
+		'''
+		},
+		field2: '必填'
+		'''
+	'''
+	}
+	})
+	'''
+
+**返回一个validator对象**
+
+===== 参数解释 =====
+
+==== 事件 ====
+
+=== submitHandler(form) ===
+当表单验证成功时，执行的回调，默认用form.submit
+
+回调里有form参数，这是个form的DOM对象，而不是jquery对象。
+调用form.submit就可提交，也能使用ajax等方式提交
+
+**可用此参数改变提交方式**
+
+=== invalidHandler(event, validator) ===
+当表单验证失败时，执行的回调
+
+
+=== onsubmit ===
+boolean
+
+是否在submit时执行 验证
+
+onfocusein, onfocusout, onkeyup, onclick 同样
+
+
+
+==== 错误消息相关 ====
+正确消息 和 错误消息
+
+errorElement
+生成的包含错误消息的元素
+
+errorClass
+添加class到errorElement 及 验证为错误的控件
+
+validClass
+添加class到被验证为成功的控件
+
+wrapper
+在errorElement外，包裹一层标签
+
+errorPlacement(errorLabel, element)
+一个函数，参数为errorElement和被验证的控件
+
+success
+string | function(label, element)
+当控件验证成功时，显示label（和显示错误的是同一个），并添加指定class。
+如果传递了回调，当验证成功时，该回调就会触发
+
+
+===== 方法 =====
+
+numberOfInvalids
+rules
+
+
+=== 显示一个general的验证结果 ===
+'''
+
+$(".selector").validate({ 
+	showErrors: function(errorMap, errorList) { 
+		$("#summary").html("Your form contains " + this.numberOfInvalids()  + " errors, see details below."); 
+		this.defaultShowErrors(); 
+	} 
+})
+'''
+
+
+
+===== 例子 =====
+
+==== ajax验证 ====
+'''
+$( "#myform" ).validate({
+  rules: {
+    email: {
+      required: true,
+      email: true,
+      remote: "check-email.php"
+    }
+  }
+});
+
+$( "#myform" ).validate({
+  rules: {
+    email: {
+      required: true,
+      email: true,
+      remote: {
+        url: "check-email.php",
+        type: "post",
+        data: {
+          username: function() {
+            return $( "#username" ).val();
+          }
+        }
+      }
+    }
+  }
+});
+'''
+
+
+==== 一个控件的验证依赖另一个控件 ====
+例如这条规则：
+email: { 
+         depends: function(element) { 
+           return $("#contactform_email:checked") 
+         } 
+     }

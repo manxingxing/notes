@@ -1,0 +1,37 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2012-11-11T17:02:02+08:00
+
+====== Home ======
+Created 星期日 11 十一月 2012
+
+TODO: 整理来自 lyx文件的笔记
+
+^ 只有在最前面时才表示锚点
+$ 只有在最后面时才表示锚点
+^ 只有在[]的最前面才表示取反
+\w 等在[]内仍具有字符类的作用
+
+
+m: 点号通配
+	能表示换行符吗？
+g: globa
+i: case-insensitive
+
+==== 元字符 ====
+
+==== character class ====
+
+==== quantifies ====
+
+==== 分组捕获和后向引用 ====
+
+==== 分支 ====
+==== 零宽断言 ====
+
+后面
+	(?pattern) 
+	(?!pattern)
+前面
+	(?<pattern)
+	(?<!pattern)
