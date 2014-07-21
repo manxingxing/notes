@@ -6,6 +6,7 @@ Creation-Date: 2012-08-10T10:29:09+08:00
 Created 星期五 10 八月 2012
 
 http://spreadsheet.rubyforge.org/files/GUIDE_txt.html
+https://github.com/zdavatz/spreadsheet/blob/master/GUIDE.md
 {{./spreadsheet.jpeg}}
 
 ===== 打开和关闭连接 =====
@@ -15,6 +16,7 @@ book = Spreadsheet.open path_to_file
 
 ==== 列出所有 ====
 	''book.worksheets''
+
 
 ==== 获取一个sheet ====
 * sheet可以像二维数组一样操作
@@ -31,6 +33,7 @@ sheet.column_count
 结果可以像数组一样操作
 	''sheet.row(n)''
 	''sheet[n]''
+
 
 === 列 ===
 结果可以像数组一样操作
@@ -52,25 +55,39 @@ sheet.column_count
 
 ===== 写出 =====
 
-==== 建立新对象 ====
+==== 新建Excel对象 ====
 book = Spreadsheet::Workbook.new
 
-==== 创建sheet ====
-sheet = book.create_worksheet(name)
+==== 新建sheet ====
+sheet = book.create_worksheet(:name => 'My Second Worksheet')
 
 ==== 操作单元格 ====
 * 和读取相似
 * 类似数组操作
 
+sheet1.row(0).concat %w{Name Country Acknowlegement}
+sheet1[1,0] = 'Japan'
+row = sheet1.row(1)ize
+row.push 'Creator of Ruby'
+row.unshift 'Yukihiro Matsumoto'
+sheet1.row(2).replace [ 'Daniel J. Berger', 'U.S.A.',
+                        'Author of original code for Spreadsheet::Excel' ]
+sheet1.row(3).push 'Charles Lowe', 'Author of the ruby-ole Library'
+sheet1.row(3).insert 1, 'Unknown'
+sheet1.update_row 4, 'Hannes Wyss', 'Switzerland', 'Author'
+
+
 ==== 写出到文件 ====
 book.write(path)
 
-设置格式
+==== 设置格式 ====
 
 单元格：
-格式作为属性
-row.set_format(i, format) #为行第i个单元格设置为format
 
+**行**
+row.set_format(i, format) #为行第i个单元格设置为format
+row.''default_format = format''
+sheet1.row(0).height = 18
 属性有：
 	:color
 	:bold
@@ -82,9 +99,7 @@ row.set_format(i, format) #为行第i个单元格设置为format
 	:pattern=>1
 	:pattern_fg_color=>"yellow"
 	:align=>"merge"
-行
-	default_format
-	行的格式也作为行的属性。如row.height
+	
 新建一个format
 '''
 Spreadsheet::Format.new(:weight=>:bold,:size=>14,
@@ -93,4 +108,10 @@ Spreadsheet::Format.new(:weight=>:bold,:size=>14,
 	:align=>:merge,:color=>"red",:border=>1,
 	:border_color=>"black",:pattern=>1,
 	:pattern_fg_color=>"yellow")
+	
+	format = Spreadsheet::Format.new :color => :blue,
+	                                 :weight => :bold,
+	                                 :size => 18
+	
+	bold = Spreadsheet::Format.new :weight => :bold
 	'''

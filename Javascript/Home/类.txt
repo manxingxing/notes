@@ -181,7 +181,7 @@ for (var key in parent) {
 	}
 }
 
-=== 第二种：子类的原型继承子父类的一个实例 ===
+=== 第二种：子类的原型继承自父类的一个实例 ===
 
 function SuperType(name) {
     this.name = name;

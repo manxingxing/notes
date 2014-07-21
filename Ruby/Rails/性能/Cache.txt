@@ -66,7 +66,7 @@ This cache store uses Danga's memcached server to provide a centralized cache fo
 
 **默认**
 当前URL
-是一个比较合适的默认值。但是当 一个页面有多个cache块时 就不再是适用了
+是一个比较合适的默认值。但是当 一个页面有多个cache块时 就不再适用了
 
 **字符串作为** **key**
 * 可实现 cache 在多个页面间共享

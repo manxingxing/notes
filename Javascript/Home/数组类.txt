@@ -10,7 +10,7 @@ Created Saturday 10 November 2012
 === 字面量 ===
 	''[val1,val2,val3]''
 
-Undefined elements can be included in an array literal by simply omitting a value between commas. For example, the following array contains five elements, including three undefined elements:
+Undefined elements can be included in an array literal by simply omitting a value between commas. For example, the following array contains five elements, including 3 undefined elements:
 	''var sparseArray = [1,,,,5];''
 
 
@@ -27,9 +27,7 @@ Undefined elements can be included in an array literal by simply omitting a valu
 
 ==== Methods ====
 
-
-
-sort(sortfunction)
+== sort(sortfunction) ==
 * 默认是字母表顺序啊！ **对数字也是这样啊！！！**
 * 可接受额外的函数参数。返回值规则和ruby一样。
 	例如：
@@ -56,7 +54,8 @@ sort(sortfunction)
 == slice(from, to) ==
 	[from, to)，但**不包括 to**
 
-== arr.splice(from, len, replacement1, replacement2, ... )	 ==
+
+== arr.splice(from, len, replacement1, replacement2, ... ) ==
 修改原数组，返回被剔除的部分，如果没有replacement，则相当与删除某个区段
 
 a = [1,2,3,4]
@@ -94,7 +93,7 @@ Array.every	# 没有返回false的？
 Array.some	# 相当与any，有返回true的？
 函数参数返回boolean值
 
-对空数组，every返回true，some返回false
+* 对空数组，every返回true，some返回false
 
 === Array#reduce, reduceRight ===
 

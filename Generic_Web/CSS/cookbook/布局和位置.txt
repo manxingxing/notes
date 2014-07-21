@@ -31,7 +31,7 @@ width 固定
 height 固定
 float: left
 
-=== 使用inline-block ===
+===== 使用inline-block =====
 * inline-block仅在>=ie8具有和标准一样的行为
  li {
         width: 200px;

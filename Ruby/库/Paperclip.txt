@@ -7,7 +7,6 @@ Created 星期一 06 八月 2012
 
 __每个__**模型**__的__**实例**__都可以有多个__**attachment**__，每个attachment都可以经过多个__**post process**__ 过程，而post processor可以有 几套不同的__**参数(styles)**__。__
 
-
 The attribute returns a Paperclip::Attachment object which handles the management of that file.
 
 The thumbnails will be created when the new file is assigned,

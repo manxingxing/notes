@@ -65,8 +65,8 @@ hasData(key)
 Xpath和CSS选择器的组合
 
 ==== this ====
-	''$(this)''
-this 是事件发生的对象元素
+''$(this)''
+	this 是事件发生的对象元素
 $() 将this对象转化成jquery对象。
 
 
@@ -454,9 +454,9 @@ $("<input>", {
 
 '''
   target.append(content, [content])     #子节点级别最后面
-target.
+target.prepend(contents)   #子节点级别最前面
 '''
-''prepend(contents)   #子节点级别最前面''
+
 
 * Supported **contents** includes **DOM** elements, **jQuery objects**, **HTML strings**, and **arrays of DOM elements。**
 
@@ -464,7 +464,6 @@ target.
 content.appendTo(target)
 content.prependTo(targe)
 '''
-
 
 * **target**: A selector, element, HTML string, or jQuery object
 

@@ -51,10 +51,10 @@ search(regex)	#返回匹配起始
 match(regex)	#返回匹配子字符串
 
 === 替换 ===
-"safadsf".replace("h","H")
+"safadsf".replace("h","H")  # 可使用正则表达式
 
 === 按字符拆分 ===
-"asddfsf;safa".split(";")
+"asddfsf;safa".split(";") # 可按正则表达式拆分
 
 === 大小写转换 ===
 toUpperCase()
@@ -86,8 +86,10 @@ You might consider undefined to represent a system-level, unexpected, or error-l
 === 方法 ===
 
 ''regex.''**test**''(text)	true, false''
-regex.exec(string)		# 返回匹配的文本，如果没有找到匹配，返回null
+regex.exec(string)	# 返回匹配的文本，如果没有找到匹配，返回null
 
 
 ''text.''**search**''(regex)	匹配的起始位置''
 ''text.''**match**''(regex)	返回所有匹配内容。类似与ruby中的scan，R中的extract_all.''
+text.split(regex)
+text.replace(regex, replacement)

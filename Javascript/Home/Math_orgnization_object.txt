@@ -20,9 +20,9 @@ Math.exp(3)
 
 Math.sqrt(3)
 
-Math.log(10)
-Math.log(100)/Math.LN10
-Math.log(512)/Math.LN2
+Math.log(10) # 以Math.E为底
+Math.log(100)/Math.LN10		=> 以10为底
+Math.log(512)/Math.LN2		=> 以2为底
 
 Math.round(.6)
 Math.ceil(.6)

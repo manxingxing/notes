@@ -48,7 +48,7 @@ References。前者函数式编程思想，后者是面向对象的编程思想�
 
 
 ==== 变量和常量 ====
-* 常量用const关键字定义，**常量名全大写**。
+* 常量用const关键字定义，**常量名全大写**。（浏览器间支持程度不一）
 * 变量用var关键字定义。**变量名/方法名一般用小写驼峰体，类名用大写驼峰体。**
 
 **变量声明**
@@ -101,6 +101,46 @@ If you attempt to read the value of an undeclared variable, JavaScript generates
 * undefined
 * 其他的都是对象
 
+==== 类型判断 ====
+
+=== typeof ===
+支持内置类型的检测，其他类型检会检测为"object"
+
+* Date不是内置类型，会检测为"object"
+* 正则表达式也不是内置类型
+* 内置类型的wrapper object会被检测成"object"
+
+Value                           Class      Type
+--------------------------------------------------
+"foo"                            String     string
+new String("foo")       String     object
+1.2                               Number     number
+new Number(1.2)     Number     object
+true                             Boolean    boolean
+new Boolean(true)   Boolean    object
+new Date()                Date       object
+new Error()                Error      object
+[1,2,3]                        Array      object
+new Array(1, 2, 3)   Array      object
+new Function("")     Function   function
+/abc/g                       RegExp     object
+new RegExp("meow")  RegExp     object
+{}                                 Object     object
+new Object()             Object     object 
+
+
+=== Object.prototype.toString.call( x ) ===
+返回一个形如[Object ****]的字符串，***就是x的类型
+* 内置类型与其wrapper object得到一致的结果
+* 支持Date, Regex
+* 对于 对象，也返回其所属的类
+
+=== jQuery.type ===
+* 使用了 Object.prototype.toString.call
+
+=== instanceof ===
+* 使用instanceof判断内置类型与其wrapper object时，不返回true
+
 
 ==== 特殊的几个对象 ====
 
@@ -121,15 +161,15 @@ If you attempt to read the value of an undeclared variable, JavaScript generates
 	每个javascript session都有唯一的一个global object。很多预定义的函数，对象，常量如Math, String, Array, null 等都是这个全局变量的属性。用户在函数之外定义的变量也是如此。
 	* 对浏览器来说，全局变量是Window对象，不仅包括上述的“属性”，还包括浏览器特有的一些属性。
 
-
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
 
 === this ===
 	1. 在constructor 函数中，this 表示要生成的对象。
 	2. 在方法中， this表示调用该方法的对象。从实例的方法中访问实例。
-	3. 在函数式调用的函数中，this指向__全局变量(The global object)。__
-
-
-
+	3. 在函数式调用的函数中，非strict模式下，this指向__全局变量(The global object)。 在strict模式中，是undefined__
+	4. 以call/apply调用函数时，this被赋值为apply/call的第一个参数
+	5. inline-event handler  this 指代DOM元素本身
+	6. bind 当把一个函数bind到一个对象时，这个对象成为函数内的this
 
 ==== toString, valueOf ====
 * 当需要字符串类型时，Js 会自动转换。
@@ -144,6 +184,7 @@ If you attempt to read the value of an undeclared variable, JavaScript generates
 
 **显式转换**
 	String(), Number(), Boolean() 不带new操作符时就是 **类型转换函数**。
+	
 	**object->primitive**
 		'''
 		valueOf()
@@ -175,7 +216,7 @@ If you attempt to read the value of an undeclared variable, JavaScript generates
 
 * 在函数体外，用var声明定义的变量是全局变量的一个属性，这个句式能说明这一点：
 		var a = 10
-		this.a   -> 10
+		this.a   => 10
 * 在函数体内，用var声明的变量是局部变量，可以看作是"call object"的一个属性。
 * 复合语句内定义的变量不具备局部作用域
 
@@ -288,8 +329,6 @@ IsFinite() 除NaN, Infinity, -Infinity外的所有有限数。
 '''
 
 
-
-
 ==== eval(string) ====
 1. 在当前上下文中执行语句
 2. If your string would make sense as a standalone script, it's legal to pass to eval(),otherwise, eval() will through a syntaxError.
@@ -319,7 +358,7 @@ __有值的量__''都可以看作true''
 * **和C++类似。**
 * statement不需要用大括号括起来。
 * 可能需要显式的break
-* 类似与goto
+* 类似于goto
 
 switch(//expression//) {
   case //expression//:
