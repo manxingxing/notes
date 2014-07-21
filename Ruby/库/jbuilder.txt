@@ -1,0 +1,79 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-07-21T17:08:41+08:00
+
+====== jbuilder ======
+Created 星期一 21 七月 2014
+
+**类似于xmlBuilder的语法**
+
+Jbuilder.encode do |json|
+  json.content format_content(@message.content)
+  json.author do
+    json.name @message.creator.name.familiar
+    json.email_address @message.creator.email_address_with_name
+    json.url url_for(@message.creator, format: :json)
+  end
+
+  if current_user.admin?
+    json.visitors calculate_visitors(@message)
+  end
+
+  json.(@message, :created_at, :updated_at)  # 相当于 extract!
+
+  json.comments @message.comments, :content, :created_at # 数组支持
+
+  json.attachments @message.attachments do |attachment|   # 数组支持
+    json.filename attachment.filename
+    json.url url_for(attachment)
+  end
+end
+
+- 在Rails json.jbuilder模板中，不需要Jbuilder.encode，可直接使用json
+
+==== 动态属性名 ====
+有时候属性名需要计算得到
+
+json.set! 属性名, 属性值
+
+==== ActiveRecord对象支持 ====
+json.extract! @article, :title, :content
+
+==== null ====
+json.null!	=> null
+
+
+==== 数组 ====
+# 有属性名，属性值为数组
+json.comments @message.comments, :content, :created_at
+
+json.attachments @message.attachments do |attachment|
+    json.filename attachment.filename
+    json.url url_for(attachment)
+  end
+
+# 没有属性名，仅数组
+json.array! @people do |person|
+  json.name person.name
+  json.age calculate_age(person.birthday)
+end
+
+json.array! @people, :id, :name
+
+
+==== json partial ====
+
+json.partial! 'comments/comment', comment: @comment
+
+json.partial! 'posts/post', collection: @posts, as: :post
+
+==== fragment cache ====
+
+json.cache! ['v1', @person], expires_in: 10.minutes do
+  json.extract! @person, :name, :age
+end
+You can also conditionally cache a block by using cache_if! like this:
+
+json.cache_if! !admin?, ['v1', @person], expires_in: 10.minutes do
+  json.extract! @person, :name, :age
+end
