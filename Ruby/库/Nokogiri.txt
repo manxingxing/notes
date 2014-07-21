@@ -5,3 +5,53 @@ Creation-Date: 2014-03-18T20:09:32+08:00
 ====== Nokogiri ======
 Created 星期二 18 三月 2014
 
+http://ruby.bastardsbook.com/chapters/html-parsing/
+http://51itbk.sinaapp.com/14_02_2012/177.html
+
+
+===== 从字符串/文件实例化 =====
+
+page = Nokogiri::HTML(str)
+=> Nokogiri::HTML::Document
+
+page = Nokogiri::XML(File.open(path))
+=> Nokogiri::XML::Document
+
+
+===== 几个类 =====
+
+==== 文档 ====
+Nokogiri::XML::Document
+Nokogiri::HTML::Document
+
+
+==== Nokogiri::XML::NodeSet  元素集合 ====
+* XML和HTML都是
+* 混入了Enumerable模块
+
+
+==== Nokogiri::XML::Element  单个元素 ====
+* XML和HTML都是
+
+=== 方法 ===
+
+[属性名]	获取属性值
+
+text	文本内容
+name	tag名称
+
+
+===== CSS =====
+page.css(css_selector).css(selector)
+=> Nokogiri::XML::NodeSet
+
+#at_css('css selector')
+#at('css selector')
+ 获取第一个匹配的元素
+
+===== XPATH =====
+
+
+文本内容
+
+#text

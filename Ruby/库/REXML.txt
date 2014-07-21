@@ -14,7 +14,7 @@ REXML::Document.new file.read('fileName')
 doc.write(str)
 
 
-===== DOM =====
+===== DOM	 =====
 
 ===== 遍历 =====
 

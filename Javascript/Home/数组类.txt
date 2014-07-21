@@ -18,12 +18,24 @@ Undefined elements can be included in an array literal by simply omitting a valu
 	''new Array(val1,val2,val3,...)''
 	
 * 不需要同类数值。
-* **可以看作是加了顺序的object.**
+* **索引可以看作是特殊的属性名**
 * 0-indexed
 * 动态增长
 
 ==== 长度 length属性 ====
 稀疏数组，稠密数组
+
+创造　稀疏数组：
+* Array构造函数
+* delete
+* 直接增大length属性
+* 貌似 [,,,]　省略的元素也会成为稀疏数组
+
+检测某个索引为稀疏的：
+	3 in arr  => false  , 如果结果是false，则是稀疏的
+
+稀疏有何影响
+1. forEach循环时，会直接跳过．map循环时，也返回稀疏数组
 
 ==== Methods ====
 
@@ -32,7 +44,6 @@ Undefined elements can be included in an array literal by simply omitting a valu
 * 可接受额外的函数参数。返回值规则和ruby一样。
 	例如：
 		[1,2,3,10].sort(function(x,y){ return(x -y);})
-	
 
 == reverse ==
 对原数组进行修改

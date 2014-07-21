@@ -42,7 +42,7 @@ Created 星期四 02 八月 2012
 	LoggedInStatus
 	Login
 	magicColumns
-		login_count, fails_login_count, last_request_at, current_login_at, last_login_at, current_login_ip, last_login_ip
+		login_count, failed_login_count, last_request_at, current_login_at, last_login_at, current_login_ip, last_login_ip
 	password
 		crypted_password
 		password_salt

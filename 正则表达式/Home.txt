@@ -30,8 +30,8 @@ i: case-insensitive
 ==== 零宽断言 ====
 
 后面
-	(?pattern) 
+	(?=pattern) 
 	(?!pattern)
 前面
-	(?<pattern)
+	(?<=pattern)
 	(?<!pattern)

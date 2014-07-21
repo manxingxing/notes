@@ -32,13 +32,13 @@ obj.propertyIsEnumerable
 === 属性遍历 ===
 
 == for + in ==
-仅可遍历enumerable的属性
+* 自有＋继承　的enumerable的属性
 
 Object.keys	#类方法
-仅可遍历enumerable的属性
+* 自有　enumerable属性
 
 Object.getOwnPropertyNames(obj)
-所有属性
+所有 自有属性　(包括不可枚举属性)
 
 === 增加和删除对象属性 ===
 	* 给不存在的属性赋值会自动增加该属性
@@ -54,23 +54,26 @@ delete **操作符**
 在ECMAScript 5 中，只有当其 操作数 是 属性访问表达式 时才能正常工作。
 
 === getter 和 setter ===
+* 可在对象字面量中创建，或通过defineProperty/defineProperties添加
 
 a = {
-get bla() {},
-set bla(val) {}
+	get bla() {},
+	set bla(val) {}
 }
 
-==== 属性的属性 ====
+==== 属性的属性描述 ====
 
 === 查询属性描述 ===
 
-Object.getOwnPropertyDescriptor(object, propertyName)
+''Object.getOwnPropertyDescriptor(object, propertyName)''
+* 只能获取自有属性的属性描述对象
+* 对继承来或不存在的属性，返回undefined
 
 == 对普通属性来说 ==
-* value
+* value: 数字，字符串，函数等任意
 * writable
 * enumerable
-* configurable
+* configurable: 是否可以通过defineProperty修改enumerable, configurable, get, set，是否可以删除属性, 是否可以将writable从false->true
 
 == 对getter和setter来说 ==
 get: 一个function。
@@ -78,20 +81,26 @@ set: 一个function。如果没有set，就表示不可写
 enumerable
 configurable
 
-=== 创建新属性或修改已有属性的descriptor ===
+=== 设置属性描述 ===
 Object.defineProperties	# 多个属性
 Object.defineProperty	# 仅一个
 
+''Object.defineProperty({}, 'x', {value: 1, writable: true, enumerable:true, configurable: true})''
+
+* 如果属性存在，则设置其属性描述．如果属性不存在则新增属性
+
 === 阻止向对象中添加属性 ===
-Object.preventExtensions(obj)
+不允许新增属性
+Object.preventExtensions(obj) 
+
+不允许任何修改
 Object.seal(obj)
 Object.freeze(obj)
+
+==== 对象原型 ====
+
 
 ==== method ====
 Technically, it is only JavaScript objects that have methods. But numbers, strings, and boolean values behave //as if// they had methods .
 
 In JavaScript, null and undefined are the only values that methods cannot be invoked on.
-
-
-
-
