@@ -5,3 +5,70 @@ Creation-Date: 2014-06-30T11:27:49+08:00
 ====== kaminari ======
 Created 星期一 30 六月 2014
 
+以Rails Engine方式编写的gem，优点：
+* 从分页行为到分页按钮外观均可自定义
+* 分页按钮支持remote: true, 可改变实际的网址
+* 提供“分页”数组的方法
+
+===== 基本用法 =====
+
+@users = User.page(4).per(20).padding(3)
+
+**page**
+
+**per**
+对应SQL里的LIMIT
+
+**padding**
+
+(page-1) * per + padding  => SQL里的offset
+
+**视图中使用：**
+
+<%=  paginate @users %>
+
+-  window
+-  outer_window
+-  left
+-  param_name
+-  params:  额外的参数, 例如可修改 controller, action
+-  remote = true
+-  views_prefix
+
+<%= link_to_next_page @users, 'Next page' %>
+
+<%= page_entries_info @users %>
+
+===== 配置 =====
+
+==== 配置分页行为 ====
+
+rails g kaminari:config
+
+产生 一个initializer
+
+==== 配置分页按钮组外观 ====
+rails g kaminari:views default
+rails g kaminari:views default -e haml
+
+==== I18N ====
+en:
+  views:
+    pagination:
+      first: "&laquo; First"
+      last: "Last &raquo;"
+      previous: "&lsaquo; Prev"
+      next: "Next &rsaquo;"
+      truncate: "&hellip;"
+  helpers:
+    page_entries_info:
+      one_page:
+        display_entries:
+          zero: "No %{entry_name} found"
+          one: "Displaying <b>1</b> %{entry_name}"
+          other: "Displaying <b>all %{count}</b> %{entry_name}"
+      more_pages:
+        display_entries: "Displaying %{entry_name} <b>%{first}&nbsp;-&nbsp;%{last}</b> of <b>%{total}</b> in total"
+
+===== “分页”一个数组 =====
+paginate_array(array).page().per().padding()

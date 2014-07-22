@@ -61,6 +61,12 @@ toUpperCase()
 toLowerCase()
 * 字符串是 immutable value。不能改变字符串本身的值，因此  a.toUpperCase()这样的操作会返回修改过后的值，而不是修改变量 a 本身。
 
+===== 可看作类数组的字符串 =====
+具有length属性，具有非负整数属性名，则可被视作类数组
+
+Array.prototype.join.call(str)
+
+
 ==== boolean,undefined, null ====
 逻辑值：true,false
 其他： null, undefined
