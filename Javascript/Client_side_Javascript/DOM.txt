@@ -253,14 +253,30 @@ width
 offsetLeft
 offsetTop
 
-结合offsetParent使用，递归求取在其定位祖先元素的相对位置，最后就能计算出**元素在文档中的位置**
-
 client系列的没什么用，除非滚动条位于上面和左边
 clientLeft
 clientTop
 
 scrollTop
 scrollLeft
+
+
+**在文档中的位置**
+* 结合offsetParent使用，递归求取在其 "非static定位" 祖先元素的相对位置，最后就能计算出**元素在文档中的位置**
+var LocFromdoc = function (element) {
+                var left = element.offsetLeft,
+                        top = element.offsetTop;
+                element = element.offsetParent;
+                while (element !== null) {
+                    left += element.offsetLeft;
+                    top += element.offsetTop;
+                    element = element.offsetParent;
+                }
+                return {
+                    x: left,
+                    y: top
+                };
+            };
 
 
 === 坐标系转换 ===
