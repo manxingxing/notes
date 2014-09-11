@@ -28,3 +28,8 @@ clearInterval(a)
 setTimeout, clearTimeout
 setInterval, clearInterval
 
+
+===== location =====
+
+
+

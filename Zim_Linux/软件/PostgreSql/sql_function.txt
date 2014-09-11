@@ -91,6 +91,7 @@ return 自定义类型
 
 === 多个/行结果 ===
 return setof 基本类型
+return setof rowtype
 return setof record
 return setof 自定义类型
 return table (colname coltype [, colname coltype, ... ])

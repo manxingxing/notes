@@ -93,7 +93,8 @@ arguments.length == arguments.callee.length	# callee指向被调用函数。仅�
 
 
 === 柯里化 ===
-partial()
+利用　bind　
+partial()  
 
 === memoize ===
 function memoize(f) {

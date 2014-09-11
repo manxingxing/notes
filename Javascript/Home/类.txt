@@ -9,6 +9,14 @@ Classes can be thought of as subtypes of the **object** type.
 
 * __javascript并为真正支持类作为语言的具体组成要素。javascript利用prototype来模拟类。__
 
+===== 定义一个类 =====
+
+==== 概要 ====
+* 给构造函数添加属性/方法，成为类变量/方法
+* 给原型对象添加属性/方法，成为实例变量/方法
+* 给实例本身添加属性/方法，成为单键属性/方法
+
+
 ==== 构造函数constructor ====
 Functions that are written to be used (with the new operator) to initialize a newly created object are known as //constructors//. Each constructor defines a class of objects。
 
@@ -16,7 +24,7 @@ Functions that are written to be used (with the new operator) to initialize a ne
 
 1. 新建一个空对象，并将其作为this传入函数
 2. 函数体内，以这些参数结合this创建新的对象。
-3. 不需要返回值。但是如果返回了值，这个值就会作为constructor创建的对象。
+3. 不需要返回值。但是如果返回了值，这个值就会成为constructor创建的对象。
 
 function Range(from, to) {
 	this.from = from;
@@ -28,6 +36,13 @@ function Range(from, to) {
 var r = new Range(1,2)
 r.constructor === Range	# => true
 
+=== 私有属性 ===
+* 只能查询，不能修改
+
+class Range(from, to) {
+	from: function() {return from; },
+	to : function() { return too; }
+}
 
 === 构造函数也可以有属性和方法: 类属性/类方法 ===
 在javascript中， 函数也是对象，也可以有自己的属性和方法。例如
@@ -35,8 +50,10 @@ r.constructor === Range	# => true
 Range.count = 1
 Range.a_class_method = function() {}
 
+
 * 在构造函数上添加的属性，成为**类属性**
 * 在构造函数上添加的方法，成为**类方法**
+
 
 == 工厂方法 ==
 可以在构造函数上增加用以“产生”新对象的类方法：工厂方法
@@ -54,11 +71,12 @@ Complex.polar = function(r, theta) {
 
 通过向该原型对象添加方法，可以定义该类应具有的行为。
 
-=== 给对象原型增加方法 ===
+=== 给对象原型增加方法: 实例属性/方法 ===
 * 增加的方法成为**实例方法， **类的所有实例都会自动具有这些方法，即使这些方法是在实例化之后添加的。
 
 Range.prototype.new_method = function() {};
 Range.prototype[new_method_name] = function() {};
+
 
 
 ==== 实例 ====
@@ -67,10 +85,28 @@ Range.prototype[new_method_name] = function() {};
 var r = new Range(1,10);
 r.constructor === Range        # => true
 
-=== 本身也可以再随意添加属性和方法 ===
+=== 本身也可以再随意添加属性和方法: 单键方法 ===
 
 作为一个对象，自然可以随意的添加新的属性和方法。添加在单个实例上面的属性和方法不会被其他实例共享，类似于ruby的
 单键方法/属性。
+
+
+
+==== 为新类实现一些常规方法 ====
+
+== 转换 方法 ==
+toString
+toLocaleString
+valueOf
+toJSON	# 当JSON.stringify时调用
+
+== 比较 方法 ==
+equals(another_obj)
+返回 true, false
+
+在进行 >, < 等比较时，会首先调用valueOf，如果没有valueOf方法，则尝试compareTo方法
+compareTo(another_obj)
+返回负数，0, 正数
 
 
 ==== 类型判断 ====
@@ -91,39 +127,31 @@ obj.constructore === 构造函数
 
 === duck typing ===
 
-==== 私有属性 ====
-像java一样设为private
-
-class Range(from, to) {
-	from: function() {return from; },
-	to : function() { return too; }
-}
-
-这里以from(), to()的形式获取端点，但
-
-==== 为新类实现一些常规方法 ====
-
-== 转换 方法 ==
-toString
-toLocaleString
-valueOf
-toJSON	# 当JSON.stringify时调用
-
-== 比较 方法 ==
-equals(another_obj)
-返回 true, false
-
-在进行 >, < 等比较时，会首先调用valueOf，如果没有valueOf方法，则尝试compareTo方法
-compareTo(another_obj)
-返回负数，0, 正数
 
 
-==== 多种继承方式 ====
+===== 子类和继承 =====
 http://www.dewen.org/q/2161/%E5%85%B3%E4%BA%8Ejavascript%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%B1%BB%E7%9A%84%E7%BB%A7%E6%89%BF
 http://www.w3cmm.com/javascript/parasitic-modular.html
-* 多种继承方式
 
-=== 先定义个继承函数 ===
+==== 概要 ====
+
+=== 继承类属性/方法 ===
+手动迭代，复制过去
+
+=== 继承实例属性/方法 ===
+* 子类原型继承父类原型
+* 子类原型继承父类实例
+
+=== 覆写方法 ===
+在子类上重新定义方法即可
+
+=== 调用父类方法 ===
+SuperClass.call/apply	构造函数
+SuperClass.method.call/apply 	类方法
+SuperClass.prototype.method.call/apply	实例方法
+
+
+==== 先定义个继承函数 ====
 
 **来自 《javascript definitive guide》**
 
@@ -152,7 +180,7 @@ third_person.another_method = function() {}
 third_person.new_method();
 third_person.age
 
-=== 第一种：子类的原型继承自父类的原型 ===
+==== 第一种：子类的原型继承自父类的原型 ====
 
 * 这里并不是把父类的方法简单借用（复制）过来，而是在两个类的prototype间建立了继承关系。
 * 父类原型的变化，会同步更新到子类原型，影响所有父类，子类的实例。
@@ -181,7 +209,8 @@ for (var key in parent) {
 	}
 }
 
-=== 第二种：子类的原型继承自父类的一个实例 ===
+
+==== 第二种：子类的原型继承自父类的一个实例 ====
 
 function SuperType(name) {
     this.name = name;
@@ -223,7 +252,24 @@ instance2.sayName();      //"Greg"
 instance2.sayAge();       //27
 
 
-=== 包装和代理 ===
+===== 面向对象编程技术 =====
+
+==== 包装和代理 ====
 把父类实例封装在子类中，作为一个属性，然后把其他的方法代理给这个父类对象.
+
+
+==== 模块 ====
+
+
+==== 抽象类 ====
+便于创建逻辑上有序的继承体系
+
+==== ECMAScript 5 中的类 ====
+
+**在构造函数和原型中使用defineProperty, defineProperties定义方法和属性**
+
+**在构造函数和原型中使用getter 和 setter**
+
+使用Object.preventExtensions, Object.seal, Object.freeze控制对类原型的修改
 
 

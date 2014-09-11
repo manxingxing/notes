@@ -51,6 +51,7 @@ Created 星期六 12 五月 2012
 
 **传递数组到 数组参数**
 def test(*arr)
+ arr
 end
 
 test(*[1,2,3])	# 参数 arr 的值就是 [1,2,3]

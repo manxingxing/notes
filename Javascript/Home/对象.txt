@@ -99,8 +99,7 @@ Object.freeze(obj)
 
 ==== 对象原型 ====
 
-
-==== method ====
+**wrapper object**
 Technically, it is only JavaScript objects that have methods. But numbers, strings, and boolean values behave //as if// they had methods .
 
 In JavaScript, null and undefined are the only values that methods cannot be invoked on.
