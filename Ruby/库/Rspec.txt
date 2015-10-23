@@ -1,0 +1,89 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2015-10-23T09:53:41+08:00
+
+====== Rspec ======
+Created 星期五 23 十月 2015
+
+
+==== 安装 ====
+gemfile:
+	rspec-rails
+	factory_girl_rails
+	capybara
+	guard-rspec
+bundle install
+''rails generate rspec:install''
+
+==== 建立文件 ====
+
+==== 分组：describe 和 context ====
+
+类 -> 方法 -> 情景
+
+==== it ====
+每个it表示一个小测试
+
+its {:attribute} { ... }
+
+==== should, expect, specify ====
+shoulde/should_not  表示期望 + matcher
+expect + to 表示期望块内代码改变某个值，或抛出异常。
+
+==== matcher ====
+表示一些测试条件
+== 
+be_false
+FIXME: be_true
+be_valid
+be_blank
+
+==== pending ====
+测试占位符。
+
+
+==== 测试对象 ====
+
+subject { @user }
+
+==== 常量 ====
+
+page
+response
+
+==== 动作 ====
+
+=== 点击 ===
+
+== button ==
+**click_button** "sign in"		#参数是button上现实的字符
+
+== link ==
+**click_link** "链接显示的字符"
+
+=== URL访问 ===
+**visit** root_path
+
+== 填写表单 ==
+**fill_in** "表单名称" , with: "填写内容"
+
+
+==== 行为结果 ====
+
+=== 测试html标签内容 ===
+
+have_content("内容")
+have_selector("标签名", text: "标签内含 内容" )
+have_link("链接名", href: user_path(user)
+
+
+
+==== Model test ====
+
+	''respond_to(:name)''
+
+Rspec::let
+	create local variable
+	The argument of let is a symbol, and it takes a block whose return value is assigned to a local variable with the symbol’s name.
+it
+specifiy

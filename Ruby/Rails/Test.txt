@@ -14,12 +14,35 @@ code (which would make them pass).
 
 
 ===== Fixtures =====
+http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-==== YAML格式 ====
+==== 语法 ====
+
+=== YAML格式 ===
 * 空格缩进
 * 冒号
+* 有一个**名字**
 
-==== 在test文件中使用fixture。 ====
+=== 关联 ===
+* 维护外键和 ID。相当繁琐
+	company_id: 3
+* 使用 association 名字和 数据的**名字**
+	company: udesk
+	**带有 id 的 fixture 条目不能以这种方式引用。**
+
+
+=== 使用 erb 脚本 ===
+'''
+<% 1000.times do |n| %>
+user_<%= n %>:
+  username: <%= "user#{n}" %>
+  email: <%= "user#{n}@example.com" %>
+<% end %>
+'''
+
+
+
+==== 在test文件中使用fixture ====
 :rails:rake  -> rake db:fixtures:load
 
 	''models(:symbol)	#model名对应于文件的名称。这里使用''**model名称的复数**''。''
@@ -28,31 +51,11 @@ code (which would make them pass).
 	''users(:david).id''
 
 
-==== 转化成所属的类 ====
+=== 转化成所属的类 ===
 
 	''users(:david).find''
 
 
-===== Actions =====
-
-==== get(action, parameters = nil, session = nil, flash = nil) ====
-	''parameters : ''An optional hash of request parameters，与**url_for参数类似**
-	''session : An optional hash of session variables''
-	''flash	:  An optional hash of flash values.''
-例如：
-	''get(:show, {'id' => "12"}, {'user_id' => 5})''
-	''get(:view, {'id' => '12'}, nil, {'message' => 'booya!'})''
-	
-
-
-==== post(action, parameters = nil, session = nil, flash = nil) ====
-例如：
-	''post :create, :post => { :title => 'Some title'}''
-
-
-==== delete(action, parameters = nil, session = nil, flash = nil) ====
-
-==== put(action, parameters = nil, session = nil, flash = nil) ====
 
 ===== Assertions =====
 * 每个assert方法的最后一个参数都是message。
@@ -61,6 +64,8 @@ flunk					#相当于false。用于还未写的test中，提醒这部分test还�
 assert
 assert_nil
 assert_not_nil
+assert_present(object, message = nil)
+assert_blank(object, message = nil)
 assert_valid(record) 		Ensures that the passed record is valid by Active Record standards and returns any error messages if it is not.
 
 **比较**
@@ -70,6 +75,12 @@ assert_not_same
 assert_equal( obj1, obj2, [msg] ) 						Ensures that obj1 == obj2 is true.
 assert_not_equal( obj1, obj2, [msg] ) 					Ensures that obj1 == obj2 is false.
 assert_in_delta( expecting, actual, delta, [msg] ) 			Ensures that the numbers expecting and actual are within delta of each other.
+assert_not_in_delta(expected_float, actual_float, delta = 0.001, message = "")
+assert_in_epsilon(expected_float, actual_float, epsilon = 0.001, message = "")
+assert_include[s](collection, object, message = nil)
+assert_not_include[s]
+assert_empty(object, message = nil)
+assert_not_empty(object, message = nil)
 
 **字符串模式**
 * 第一个参数是正则表达式，第二个参数是实际字符串
@@ -82,8 +93,11 @@ assert_nothings_raised
 
 **类型判别**
 assert_instance_of( class, obj, [msg] ) 		Ensures that obj is of the class type.
+assert_not_instance_of
 assert_kind_of( class, obj, [msg] ) 			Ensures that obj **is or descends** from class.
+assert_not_kind_of
 assert_respond_to( obj, symbol, [msg] ) 		Ensures that obj has a method called symbol.
+assert_not_respond_to(actual, method, message="")
 assert_send( array, [msg] ) 				Ensures that executing the method listed in array[1] on the object in array[0] with the 										parameters of array[2 and up] is true. This one is weird eh?
 
 **判断一个动作的结果**
@@ -112,6 +126,29 @@ assert_redirected_to(options = {}, message=nil)		是跳转到了options( control
 assert_template									采用的模版或partial
 
 ===== Functional test =====
+
+==== Actions ====
+
+=== get(action, parameters = nil, session = nil, flash = nil) ===
+	''parameters : ''An optional hash of request parameters，与**url_for参数类似**
+	''session : An optional hash of session variables''
+	''flash	:  An optional hash of flash values.''
+例如：
+	''get(:show, {'id' => "12"}, {'user_id' => 5})''
+	''get(:view, {'id' => '12'}, nil, {'message' => 'booya!'})''
+	
+
+
+=== post(action, parameters = nil, session = nil, flash = nil) ===
+例如：
+	''post :create, :post => { :title => 'Some title'}''
+
+
+=== delete(action, parameters = nil, session = nil, flash = nil) ===
+
+=== put(action, parameters = nil, session = nil, flash = nil) ===
+
+
 ''assert_select(selector, equality?, message?) ''
 ''assert_select(element, selector, equality?, message?)'' 
 
@@ -237,88 +274,5 @@ rake test:recent 	Tests recent changes
 rake db:fixtures:load 或 rake db:test:prepare 只需要在单独运行一个test文件时才需要。当运行 rake test时，会自动准备test数据库。 
 
 
-===== Spec =====
 
-
-==== 安装 ====
-gemfile:
-	rspec-rails
-	factory_girl_rails
-	capybara
-	guard-rspec
-bundle install
-''rails generate rspec:install''
-
-==== 建立文件 ====
-
-==== 分组：describe 和 context ====
-
-类 -> 方法 -> 情景
-
-==== it ====
-每个it表示一个小测试
-
-its {:attribute} { ... }
-
-==== should, expect, specify ====
-shoulde/should_not  表示期望 + matcher
-expect + to 表示期望块内代码改变某个值，或抛出异常。
-
-==== matcher ====
-表示一些测试条件
-== 
-be_false
-FIXME: be_true
-be_valid
-be_blank
-
-==== pending ====
-测试占位符。
-
-
-==== 测试对象 ====
-
-subject { @user }
-
-==== 常量 ====
-
-page
-response
-
-==== 动作 ====
-
-=== 点击 ===
-
-== button ==
-**click_button** "sign in"		#参数是button上现实的字符
-
-== link ==
-**click_link** "链接显示的字符"
-
-=== URL访问 ===
-**visit** root_path
-
-== 填写表单 ==
-**fill_in** "表单名称" , with: "填写内容"
-
-
-==== 行为结果 ====
-
-=== 测试html标签内容 ===
-
-have_content("内容")
-have_selector("标签名", text: "标签内含 内容" )
-have_link("链接名", href: user_path(user)
-
-
-
-==== Model test ====
-
-	''respond_to(:name)''
-
-Rspec::let
-	create local variable
-	The argument of let is a symbol, and it takes a block whose return value is assigned to a local variable with the symbol’s name.
-it
-specifiy
 

@@ -1,0 +1,37 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2015-10-20T13:04:16+08:00
+
+====== cancan ======
+Created 星期二 20 十月 2015
+
+===== ability.rb =====
+
+==== initiliaze(user)  ====
+**核心方法**
+
+需要 current_user 方法，devise 都已提供了该方法。
+
+传进 current_user 做实参后，执行一系列的 can 判断，决定是否有权限执行操作。
+1. 一旦判断到有权限，即停止执行
+
+===== can(action, object, &block) =====
+
+==== action ====
+read, update, destroy, create
+
+任何自定义 action 名称
+
+=== manage  ===
+代表 所有可能的 action
+
+=== action alias ===
+''alias_action :create, :read, :update, :destroy, :to => :crud''
+
+''clear_aliased_actions''
+
+==== object ====
+
+=== all ===
+所有可能的对象
+
