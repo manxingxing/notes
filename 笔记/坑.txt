@@ -1,0 +1,10 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-06-16T17:25:44+08:00
+
+====== 坑 ======
+Created 星期四 16 六月 2016
+
+=== includes 和 分页 ===
+includes 应该在 paginate 之后，否则会 eager load 出所有记录
+

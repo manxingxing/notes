@@ -1,0 +1,58 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-06-20T13:02:47+08:00
+
+====== rails 分库 ======
+Created 星期一 20 六月 2016
+* 连接数控制
+
+=== 不同的 model 连接不同的数据库 ===
+http://geekhmer.github.io/blog/2015/02/07/ruby-on-rails-connect-to-multiple-databases-and-migrations/
+
+* abstract_class = true
+* database.yml
+* ActiveRecord::Base.configurations
+* establish_connection  :custom_db_name
+
+
+{{{code: lang="ruby" linenumbers="True"
+class LogDatabase < ActiveRecord::Base
+  self.abstract_class = true
+  establish_connection "log_database_#{Rails.env}".to_sym
+end
+
+class AccessLog < LogDatabase
+end
+
+class CheckoutLog < LogDatabase
+end
+}}}
+
+
+=== octopus gem ===
+
+
+==== migration ====
+db/migrate/db1/*.rb
+db/migrate/db2/*.rb
+
+{{{code: lang="ruby" linenumbers="True"
+desc "Migrate the database through scripts in db/migrate directory."
+
+namespace :db do
+  task :migrate do
+    Rake::Task["db:migrate_db1"].invoke
+    Rake::Task["db:migrate_db2"].invoke
+  end
+
+  task :migrate_db1 do
+    ActiveRecord::Base.establish_connection DB1_CONF
+    ActiveRecord::Migrator.migrate("db/migrate/db1/")
+  end
+
+  task :migrate_db2 do
+    ActiveRecord::Base.establish_connection DB2_CONF
+    ActiveRecord::Migrator.migrate("db/migrate/db2/")
+  end
+end
+}}}

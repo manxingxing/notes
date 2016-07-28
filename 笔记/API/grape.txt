@@ -1,0 +1,48 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-06-03T13:42:17+08:00
+
+====== grape ======
+Created 星期五 03 六月 2016
+
+见 pocket 收藏的文章
+
+=== 性能监控 ===
+new_relic
+
+=== cache ===
+
+=== logging ===
+use Rack middleware
+
+=== authorization ===
+不同角色对一个对象有不同程度的读取权限
+有不同程度的写权限
+
+
+=== authentication ===
+app token
+
+oauth
+Xauth
+表单登录 devise/warden
+
+
+=== validation ===
+参数验证
+数据验证
+
+=== 异常处理 ===
+rescue_from
+error_format
+
+=== 版本管理 ===
+Folder-driver development
+
+=== 测试 ===
+
+
+=== 文档管理 ===
+
+=== 分页 ===
+https://gist.github.com/dblock/1335242

@@ -7,7 +7,7 @@ Created 星期二 20 十月 2015
 
 ===== ability.rb =====
 
-==== initiliaze(user)  ====
+==== initiliaze(user) ====
 **核心方法**
 
 需要 current_user 方法，devise 都已提供了该方法。
@@ -22,7 +22,7 @@ read, update, destroy, create
 
 任何自定义 action 名称
 
-=== manage  ===
+=== manage ===
 代表 所有可能的 action
 
 === action alias ===
@@ -34,4 +34,11 @@ read, update, destroy, create
 
 === all ===
 所有可能的对象
+
+
+
+=== accessible_by(ability, action = :index) ===
+Returns a scope which fetches only the records that the passed ability  can perform a given action on.
+
+
 

@@ -1,0 +1,74 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-06-15T15:12:37+08:00
+
+====== 导出中心 ======
+Created 星期三 15 六月 2016
+
+* 不同类型的导出逻辑放在各自的文件
+* 只提取了共同逻辑，不同exporter可有完全不同的逻辑，完全不同的字段
+* 容易扩展：实现新 exporter 类即可
+* 和导出相关的逻辑完全封在 exporter 类里，不暴露出去. #封装
+* exporter 共用方法可以用 concern 管理
+* 可以缓存自定义字段，不用每行都查询，对自定义字段数量多的公司，可节省大量sql查询
+
+=== 数据库 ===
+create_table export_records {
+int company_id,
+int user_id,
+text args, // serialize
+string exporter_name,
+enum status(not_started, working, completed),
+boolean success,
+text err_msg default "" not NULL,
+... 其他非共用字段
+}
+
+=== 目录结构 ===
+exporters
+	ticket_exporter.rb
+
+
+=== 类 ===
+**export_record.rb**
+
+{{{code: lang="ruby" linenumbers="True"
+	def exporter
+		exporter_name.present? ? exporter_name.classify  : nil
+	
+	def exporter=(kls)
+		exporter_name = kls.to_s
+
+	def enqueue_to_export
+		ExportRecordWorker.perform_async(self)
+		
+	def	start_export
+	    exporter.new(self).export
+	
+}}}
+		
+	
+**ticket_exporter.rb**
+{{{code: lang="ruby" linenumbers="True"
+	def	initialize(record)
+		@record
+	end
+	
+	def self.export
+		//codes
+		@record.update(success: true)
+	rescue => e
+		@record.update(success: false,  err_msg: e.message)
+	ensure
+		@record.update(status: completed)
+	end
+}}}
+
+
+export_record_worker.rb
+{{{code: lang="ruby" linenumbers="True"
+def	perform(export_record_id)
+	ExportRecord.find(export_record_id).start_export
+end
+}}}
+

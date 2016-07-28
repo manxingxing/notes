@@ -1,0 +1,157 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2015-10-20T12:38:51+08:00
+
+====== 笔记 ======
+Created 星期二 20 十月 2015
+
+**try ***args**, &block**
+If try is called without arguments it yields the receiver to a given block
+{{{code: lang="ruby" linenumbers="True"
+@person.try do |p|
+
+end
+}}}
+
+
+{{{code: lang="ruby" linenumbers="True"
+where(attributes).first.try {|customer| return customer}
+相当于
+obj = where().first
+return obj if obj
+}}}
+
+
+You can also call try with a block without accepting an argument, and the block will be instance_eval'ed instead:
+{{{code: lang="ruby" linenumbers="True"
+@person.try { upcase.truncate(50) }
+}}}
+
+
+
+**[[], []].sum([])**
+嵌套数组，利用数组的  + 操作符特性，来实现 flatten 的效果
+//没必要的啦//
+
+=== 把 module 里的方法变成 模块方法 ===
+http://fuliang.iteye.com/blog/827443
+http://blog.bigbinary.com/2012/06/28/extend-self-in-ruby.html
+
+{{{code: lang="ruby" linenumbers="True"
+module M
+  extend self  # 把所有方法都变成 模块方法
+  def greeting
+	puts "hi"
+  end
+end
+}}}
+
+
+{{{code: lang="ruby" linenumbers="True"
+module Qiniu
+  class << self
+    def establish_connection!(opts = {})
+    end
+  end
+end
+}}}
+
+
+
+
+**module_function(*args)**
+If used with no arguments, subsequently defined methods become //module functions//.
+
+=== 批量创建 ActiveRecord 对象 ===
+
+**User.create([{ first_name: 'Jamie' }, { first_name: 'Jeremy' }])**
+Create an Array of new objects
+
+=== 获取 STI 的基类 ===
+Agent.base_class #=> User
+agent.becomes(User) 
+
+
+=== 如果必须把各种不同行为的东西放在同一个表里(用 type 区分) ===
+* 如果作用差异比较大，最好分表存储，建一个concern, include  到这几个类里
+* 如果必须这样做，最好以下列的方式设置关联，使得不同种类的对象各有一个 association
+	* 意义更加清晰易懂
+	* 不用每次在加 scope 过滤   company.user_groups.category_common
+
+has_many :user_groups, class_name: UserGroup, -> { where(category: "common") }
+has_many :ytx_queues, class_name: UserGroup, -> {where(category: "ytx_queue") }
+
+=== 复杂的不同情况下，不同行为的业务 ===
+* 分析出分类变量
+* 画出分类变量不同取值下的列联表(多维列联表?)
+* 有没有办法简化列联表里的组合数量
+* 写出 nested case-when 结构
+* 写的过程中，不断把可抽离的逻辑定义为方法
+* 把一些独立的功能模块，定义为 module。
+* 重新审视设计，是否能添加一些约定，再简化处理逻辑
+* 再次重构...
+
+
+=== ARGF ===
+https://robots.thoughtbot.com/rubys-argf
+
+“ARGF is a stream designed for use in scripts that process files given as command-line arguments or passed in via STDIN.” 
+
+可以接受多个文件名参数，按顺序一个一个的处理文件。 
+如果没有给参数，则默认等待STDIN的输入
+
+ARGF则会根据ARGV中的值一个一个的处理，每处理一个就从ARGV中移除一个，直到处理完所有的值。
+
+You can now use ARGF to work with a concatenation of each of these named files. For instance, ARGF.read will return the contents of file1 followed by the contents of file2.
+
+After a file in ARGV has been read ARGF removes it from the ARGV. Thus, after all files have been read ARGV will be empty.
+
+=== ActiveRecord::Associations::Preloader ===
+from zhaotijun
+
+目前 eager loading 采用的方案是多次子查询, 在内存里缓存结果
+
+{{{code: lang="ruby" linenumbers="True"
+# 解决polymorphic关联对象n+1问题
+  def self.associations_preload
+	feeds = self.includes(:from)
+	feeds_by_from_type = feeds.group_by(&:from_type)
+
+	# Preloader 在rails 4.1后有改动，如果升级rails版本, 需要修改下面代码
+	# rails4.1之后要改为下面这种用法
+	# ActiveRecord::Associations::Preloader.new.preload(record_array, preload_association_hash)
+
+	ticket_feeds = feeds_by_from_type.fetch("Ticket", [])
+	ticket_associations_hash = { from: [{ user: :org }, :assignee, :priority, :creator,
+								 :status, :platform, :callcenter_source,
+								 :tags, :followers, :attachments, :user_group] }
+	ActiveRecord::Associations::Preloader.new(ticket_feeds, ticket_associations_hash).run()
+
+
+	customer_follow_up_feeds = feeds_by_from_type.fetch("CustomerFollowUp", [])
+	customer_follow_up_associations_hash = { from: [:user] }
+	ActiveRecord::Associations::Preloader.new(customer_follow_up_feeds, customer_follow_up_associations_hash).run()
+
+	im_sub_session_feeds = feeds_by_from_type.fetch("ImSubSession", [])
+	im_sub_session_associations_hash = { from: [:customer, :agent, :agent_note] }
+	ActiveRecord::Associations::Preloader.new(im_sub_session_feeds, im_sub_session_associations_hash).run()
+
+	huwapp_calllog_feeds = feeds_by_from_type.fetch("HuwappCalllog", [])
+	huwapp_calllog_associations_hash = { from: [{ call_log: :customer }, :agent, :agent_note, :user_group] }
+	ActiveRecord::Associations::Preloader.new(huwapp_calllog_feeds, huwapp_calllog_associations_hash).run()
+
+	conversation_log_feeds = feeds_by_from_type.fetch("ConversationLog", [])
+	conversation_log_associations_hash = { from: [{ call_log: :customer }, :agent, :agent_note, :queue] }
+	ActiveRecord::Associations::Preloader.new(conversation_log_feeds, conversation_log_associations_hash).run()
+
+	ucpapp_conversation_feeds = feeds_by_from_type.fetch("UcpappConversation", [])
+	ucpapp_conversation_associations_hash = { from: [{ call_log: :customer }, :agent, :agent_note, :user_group] }
+	ActiveRecord::Associations::Preloader.new(ucpapp_conversation_feeds, ucpapp_conversation_associations_hash).run()
+
+	feeds
+  end
+
+}}}
+
+
+

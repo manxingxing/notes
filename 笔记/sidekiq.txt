@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-04-07T13:25:37+08:00
+
+====== sidekiq ======
+Created 星期四 07 四月 2016
+
+queue 队列
+threads 线程, concurrency
+
+队列可被视为是任务的分组。可能在任何一个 thread 里处理。一个 thread 可能处理所有队列里的任务。只是检查(获取新任务)频率不同。
+
+Don't set the concurrency higher than 50. I've seen stability issues with concurrency of 100。
+
+ActiveRecord has a connection pool which needs to be properly configured in config/database.yml to work well with heavy concurrency. Set the pool setting to something **close or equal to** the number of threads
+
+否则可能没有足够的连接可用。

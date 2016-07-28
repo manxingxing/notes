@@ -38,7 +38,7 @@ http_basic_authenticate_with :name=> ? ,
 	Digest::''SHA256''.hexdigest(pass + salt)	# 字符串相加
 	BCrypt::Engine.hash_secret(password, salt)	# Bcrypt-ruby gem
 
-      //Digest::MD5.hexdigest(password)	# 已破解//
+	  //Digest::MD5.hexdigest(password)	# 已破解//
 //      Digest::SHA1.hexdigest			# 已破解//
 
 	String#crypt(salt)
@@ -48,7 +48,7 @@ http_basic_authenticate_with :name=> ? ,
 过程和加密相似。
 * 根据login找到一个用户
 * 用这个用户的salt和表单提交的密码，经加密算法得到加密过的密码
-* 用这个密码和数据库中的密码匹配f
+* 用这个密码和数据库中的密码匹配
 
 ===== 自带的 bcrypt-ruby =====
 
@@ -69,12 +69,12 @@ user.**authenticate**(params[:session][:password])
 ===== Session =====
 
   def create_remember_token
-      self.remember_token = **SecureRandom.urlsafe_base64**
-    end
+	  self.remember_token = **SecureRandom.urlsafe_base64**
+	end
 
   def sign_in(user)
-    cookies.permanent[:remember_token] = user.remember_token
-    self.current_user = user
+	cookies.permanent[:remember_token] = user.remember_token
+	self.current_user = user
   end
 
 before_filter: signed_user_in

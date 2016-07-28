@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-06-16T15:21:44+08:00
+
+====== Elasticsearch 多版本 ======
+Created 星期四 16 六月 2016
+
+最好，从一开始就使用多版本的模式，以免以后切换成本过高
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-aliases.html
+https://www.elastic.co/blog/changing-mapping-with-zero-downtime
+
+ruby 库上有 put_alias, get_alias 等方法 
+
+另外，可以利用的特征还有:
+1. filtered aliases。相当于数据库里的 view, 把查询保存起来，取个名字
+

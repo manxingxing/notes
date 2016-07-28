@@ -1,0 +1,53 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-08T18:05:58+08:00
+
+====== snippet ======
+Created 星期五 08 七月 2016
+
+in_time_zone(时区英文名或 时区 offset)
+切换时区，显示为指定时区下的时间
+
+strftime("%A") 
+返回 week day
+
+wday 
+返回数字的 week day, 0-6, 星期天是 0
+
+
+ActiveSupport::TimeZone::MAPPING 所有的时区名
+ActiveSupport::TimeZone.zones_map
+
+Time.zone.class => ActiveSupport::TimeZone
+Time.zone = "Beijing"  # 注意线程安全, 是在 Thread.current 里存储的
+
+Time.use_zone do
+	# codes
+end
+
+Time.zone.now 以当前时区设置，返回时间格式
+Time.zone.parse 
+Time.strptime(string, "%Y-%m-%dT%H:%M:%S%z").in_time_zone
+
+
+==== A summary of do’s and don'ts with time zones ====
+
+**+DON’T USE**
+这些方法不考虑当前时区
++
+* Time.now
+* Date.today
+* Date.today.to_time
+* Time.parse("2015-07-04 17:05:37")
+* Time.strptime(string, "%Y-%m-%dT%H:%M:%S%z")
++
+DO USE
+
+1
+* Time.current
+* 2.hours.ago
+* Time.zone.today
+* Date.current
+* 1.day.from_now
+* Time.zone.parse("2015-07-04 17:05:37")
+* Time.strptime(string, "%Y-%m-%dT%H:%M:%S%z").in_time_zone

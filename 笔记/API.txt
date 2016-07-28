@@ -1,0 +1,101 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-05-26T18:11:37+08:00
+
+====== API ======
+Created 星期四 26 五月 2016
+
+==== 错误提示 ====
+
+=== 风格一 ===
+
+{
+  "message": "Validation Failed",
+  "errors": [
+	{
+	  "message": "Field is not valid"
+	},
+	{
+	  "message": "OtherField is already used"
+	}
+  ]
+}
+
+=== 风格二 ===
+
+{{{code: lang="ruby" linenumbers="True"
+ # 异常的格式化
+ rescue_from ActiveRecord::RecordNotFound  do |e|
+    Rack::Response.new(
+    {
+		meta:{
+		    status: :not_found,
+		    msg: e.message
+		}
+    }.to_json, 404).finish
+end
+ 
+# 正常输出的格式化
+formatter :json, lambda {|object,env|               
+    { :meta => { status: :ok, msg: "" }, :data => object }.to_json
+}
+# error!({}, code) 的格式化
+error_formatter :json, lambda { |message, backtrace, options, env|  
+    { :meta => { status: message[:status], msg: message[:msg] }}.to_json        
+}
+}}}
+
+
+# 返回值
+{
+	"meta": {
+		"status": "ok", 
+		"msg": ""
+	}, 
+	"data": {
+		"id": 278, 
+		"text": "order1"
+	}
+}
+
+#ActiveRecord::RecordNotFound
+{
+	"meta": {
+		"status": "not_found", 
+		"msg": "Couldn't find City with 'id'=22"
+	}
+}
+
+==== field 选择 ====
+风格一
+include=comments
+
+风格二
+?fields=id,first_name
+
+
+==== 一次性获取多个 ====
+可以减少查询数量，总体上对性能还是有好处的
+
+
+==== 分页参数和 meta 信息 ====
+total
+page
+per_page
+
+==== 排序参数 ====
+sort_by 
+
+=== 创建对象 ===
+location: url
+
+
+==== Rate limiting ====
+在 reponse header 里返回
+
+Rate-Limit-Limit: 100
+Rate-Limit-Remaining: 99
+Rate-Limit-Used: 1
+Rate-Limit-Reset: 20
+
+429 Too Many Requests
